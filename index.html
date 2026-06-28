@@ -47,7 +47,7 @@
     display: flex; gap: 6px; padding: 12px 16px 0;
   }
   nav.tabs button {
-    flex: 1; padding: 9px 4px; font-size: 13px; font-weight: 600;
+    flex: 1; padding: 9px 2px; font-size: 12.5px; font-weight: 600;
     background: var(--card); color: var(--text-dim);
     border: 1px solid var(--border); border-radius: 8px 8px 0 0;
     cursor: pointer;
@@ -210,6 +210,45 @@
     font-size: 18px; padding: 12px 6px; color: var(--gold);
   }
 
+  .add-record-btn {
+    width: 100%; padding: 13px; margin: 12px 0 16px;
+    background: var(--gold); color: var(--dark);
+    border: none; border-radius: 10px;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+
+  .record-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    margin-bottom: 12px; overflow: hidden;
+  }
+  .record-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 14px; border-bottom: 1px solid var(--border);
+  }
+  .record-name-input {
+    flex: 1; background: transparent; border: none; color: var(--text);
+    font-size: 15px; font-weight: 600; padding: 4px 0; min-width: 0;
+  }
+  .record-name-input::placeholder { color: var(--text-dim); font-weight: 400; }
+  .record-name-input:focus { outline: none; }
+  .record-delete-btn {
+    background: transparent; border: none; color: var(--text-dim);
+    font-size: 18px; padding: 4px 6px; cursor: pointer; line-height: 1;
+  }
+
+  .record-block { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+  .record-block:last-child { border-bottom: none; }
+  .record-block-label {
+    font-size: 11px; color: var(--gold); text-transform: uppercase;
+    letter-spacing: 0.4px; font-weight: 700; margin-bottom: 8px; display: block;
+  }
+  .record-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .record-row .field input { font-size: 17px; }
+
+  .records-empty {
+    text-align: center; padding: 50px 20px; color: var(--text-dim); font-size: 13px; line-height: 1.6;
+  }
+
   .backup-section { padding: 8px 16px 24px; }
   .backup-btn {
     display: flex; align-items: center; justify-content: center;
@@ -233,6 +272,7 @@
   <nav class="tabs">
     <button id="tab-registro" class="active">Registro</button>
     <button id="tab-progreso">Progreso</button>
+    <button id="tab-records">Récords</button>
   </nav>
 
   <div id="view-registro" class="panel">
@@ -254,6 +294,11 @@
       </label>
       <p class="backup-hint">Tus datos viven en este navegador. Si cambias de celular o borras el caché, descarga un respaldo antes para no perderlos.</p>
     </div>
+  </div>
+
+  <div id="view-records" class="panel" style="display:none;">
+    <button id="addRecordBtn" class="add-record-btn">+ Añadir ejercicio</button>
+    <div id="recordsList"></div>
   </div>
 
   <div class="save-bar" id="saveBar">Listo para registrar</div>
@@ -305,6 +350,18 @@
         }
       }
     }
+    ensureRecords();
+  }
+
+  function ensureRecords() {
+    if (!STATE.data.records || !Array.isArray(STATE.data.records)) {
+      STATE.data.records = [];
+    }
+    return STATE.data.records;
+  }
+
+  function emptyRecord() {
+    return { id: 'r' + Date.now() + Math.random().toString(36).slice(2, 7), nombre: '', oneRm: '', repMaxPeso: '', repMaxReps: '' };
   }
 
   async function loadData() {
@@ -639,6 +696,78 @@
     });
   }
 
+  function renderRecords() {
+    var records = ensureRecords();
+    var el = document.getElementById('recordsList');
+    el.innerHTML = '';
+
+    if (records.length === 0) {
+      el.innerHTML = '<div class="records-empty">Aún no tienes récords guardados.<br>Toca "+ Añadir ejercicio" para registrar tu primer 1RM o récord de repeticiones.</div>';
+      return;
+    }
+
+    records.forEach(function(rec) {
+      var card = document.createElement('div');
+      card.className = 'record-card';
+
+      var head = document.createElement('div');
+      head.className = 'record-head';
+      var nameInput = document.createElement('input');
+      nameInput.className = 'record-name-input';
+      nameInput.type = 'text';
+      nameInput.placeholder = 'Nombre del ejercicio';
+      nameInput.value = rec.nombre;
+      nameInput.oninput = function() { rec.nombre = this.value; scheduleSave(); };
+      var delBtn = document.createElement('button');
+      delBtn.className = 'record-delete-btn';
+      delBtn.textContent = '✕';
+      delBtn.setAttribute('aria-label', 'Eliminar récord');
+      delBtn.onclick = function() {
+        var idx = records.indexOf(rec);
+        if (idx > -1) records.splice(idx, 1);
+        scheduleSave();
+        renderRecords();
+      };
+      head.appendChild(nameInput);
+      head.appendChild(delBtn);
+      card.appendChild(head);
+
+      var block1 = document.createElement('div');
+      block1.className = 'record-block';
+      var label1 = document.createElement('span');
+      label1.className = 'record-block-label';
+      label1.textContent = 'Récord a 1 repetición';
+      block1.appendChild(label1);
+      var row1 = document.createElement('div');
+      row1.className = 'record-row';
+      row1.appendChild(makeField('Peso (kg)', rec, 'oneRm', 'number'));
+      block1.appendChild(row1);
+      card.appendChild(block1);
+
+      var block2 = document.createElement('div');
+      block2.className = 'record-block';
+      var label2 = document.createElement('span');
+      label2.className = 'record-block-label';
+      label2.textContent = 'Récord a repeticiones máximas';
+      block2.appendChild(label2);
+      var row2 = document.createElement('div');
+      row2.className = 'record-row';
+      row2.appendChild(makeField('Peso (kg)', rec, 'repMaxPeso', 'number'));
+      row2.appendChild(makeField('Reps logradas', rec, 'repMaxReps', 'number'));
+      block2.appendChild(row2);
+      card.appendChild(block2);
+
+      el.appendChild(card);
+    });
+  }
+
+  document.getElementById('addRecordBtn').onclick = function() {
+    var records = ensureRecords();
+    records.push(emptyRecord());
+    scheduleSave();
+    renderRecords();
+  };
+
   function renderAll() {
     renderMonthPills();
     renderWeekPills();
@@ -649,25 +778,36 @@
   function switchTab(tab) {
     var tabRegistro = document.getElementById('tab-registro');
     var tabProgreso = document.getElementById('tab-progreso');
+    var tabRecords = document.getElementById('tab-records');
     var viewRegistro = document.getElementById('view-registro');
     var viewProgreso = document.getElementById('view-progreso');
+    var viewRecords = document.getElementById('view-records');
+
+    tabRegistro.classList.remove('active');
+    tabProgreso.classList.remove('active');
+    tabRecords.classList.remove('active');
+    viewRegistro.style.display = 'none';
+    viewProgreso.style.display = 'none';
+    viewRecords.style.display = 'none';
+
     if (tab === 'registro') {
       tabRegistro.classList.add('active');
-      tabProgreso.classList.remove('active');
       viewRegistro.style.display = '';
-      viewProgreso.style.display = 'none';
-    } else {
-      tabRegistro.classList.remove('active');
+    } else if (tab === 'progreso') {
       tabProgreso.classList.add('active');
-      viewRegistro.style.display = 'none';
       viewProgreso.style.display = '';
       STATE.progressMonth = STATE.month;
       renderProgress();
+    } else if (tab === 'records') {
+      tabRecords.classList.add('active');
+      viewRecords.style.display = '';
+      renderRecords();
     }
   }
 
   document.getElementById('tab-registro').onclick = function() { switchTab('registro'); };
   document.getElementById('tab-progreso').onclick = function() { switchTab('progreso'); };
+  document.getElementById('tab-records').onclick = function() { switchTab('records'); };
 
   document.getElementById('exportBtn').onclick = function() {
     var blob = new Blob([JSON.stringify(STATE.data, null, 2)], { type: 'application/json' });
