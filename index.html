@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Registro de Entrenamientos | SLAB</title>
+<style>
+  :root {
+    --gold: #D4AF37;
+    --gold-dim: #B8962E;
+    --dark: #0C0C0C;
+    --dark-2: #161613;
+    --day-bg: #262213;
+    --card: #1A1A18;
+    --card-alt: #1F1E1A;
+    --text: #F4F1E6;
+    --text-dim: #9B9A8E;
+    --border: #33312A;
+    --success: #4CAF6D;
+    --warning: #D4AF37;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--dark);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    min-height: 100vh;
+  }
+  #app { max-width: 480px; margin: 0 auto; padding-bottom: 80px; }
+
+  header.topbar {
+    background: var(--dark);
+    border-bottom: 2px solid var(--gold);
+    padding: 18px 16px 14px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  header.topbar h1 {
+    margin: 0; font-size: 17px; font-weight: 700;
+    color: var(--gold); letter-spacing: 0.3px;
+  }
+  header.topbar p {
+    margin: 4px 0 0; font-size: 11.5px; color: var(--text-dim); font-style: italic;
+  }
+
+  nav.tabs {
+    display: flex; gap: 6px; padding: 12px 16px 0;
+  }
+  nav.tabs button {
+    flex: 1; padding: 9px 4px; font-size: 13px; font-weight: 600;
+    background: var(--card); color: var(--text-dim);
+    border: 1px solid var(--border); border-radius: 8px 8px 0 0;
+    cursor: pointer;
+  }
+  nav.tabs button.active {
+    background: var(--gold); color: var(--dark); border-color: var(--gold);
+  }
+
+  .panel { padding: 14px 16px 0; }
+
+  .month-pills {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;
+  }
+  .month-pills button {
+    padding: 12px 4px; font-size: 14px; font-weight: 700;
+    background: var(--dark-2); color: var(--text);
+    border: 1px solid var(--gold-dim); border-radius: 9px;
+  }
+  .month-pills button.active {
+    background: var(--gold); color: var(--dark); border-color: var(--gold);
+  }
+
+  .week-pills {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px;
+  }
+  .week-pills button {
+    padding: 10px 4px; font-size: 13px; font-weight: 600;
+    background: var(--card); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px;
+  }
+  .week-pills button.active {
+    background: var(--gold); color: var(--dark); border-color: var(--gold);
+  }
+
+  .day-pills {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 16px;
+  }
+  .day-pills button {
+    padding: 9px 2px; font-size: 12px; font-weight: 600;
+    background: var(--day-bg); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px;
+  }
+  .day-pills button.active {
+    background: var(--gold); color: var(--dark); border-color: var(--gold);
+  }
+  .day-pills button .check {
+    display: block; font-size: 10px; margin-top: 2px; color: var(--success);
+  }
+  .day-pills button.active .check { color: var(--dark); }
+
+  .exercise-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .exercise-card.complete { border-color: var(--success); }
+  .ex-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; border-bottom: 1px solid var(--border);
+  }
+  .ex-num {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--gold); color: var(--dark);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .ex-name-input {
+    flex: 1; background: transparent; border: none; color: var(--text);
+    font-size: 15px; font-weight: 600; padding: 4px 0; min-width: 0;
+  }
+  .ex-name-input::placeholder { color: var(--text-dim); font-weight: 400; }
+  .ex-name-input:focus { outline: none; }
+
+  .ex-fields {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px 14px;
+  }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label {
+    font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .field input {
+    background: var(--dark-2); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-size: 16px; padding: 9px 6px; text-align: center;
+    width: 100%; font-weight: 600;
+  }
+  .field input:focus { outline: none; border-color: var(--gold); }
+  .field.rpe-real input { color: var(--gold); }
+  .field.peso input { color: var(--gold); }
+
+  .ex-fields-row2 {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 14px 12px;
+  }
+
+  .done-toggle {
+    margin: 0 14px 14px; padding: 10px; border-radius: 8px;
+    background: var(--dark-2); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 13px; font-weight: 600; color: var(--text-dim);
+  }
+  .done-toggle.on { background: rgba(76,175,109,0.15); border-color: var(--success); color: var(--success); }
+  .done-toggle input { width: 18px; height: 18px; accent-color: var(--success); }
+
+  .save-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--dark); border-top: 1px solid var(--border);
+    padding: 10px 16px; text-align: center;
+    font-size: 12px; color: var(--text-dim);
+    max-width: 480px; margin: 0 auto;
+  }
+  .save-bar.saved { color: var(--success); }
+
+  .progress-section { padding: 0 16px 24px; }
+  .progress-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px; margin-bottom: 12px;
+  }
+  .progress-card h3 {
+    margin: 0 0 10px; font-size: 14px; color: var(--gold); font-weight: 700;
+  }
+  table.history { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.history th {
+    text-align: left; color: var(--text-dim); font-weight: 600;
+    padding: 6px 4px; border-bottom: 1px solid var(--border); font-size: 10.5px;
+    text-transform: uppercase;
+  }
+  table.history td {
+    padding: 7px 4px; border-bottom: 1px solid var(--border);
+  }
+  table.history tr:last-child td { border-bottom: none; }
+  .empty-state {
+    text-align: center; padding: 40px 20px; color: var(--text-dim); font-size: 13px;
+  }
+  .empty-state i { font-size: 28px; display: block; margin-bottom: 10px; opacity: 0.5; }
+
+  .week-summary {
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; padding: 14px 16px;
+  }
+  .week-summary .stat {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 4px; text-align: center;
+  }
+  .week-summary .stat .n { font-size: 18px; font-weight: 700; color: var(--gold); }
+  .week-summary .stat .l { font-size: 9.5px; color: var(--text-dim); text-transform: uppercase; margin-top: 2px; }
+
+  .loading { text-align: center; padding: 60px 20px; color: var(--text-dim); font-size: 13px; }
+
+  .session-card {
+    border: 1.5px solid var(--gold-dim);
+    margin-top: 4px; margin-bottom: 20px;
+  }
+  .session-label {
+    font-size: 14px; font-weight: 700; color: var(--gold); letter-spacing: 0.3px;
+  }
+  .session-fields {
+    grid-template-columns: 1fr !important;
+  }
+  .session-fields .field input {
+    font-size: 18px; padding: 12px 6px; color: var(--gold);
+  }
+
+  .backup-section { padding: 8px 16px 24px; }
+  .backup-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; padding: 11px; margin-bottom: 8px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--gold); font-size: 13px; font-weight: 600; cursor: pointer;
+    text-align: center;
+  }
+  .backup-hint {
+    font-size: 11px; color: var(--text-dim); text-align: center; margin: 10px 0 0; line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <h1 id="pageTitle">REGISTRO DE ENTRENAMIENTOS | SLAB</h1>
+    <p>Registro de cargas · 3 meses · 4 semanas · 5 días</p>
+  </header>
+
+  <nav class="tabs">
+    <button id="tab-registro" class="active">Registro</button>
+    <button id="tab-progreso">Progreso</button>
+  </nav>
+
+  <div id="view-registro" class="panel">
+    <div class="month-pills" id="monthPills"></div>
+    <div class="week-pills" id="weekPills"></div>
+    <div class="day-pills" id="dayPills"></div>
+    <div id="exerciseList"></div>
+  </div>
+
+  <div id="view-progreso" class="panel" style="display:none;">
+    <div class="month-pills" id="monthPillsProgress"></div>
+    <div class="week-summary" id="weekSummary"></div>
+    <div class="progress-section" id="progressContent"></div>
+    <div class="backup-section">
+      <button id="exportBtn" class="backup-btn">Descargar respaldo (.json)</button>
+      <label class="backup-btn" id="importLabel">
+        Restaurar desde respaldo
+        <input type="file" id="importInput" accept="application/json" style="display:none;">
+      </label>
+      <p class="backup-hint">Tus datos viven en este navegador. Si cambias de celular o borras el caché, descarga un respaldo antes para no perderlos.</p>
+    </div>
+  </div>
+
+  <div class="save-bar" id="saveBar">Listo para registrar</div>
+</div>
+
+<script>
+(function() {
+  var STATE = {
+    month: 1,
+    week: 1,
+    day: 1,
+    progressMonth: 1,
+    data: {}
+  };
+  var STORAGE_KEY = 'slab-registro-plan';
+  var saveTimeout = null;
+
+  function dayKey(m, w, d) { return 'm' + m + 'w' + w + 'd' + d; }
+  function sessionKey(m, w, d) { return dayKey(m, w, d) + '_session'; }
+
+  function emptyExercise() {
+    return { nombre: '', sets: '', reps: '', rpe: '', rpeReal: '', peso: '', hecho: false };
+  }
+
+  function ensureDay(m, w, d) {
+    var key = dayKey(m, w, d);
+    if (!STATE.data[key]) {
+      var arr = [];
+      for (var i = 0; i < 7; i++) arr.push(emptyExercise());
+      STATE.data[key] = arr;
+    }
+    return STATE.data[key];
+  }
+
+  function ensureSession(m, w, d) {
+    var key = sessionKey(m, w, d);
+    if (!STATE.data[key]) {
+      STATE.data[key] = { rpeSesion: '' };
+    }
+    return STATE.data[key];
+  }
+
+  function ensureAllDays() {
+    for (var m = 1; m <= 3; m++) {
+      for (var w = 1; w <= 4; w++) {
+        for (var d = 1; d <= 5; d++) {
+          ensureDay(m, w, d);
+          ensureSession(m, w, d);
+        }
+      }
+    }
+  }
+
+  async function loadData() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        STATE.data = JSON.parse(raw);
+      }
+    } catch (e) {
+      STATE.data = {};
+    }
+    ensureAllDays();
+  }
+
+  async function saveData() {
+    var bar = document.getElementById('saveBar');
+    bar.textContent = 'Guardando...';
+    bar.classList.remove('saved');
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE.data));
+      bar.textContent = 'Guardado ✓';
+      bar.classList.add('saved');
+      setTimeout(function() {
+        bar.textContent = 'Listo para registrar';
+        bar.classList.remove('saved');
+      }, 1500);
+    } catch (e) {
+      bar.textContent = 'Error al guardar — espacio lleno o navegador en modo privado';
+    }
+  }
+
+  function scheduleSave() {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(saveData, 500);
+  }
+
+  function renderMonthPills() {
+    var el = document.getElementById('monthPills');
+    el.innerHTML = '';
+    for (var m = 1; m <= 3; m++) {
+      var btn = document.createElement('button');
+      btn.textContent = 'Mes ' + m;
+      if (m === STATE.month) btn.classList.add('active');
+      btn.onclick = (function(mm) {
+        return function() { STATE.month = mm; STATE.week = 1; STATE.day = 1; renderAll(); };
+      })(m);
+      el.appendChild(btn);
+    }
+  }
+
+  function renderWeekPills() {
+    var el = document.getElementById('weekPills');
+    el.innerHTML = '';
+    for (var w = 1; w <= 4; w++) {
+      var btn = document.createElement('button');
+      btn.textContent = 'Semana ' + w;
+      if (w === STATE.week) btn.classList.add('active');
+      btn.onclick = (function(ww) {
+        return function() { STATE.week = ww; renderAll(); };
+      })(w);
+      el.appendChild(btn);
+    }
+  }
+
+  function dayComplete(m, w, d) {
+    var arr = STATE.data[dayKey(m, w, d)];
+    if (!arr) return false;
+    var any = arr.some(function(e) { return e.nombre.trim() !== ''; });
+    if (!any) return false;
+    return arr.every(function(e) {
+      return e.nombre.trim() === '' || e.hecho;
+    });
+  }
+
+  function renderDayPills() {
+    var el = document.getElementById('dayPills');
+    el.innerHTML = '';
+    for (var d = 1; d <= 5; d++) {
+      var btn = document.createElement('button');
+      var complete = dayComplete(STATE.month, STATE.week, d);
+      btn.innerHTML = 'Día ' + d + (complete ? '<span class="check">✓ hecho</span>' : '');
+      if (d === STATE.day) btn.classList.add('active');
+      btn.onclick = (function(dd) {
+        return function() { STATE.day = dd; renderAll(); };
+      })(d);
+      el.appendChild(btn);
+    }
+  }
+
+  function renderExercises() {
+    var el = document.getElementById('exerciseList');
+    el.innerHTML = '';
+    var arr = ensureDay(STATE.month, STATE.week, STATE.day);
+
+    arr.forEach(function(ex, idx) {
+      var card = document.createElement('div');
+      card.className = 'exercise-card' + (ex.hecho && ex.nombre.trim() ? ' complete' : '');
+
+      var head = document.createElement('div');
+      head.className = 'ex-head';
+      var num = document.createElement('div');
+      num.className = 'ex-num';
+      num.textContent = idx + 1;
+      var nameInput = document.createElement('input');
+      nameInput.className = 'ex-name-input';
+      nameInput.type = 'text';
+      nameInput.placeholder = 'Nombre del ejercicio';
+      nameInput.value = ex.nombre;
+      nameInput.oninput = function() { ex.nombre = this.value; scheduleSave(); };
+      nameInput.onblur = function() { renderDayPills(); };
+      head.appendChild(num);
+      head.appendChild(nameInput);
+      card.appendChild(head);
+
+      var fields1 = document.createElement('div');
+      fields1.className = 'ex-fields';
+      fields1.appendChild(makeField('Sets', ex, 'sets', 'number'));
+      fields1.appendChild(makeField('Reps', ex, 'reps', 'text'));
+      fields1.appendChild(makeField('RPE obj.', ex, 'rpe', 'number'));
+      card.appendChild(fields1);
+
+      var fields2 = document.createElement('div');
+      fields2.className = 'ex-fields-row2';
+      var rpeRealField = makeField('RPE real', ex, 'rpeReal', 'number');
+      rpeRealField.classList.add('rpe-real');
+      var pesoField = makeField('Peso usado (kg)', ex, 'peso', 'number');
+      pesoField.classList.add('peso');
+      fields2.appendChild(rpeRealField);
+      fields2.appendChild(pesoField);
+      card.appendChild(fields2);
+
+      var doneWrap = document.createElement('label');
+      doneWrap.className = 'done-toggle' + (ex.hecho ? ' on' : '');
+      var checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = ex.hecho;
+      checkbox.onchange = function() {
+        ex.hecho = this.checked;
+        scheduleSave();
+        renderExercises();
+        renderDayPills();
+      };
+      var doneLabel = document.createElement('span');
+      doneLabel.textContent = ex.hecho ? 'Serie completada' : 'Marcar como hecho';
+      doneWrap.appendChild(checkbox);
+      doneWrap.appendChild(doneLabel);
+      card.appendChild(doneWrap);
+
+      el.appendChild(card);
+    });
+
+    var session = ensureSession(STATE.month, STATE.week, STATE.day);
+    var sessionCard = document.createElement('div');
+    sessionCard.className = 'exercise-card session-card';
+
+    var sessionHead = document.createElement('div');
+    sessionHead.className = 'ex-head';
+    var sessionLabel = document.createElement('div');
+    sessionLabel.className = 'session-label';
+    sessionLabel.textContent = 'RPE entrenamiento';
+    sessionHead.appendChild(sessionLabel);
+    sessionCard.appendChild(sessionHead);
+
+    var sessionFields = document.createElement('div');
+    sessionFields.className = 'ex-fields session-fields';
+    var sessionField = makeField('RPE de toda la sesión', session, 'rpeSesion', 'number');
+    sessionFields.appendChild(sessionField);
+    sessionCard.appendChild(sessionFields);
+
+    el.appendChild(sessionCard);
+  }
+
+  function makeField(labelText, ex, key, type) {
+    var wrap = document.createElement('div');
+    wrap.className = 'field';
+    var label = document.createElement('label');
+    label.textContent = labelText;
+    var input = document.createElement('input');
+    input.type = type;
+    if (type === 'number') {
+      input.inputMode = 'decimal';
+      input.min = '0';
+    }
+    input.value = ex[key];
+    input.oninput = function() { ex[key] = this.value; scheduleSave(); };
+    wrap.appendChild(label);
+    wrap.appendChild(input);
+    return wrap;
+  }
+
+  function renderMonthPillsProgress() {
+    var el = document.getElementById('monthPillsProgress');
+    el.innerHTML = '';
+    for (var m = 1; m <= 3; m++) {
+      var btn = document.createElement('button');
+      btn.textContent = 'Mes ' + m;
+      if (m === STATE.progressMonth) btn.classList.add('active');
+      btn.onclick = (function(mm) {
+        return function() { STATE.progressMonth = mm; renderProgress(); };
+      })(m);
+      el.appendChild(btn);
+    }
+  }
+
+  function renderProgress() {
+    renderMonthPillsProgress();
+    var month = STATE.progressMonth;
+
+    var summaryEl = document.getElementById('weekSummary');
+    summaryEl.innerHTML = '';
+    for (var w = 1; w <= 4; w++) {
+      var totalDays = 0, doneDays = 0;
+      for (var d = 1; d <= 5; d++) {
+        var arr = STATE.data[dayKey(month, w, d)] || [];
+        var hasContent = arr.some(function(e) { return e.nombre.trim() !== ''; });
+        if (hasContent) {
+          totalDays++;
+          if (dayComplete(month, w, d)) doneDays++;
+        }
+      }
+      var stat = document.createElement('div');
+      stat.className = 'stat';
+      stat.innerHTML = '<div class="n">' + doneDays + '/' + (totalDays || 5) + '</div><div class="l">Semana ' + w + '</div>';
+      summaryEl.appendChild(stat);
+    }
+
+    var contentEl = document.getElementById('progressContent');
+    contentEl.innerHTML = '';
+
+    var sessionRecords = [];
+    for (var ws = 1; ws <= 4; ws++) {
+      for (var ds = 1; ds <= 5; ds++) {
+        var sess = STATE.data[sessionKey(month, ws, ds)];
+        if (sess && sess.rpeSesion !== '') {
+          sessionRecords.push({ week: ws, day: ds, rpe: sess.rpeSesion });
+        }
+      }
+    }
+    if (sessionRecords.length > 0) {
+      var sessCard = document.createElement('div');
+      sessCard.className = 'progress-card';
+      var sessH3 = document.createElement('h3');
+      sessH3.textContent = 'RPE entrenamiento por sesión';
+      sessCard.appendChild(sessH3);
+
+      var sessTable = document.createElement('table');
+      sessTable.className = 'history';
+      var sessThead = document.createElement('tr');
+      ['Sem/Día', 'RPE entrenamiento'].forEach(function(h) {
+        var th = document.createElement('th');
+        th.textContent = h;
+        sessThead.appendChild(th);
+      });
+      sessTable.appendChild(sessThead);
+
+      sessionRecords.forEach(function(r) {
+        var tr = document.createElement('tr');
+        var c1 = document.createElement('td');
+        c1.textContent = 'S' + r.week + ' D' + r.day;
+        var c2 = document.createElement('td');
+        c2.textContent = r.rpe;
+        tr.appendChild(c1); tr.appendChild(c2);
+        sessTable.appendChild(tr);
+      });
+
+      sessCard.appendChild(sessTable);
+      contentEl.appendChild(sessCard);
+    }
+
+    var exerciseMap = {};
+    for (var w2 = 1; w2 <= 4; w2++) {
+      for (var d2 = 1; d2 <= 5; d2++) {
+        var arr2 = STATE.data[dayKey(month, w2, d2)] || [];
+        arr2.forEach(function(ex) {
+          var name = ex.nombre.trim();
+          if (!name) return;
+          if (!exerciseMap[name]) exerciseMap[name] = [];
+          if (ex.peso !== '' || ex.rpeReal !== '') {
+            exerciseMap[name].push({
+              week: w2, day: d2,
+              sets: ex.sets, reps: ex.reps,
+              rpe: ex.rpe, rpeReal: ex.rpeReal, peso: ex.peso
+            });
+          }
+        });
+      }
+    }
+
+    var names = Object.keys(exerciseMap);
+    if (names.length === 0) {
+      if (sessionRecords.length === 0) {
+        contentEl.innerHTML = '<div class="empty-state">Aún no hay registros en este mes.<br>Ve a la pestaña Registro y completa tus ejercicios.</div>';
+      }
+      return;
+    }
+
+    names.sort();
+    names.forEach(function(name) {
+      var records = exerciseMap[name];
+      var card = document.createElement('div');
+      card.className = 'progress-card';
+      var h3 = document.createElement('h3');
+      h3.textContent = name;
+      card.appendChild(h3);
+
+      var table = document.createElement('table');
+      table.className = 'history';
+      var thead = document.createElement('tr');
+      ['Sem/Día', 'Sets x Reps', 'RPE obj→real', 'Peso'].forEach(function(h) {
+        var th = document.createElement('th');
+        th.textContent = h;
+        thead.appendChild(th);
+      });
+      table.appendChild(thead);
+
+      records.forEach(function(r) {
+        var tr = document.createElement('tr');
+        var c1 = document.createElement('td');
+        c1.textContent = 'S' + r.week + ' D' + r.day;
+        var c2 = document.createElement('td');
+        c2.textContent = (r.sets || '-') + ' x ' + (r.reps || '-');
+        var c3 = document.createElement('td');
+        c3.textContent = (r.rpe || '-') + ' → ' + (r.rpeReal || '-');
+        var c4 = document.createElement('td');
+        c4.textContent = r.peso ? r.peso + ' kg' : '-';
+        tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3); tr.appendChild(c4);
+        table.appendChild(tr);
+      });
+
+      card.appendChild(table);
+      contentEl.appendChild(card);
+    });
+  }
+
+  function renderAll() {
+    renderMonthPills();
+    renderWeekPills();
+    renderDayPills();
+    renderExercises();
+  }
+
+  function switchTab(tab) {
+    var tabRegistro = document.getElementById('tab-registro');
+    var tabProgreso = document.getElementById('tab-progreso');
+    var viewRegistro = document.getElementById('view-registro');
+    var viewProgreso = document.getElementById('view-progreso');
+    if (tab === 'registro') {
+      tabRegistro.classList.add('active');
+      tabProgreso.classList.remove('active');
+      viewRegistro.style.display = '';
+      viewProgreso.style.display = 'none';
+    } else {
+      tabRegistro.classList.remove('active');
+      tabProgreso.classList.add('active');
+      viewRegistro.style.display = 'none';
+      viewProgreso.style.display = '';
+      STATE.progressMonth = STATE.month;
+      renderProgress();
+    }
+  }
+
+  document.getElementById('tab-registro').onclick = function() { switchTab('registro'); };
+  document.getElementById('tab-progreso').onclick = function() { switchTab('progreso'); };
+
+  document.getElementById('exportBtn').onclick = function() {
+    var blob = new Blob([JSON.stringify(STATE.data, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var today = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = 'respaldo-slab-' + today + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  document.getElementById('importInput').onchange = function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        var parsed = JSON.parse(ev.target.result);
+        STATE.data = parsed;
+        ensureAllDays();
+        saveData();
+        renderAll();
+        renderProgress();
+        alert('Respaldo restaurado correctamente.');
+      } catch (err) {
+        alert('Ese archivo no es un respaldo válido.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  async function init() {
+    document.getElementById('exerciseList').innerHTML = '<div class="loading">Cargando tu plan...</div>';
+    await loadData();
+    renderAll();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
