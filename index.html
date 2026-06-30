@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Registro de Entrenamientos | SLAB</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
   :root {
     --gold: #D4AF37;
@@ -143,6 +145,20 @@
     display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 14px 12px;
   }
 
+  .note-field {
+    padding: 0 14px 12px; display: flex; flex-direction: column; gap: 4px;
+  }
+  .note-field label {
+    font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .note-field textarea {
+    background: var(--dark-2); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-size: 13px; padding: 9px 10px; width: 100%;
+    resize: vertical; min-height: 50px; font-family: inherit; line-height: 1.4;
+  }
+  .note-field textarea::placeholder { color: var(--text-dim); }
+  .note-field textarea:focus { outline: none; border-color: var(--gold); }
+
   .done-toggle {
     margin: 0 14px 14px; padding: 10px; border-radius: 8px;
     background: var(--dark-2); border: 1px solid var(--border);
@@ -233,7 +249,7 @@
   .record-name-input:focus { outline: none; }
   .record-delete-btn {
     background: transparent; border: none; color: var(--text-dim);
-    font-size: 18px; padding: 4px 6px; cursor: pointer; line-height: 1;
+    font-size: 18px; padding: 4px 6px; cursor: pointer; line-height: 1; flex-shrink: 0;
   }
 
   .record-block { padding: 12px 14px; border-bottom: 1px solid var(--border); }
@@ -287,12 +303,13 @@
     <div class="week-summary" id="weekSummary"></div>
     <div class="progress-section" id="progressContent"></div>
     <div class="backup-section">
+      <button id="pdfReportBtn" class="backup-btn" style="background:var(--gold); color:var(--dark); border-color:var(--gold); font-weight:700;">Descargar reporte (PDF)</button>
       <button id="exportBtn" class="backup-btn">Descargar respaldo (.json)</button>
       <label class="backup-btn" id="importLabel">
         Restaurar desde respaldo
         <input type="file" id="importInput" accept="application/json" style="display:none;">
       </label>
-      <p class="backup-hint">Tus datos viven en este navegador. Si cambias de celular o borras el caché, descarga un respaldo antes para no perderlos.</p>
+      <p class="backup-hint">El reporte PDF es para leer, compartir o imprimir. El respaldo .json es el que sirve para restaurar todos tus datos si cambias de celular o borras el caché — descárgalo antes de que eso pase.</p>
     </div>
   </div>
 
@@ -320,7 +337,7 @@
   function sessionKey(m, w, d) { return dayKey(m, w, d) + '_session'; }
 
   function emptyExercise() {
-    return { nombre: '', sets: '', reps: '', rpe: '', rpeReal: '', peso: '', hecho: false };
+    return { nombre: '', sets: '', reps: '', rpe: '', rpeReal: '', peso: '', nota: '', hecho: false };
   }
 
   function ensureDay(m, w, d) {
@@ -456,6 +473,13 @@
     el.innerHTML = '';
     var arr = ensureDay(STATE.month, STATE.week, STATE.day);
 
+    if (arr.length === 0) {
+      var emptyMsg = document.createElement('div');
+      emptyMsg.className = 'records-empty';
+      emptyMsg.textContent = 'No hay ejercicios cargados para este día. Tocá "+ Añadir ejercicio" para empezar.';
+      el.appendChild(emptyMsg);
+    }
+
     arr.forEach(function(ex, idx) {
       var card = document.createElement('div');
       card.className = 'exercise-card' + (ex.hecho && ex.nombre.trim() ? ' complete' : '');
@@ -470,15 +494,30 @@
       nameInput.type = 'text';
       nameInput.placeholder = 'Nombre del ejercicio';
       nameInput.value = ex.nombre;
+      nameInput.setAttribute('aria-label', 'Nombre del ejercicio ' + (idx + 1));
       nameInput.oninput = function() { ex.nombre = this.value; scheduleSave(); };
       nameInput.onblur = function() { renderDayPills(); };
+      var delExBtn = document.createElement('button');
+      delExBtn.className = 'record-delete-btn';
+      delExBtn.textContent = '✕';
+      delExBtn.setAttribute('aria-label', 'Eliminar ejercicio');
+      delExBtn.onclick = function() {
+        var label = ex.nombre.trim() || 'este ejercicio';
+        if (!confirm('¿Eliminar "' + label + '" de este día? Esta acción no se puede deshacer.')) return;
+        var i = arr.indexOf(ex);
+        if (i > -1) arr.splice(i, 1);
+        scheduleSave();
+        renderExercises();
+        renderDayPills();
+      };
       head.appendChild(num);
       head.appendChild(nameInput);
+      head.appendChild(delExBtn);
       card.appendChild(head);
 
       var fields1 = document.createElement('div');
       fields1.className = 'ex-fields';
-      fields1.appendChild(makeField('Sets', ex, 'sets', 'number'));
+      fields1.appendChild(makeField('Series', ex, 'sets', 'number'));
       fields1.appendChild(makeField('Reps', ex, 'reps', 'text'));
       fields1.appendChild(makeField('RPE obj.', ex, 'rpe', 'number'));
       card.appendChild(fields1);
@@ -492,6 +531,8 @@
       fields2.appendChild(rpeRealField);
       fields2.appendChild(pesoField);
       card.appendChild(fields2);
+
+      card.appendChild(makeNoteField(ex));
 
       var doneWrap = document.createElement('label');
       doneWrap.className = 'done-toggle' + (ex.hecho ? ' on' : '');
@@ -512,6 +553,16 @@
 
       el.appendChild(card);
     });
+
+    var addExBtn = document.createElement('button');
+    addExBtn.className = 'add-record-btn';
+    addExBtn.textContent = '+ Añadir ejercicio';
+    addExBtn.onclick = function() {
+      arr.push(emptyExercise());
+      scheduleSave();
+      renderExercises();
+    };
+    el.appendChild(addExBtn);
 
     var session = ensureSession(STATE.month, STATE.week, STATE.day);
     var sessionCard = document.createElement('div');
@@ -534,6 +585,21 @@
     el.appendChild(sessionCard);
   }
 
+  function makeNoteField(ex) {
+    var wrap = document.createElement('div');
+    wrap.className = 'note-field';
+    var label = document.createElement('label');
+    label.textContent = 'Nota / feedback';
+    var textarea = document.createElement('textarea');
+    textarea.placeholder = 'Cómo se sintió, técnica, dolores, ajustes para la próxima...';
+    textarea.value = ex.nota || '';
+    textarea.setAttribute('aria-label', 'Nota del ejercicio');
+    textarea.oninput = function() { ex.nota = this.value; scheduleSave(); };
+    wrap.appendChild(label);
+    wrap.appendChild(textarea);
+    return wrap;
+  }
+
   function makeField(labelText, ex, key, type) {
     var wrap = document.createElement('div');
     wrap.className = 'field';
@@ -544,8 +610,13 @@
     if (type === 'number') {
       input.inputMode = 'decimal';
       input.min = '0';
+      if (labelText.indexOf('RPE') !== -1) {
+        input.max = '10';
+        input.step = '0.5';
+      }
     }
     input.value = ex[key];
+    input.setAttribute('aria-label', labelText);
     input.oninput = function() { ex[key] = this.value; scheduleSave(); };
     wrap.appendChild(label);
     wrap.appendChild(input);
@@ -670,7 +741,7 @@
       var table = document.createElement('table');
       table.className = 'history';
       var thead = document.createElement('tr');
-      ['Sem/Día', 'Sets x Reps', 'RPE obj→real', 'Peso'].forEach(function(h) {
+      ['Sem/Día', 'Series x Reps', 'RPE obj→real', 'Peso'].forEach(function(h) {
         var th = document.createElement('th');
         th.textContent = h;
         thead.appendChild(th);
@@ -717,12 +788,15 @@
       nameInput.type = 'text';
       nameInput.placeholder = 'Nombre del ejercicio';
       nameInput.value = rec.nombre;
+      nameInput.setAttribute('aria-label', 'Nombre del ejercicio en récords');
       nameInput.oninput = function() { rec.nombre = this.value; scheduleSave(); };
       var delBtn = document.createElement('button');
       delBtn.className = 'record-delete-btn';
       delBtn.textContent = '✕';
       delBtn.setAttribute('aria-label', 'Eliminar récord');
       delBtn.onclick = function() {
+        var label = rec.nombre.trim() || 'este récord';
+        if (!confirm('¿Eliminar "' + label + '"? Esta acción no se puede deshacer.')) return;
         var idx = records.indexOf(rec);
         if (idx > -1) records.splice(idx, 1);
         scheduleSave();
@@ -809,6 +883,168 @@
   document.getElementById('tab-progreso').onclick = function() { switchTab('progreso'); };
   document.getElementById('tab-records').onclick = function() { switchTab('records'); };
 
+  function generatePDFReport() {
+    if (typeof window.jspdf === 'undefined') {
+      alert('No se pudo cargar la librería de PDF. Verificá tu conexión a internet e intentá de nuevo.');
+      return;
+    }
+    var jsPDFLib = window.jspdf.jsPDF;
+    var doc = new jsPDFLib({ unit: 'pt', format: 'a4' });
+    var pageW = doc.internal.pageSize.getWidth();
+    var pageH = doc.internal.pageSize.getHeight();
+    var margin = 40;
+    var y = margin;
+
+    var gold = [184, 150, 46];
+    var dark = [20, 20, 18];
+    var grey = [120, 118, 108];
+    var lineGrey = [212, 207, 192];
+
+    function ensureSpace(needed) {
+      if (y + needed > pageH - margin) {
+        doc.addPage();
+        y = margin;
+      }
+    }
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.setTextColor(gold[0], gold[1], gold[2]);
+    doc.text('STRENGTHLAB', margin, y);
+    y += 16;
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(10);
+    doc.setTextColor(grey[0], grey[1], grey[2]);
+    doc.text('by @reennzolifts', margin, y);
+    y += 18;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.setTextColor(dark[0], dark[1], dark[2]);
+    doc.text('Reporte de entrenamiento', margin, y);
+    y += 14;
+    doc.setFontSize(9);
+    doc.setTextColor(grey[0], grey[1], grey[2]);
+    var todayLabel = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
+    doc.text('Generado el ' + todayLabel, margin, y);
+    y += 8;
+    doc.setDrawColor(gold[0], gold[1], gold[2]);
+    doc.setLineWidth(1.2);
+    doc.line(margin, y, pageW - margin, y);
+    y += 22;
+
+    var hasAnyContent = false;
+
+    for (var m = 1; m <= 3; m++) {
+      var monthHasContent = false;
+      for (var wc = 1; wc <= 4; wc++) {
+        for (var dc = 1; dc <= 5; dc++) {
+          var arrc = STATE.data[dayKey(m, wc, dc)] || [];
+          if (arrc.some(function(e) { return e.nombre.trim() !== ''; })) monthHasContent = true;
+        }
+      }
+      if (!monthHasContent) continue;
+      hasAnyContent = true;
+
+      ensureSpace(30);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(dark[0], dark[1], dark[2]);
+      doc.text('Mes ' + m, margin, y);
+      y += 16;
+
+      for (var w = 1; w <= 4; w++) {
+        for (var d = 1; d <= 5; d++) {
+          var arrDay = STATE.data[dayKey(m, w, d)] || [];
+          var dayRows = arrDay.filter(function(e) { return e.nombre.trim() !== ''; });
+          if (dayRows.length === 0) continue;
+
+          ensureSpace(40);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10.5);
+          doc.setTextColor(gold[0], gold[1], gold[2]);
+          doc.text('Semana ' + w + ' · Día ' + d, margin, y);
+          y += 4;
+
+          var sess = STATE.data[sessionKey(m, w, d)];
+          var sessText = (sess && sess.rpeSesion !== '') ? ('RPE de toda la sesión: ' + sess.rpeSesion) : '';
+
+          var body = dayRows.map(function(e) {
+            return [
+              e.nombre,
+              e.sets || '-',
+              e.reps || '-',
+              (e.rpe || '-') + ' → ' + (e.rpeReal || '-'),
+              e.peso ? (e.peso + ' kg') : '-',
+              e.nota || ''
+            ];
+          });
+
+          doc.autoTable({
+            startY: y + 6,
+            margin: { left: margin, right: margin },
+            head: [['Ejercicio', 'Series', 'Reps', 'RPE obj→real', 'Peso', 'Nota']],
+            body: body,
+            theme: 'grid',
+            styles: { fontSize: 8.5, cellPadding: 4, textColor: [40, 40, 36], lineColor: lineGrey, lineWidth: 0.5 },
+            headStyles: { fillColor: dark, textColor: gold, fontStyle: 'bold' },
+            columnStyles: { 0: { cellWidth: 80 }, 5: { cellWidth: 125 } }
+          });
+
+          y = doc.lastAutoTable.finalY + (sessText ? 14 : 8);
+
+          if (sessText) {
+            ensureSpace(14);
+            doc.setFont('helvetica', 'italic');
+            doc.setFontSize(8.5);
+            doc.setTextColor(grey[0], grey[1], grey[2]);
+            doc.text(sessText, margin, y);
+            y += 16;
+          }
+        }
+      }
+      y += 6;
+    }
+
+    var records = ensureRecords().filter(function(r) { return r.nombre.trim() !== ''; });
+    if (records.length > 0) {
+      hasAnyContent = true;
+      ensureSpace(30);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(dark[0], dark[1], dark[2]);
+      doc.text('Récords personales', margin, y);
+      y += 10;
+
+      var recBody = records.map(function(r) {
+        return [
+          r.nombre,
+          r.oneRm ? (r.oneRm + ' kg') : '-',
+          (r.repMaxPeso || r.repMaxReps) ? ((r.repMaxPeso || '-') + ' kg x ' + (r.repMaxReps || '-') + ' reps') : '-'
+        ];
+      });
+      doc.autoTable({
+        startY: y + 6,
+        margin: { left: margin, right: margin },
+        head: [['Ejercicio', '1RM', 'Récord a reps máximas']],
+        body: recBody,
+        theme: 'grid',
+        styles: { fontSize: 9, cellPadding: 5, textColor: [40, 40, 36], lineColor: lineGrey, lineWidth: 0.5 },
+        headStyles: { fillColor: dark, textColor: gold, fontStyle: 'bold' }
+      });
+      y = doc.lastAutoTable.finalY + 10;
+    }
+
+    if (!hasAnyContent) {
+      alert('Todavía no hay registros cargados para generar un reporte.');
+      return;
+    }
+
+    var todayStr = new Date().toISOString().slice(0, 10);
+    doc.save('reporte-slab-' + todayStr + '.pdf');
+  }
+
+  document.getElementById('pdfReportBtn').onclick = generatePDFReport;
+
   document.getElementById('exportBtn').onclick = function() {
     var blob = new Blob([JSON.stringify(STATE.data, null, 2)], { type: 'application/json' });
     var url = URL.createObjectURL(blob);
@@ -825,6 +1061,10 @@
   document.getElementById('importInput').onchange = function(e) {
     var file = e.target.files[0];
     if (!file) return;
+    if (!confirm('Esto va a reemplazar TODOS los datos actuales (registro, progreso y récords) por los del archivo de respaldo. Esta acción no se puede deshacer. ¿Querés continuar?')) {
+      e.target.value = '';
+      return;
+    }
     var reader = new FileReader();
     reader.onload = function(ev) {
       try {
