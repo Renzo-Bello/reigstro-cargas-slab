@@ -250,6 +250,15 @@
     font-family: var(--font-mono); font-size: 9px; color: var(--text-dim);
     text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px;
   }
+  .week-pdf-btn {
+    display: block; width: 100%; margin-top: 8px; padding: 4px 2px;
+    background: transparent; border: 1px solid var(--border); border-radius: 4px;
+    color: var(--gold); font-family: var(--font-mono); font-size: 8.5px;
+    text-transform: uppercase; letter-spacing: 0.6px; cursor: pointer;
+  }
+  .week-pdf-btn:disabled {
+    color: var(--text-dim); border-color: var(--border); opacity: 0.4; cursor: default;
+  }
 
   .loading { text-align: center; padding: 60px 20px; color: var(--text-dim); font-family: var(--font-body); font-size: 13px; }
 
@@ -350,13 +359,13 @@
     <div class="week-summary" id="weekSummary"></div>
     <div class="progress-section" id="progressContent"></div>
     <div class="backup-section">
-      <button id="pdfReportBtn" class="backup-btn" style="background:var(--gold); color:var(--dark); border-color:var(--gold); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Descargar reporte (PDF)</button>
+      <button id="pdfReportBtn" class="backup-btn" style="background:var(--gold); color:var(--dark); border-color:var(--gold); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Descargar reporte completo (PDF)</button>
       <button id="exportBtn" class="backup-btn">Descargar respaldo (.json)</button>
       <label class="backup-btn" id="importLabel">
         Restaurar desde respaldo
         <input type="file" id="importInput" accept="application/json" style="display:none;">
       </label>
-      <p class="backup-hint">El reporte PDF es para leer, compartir o imprimir. El respaldo .json es el que sirve para restaurar todos tus datos si cambias de celular o borras el caché — descárgalo antes de que eso pase.</p>
+      <p class="backup-hint">Tocá "PDF" en cualquier semana para descargar solo ese reporte semanal. El reporte completo junta todos los meses. El respaldo .json es el que sirve para restaurar tus datos si cambias de celular o borras el caché.</p>
     </div>
   </div>
 
@@ -721,9 +730,18 @@
           if (dayComplete(month, w, d)) doneDays++;
         }
       }
+      var weekHasContent = totalDays > 0;
       var stat = document.createElement('div');
       stat.className = 'stat';
       stat.innerHTML = '<div class="n">' + doneDays + '/' + (totalDays || 5) + '</div><div class="l">Semana ' + w + '</div>';
+      var weekBtn = document.createElement('button');
+      weekBtn.className = 'week-pdf-btn';
+      weekBtn.textContent = 'PDF';
+      weekBtn.disabled = !weekHasContent;
+      weekBtn.onclick = (function(mm, ww) {
+        return function() { generatePDFReport(mm, ww); };
+      })(month, w);
+      stat.appendChild(weekBtn);
       summaryEl.appendChild(stat);
     }
 
@@ -951,7 +969,7 @@
   document.getElementById('tab-progreso').onclick = function() { switchTab('progreso'); };
   document.getElementById('tab-records').onclick = function() { switchTab('records'); };
 
-  function generatePDFReport() {
+  function generatePDFReport(filterMonth, filterWeek) {
     if (typeof window.jspdf === 'undefined') {
       alert('No se pudo cargar la librería de PDF. Verificá tu conexión a internet e intentá de nuevo.');
       return;
@@ -988,7 +1006,10 @@
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(12);
     doc.setTextColor(dark[0], dark[1], dark[2]);
-    doc.text('Reporte de entrenamiento', margin, y);
+    var reportTitle = (filterMonth && filterWeek)
+      ? ('Reporte semanal — Mes ' + filterMonth + ' · Semana ' + filterWeek)
+      : 'Reporte de entrenamiento';
+    doc.text(reportTitle, margin, y);
     y += 14;
     doc.setFontSize(9);
     doc.setTextColor(grey[0], grey[1], grey[2]);
@@ -1002,15 +1023,18 @@
 
     var hasAnyContent = false;
 
-    for (var m = 1; m <= 3; m++) {
+    var monthsToRender = filterMonth ? [filterMonth] : [1, 2, 3];
+
+    monthsToRender.forEach(function(m) {
+      var weeksToRender = filterWeek ? [filterWeek] : [1, 2, 3, 4];
       var monthHasContent = false;
-      for (var wc = 1; wc <= 4; wc++) {
+      weeksToRender.forEach(function(wc) {
         for (var dc = 1; dc <= 5; dc++) {
           var arrc = STATE.data[dayKey(m, wc, dc)] || [];
           if (arrc.some(function(e) { return e.nombre.trim() !== ''; })) monthHasContent = true;
         }
-      }
-      if (!monthHasContent) continue;
+      });
+      if (!monthHasContent) return;
       hasAnyContent = true;
 
       ensureSpace(30);
@@ -1020,7 +1044,7 @@
       doc.text('Mes ' + m, margin, y);
       y += 16;
 
-      for (var w = 1; w <= 4; w++) {
+      weeksToRender.forEach(function(w) {
         for (var d = 1; d <= 5; d++) {
           var arrDay = STATE.data[dayKey(m, w, d)] || [];
           var dayRows = arrDay.filter(function(e) { return e.nombre.trim() !== ''; });
@@ -1069,49 +1093,54 @@
             y += 16;
           }
         }
-      }
+      });
       y += 6;
-    }
+    });
 
-    var records = ensureRecords().filter(function(r) { return r.nombre.trim() !== ''; });
-    if (records.length > 0) {
-      hasAnyContent = true;
-      ensureSpace(30);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.setTextColor(dark[0], dark[1], dark[2]);
-      doc.text('Récords personales', margin, y);
-      y += 10;
+    if (!filterWeek) {
+      var records = ensureRecords().filter(function(r) { return r.nombre.trim() !== ''; });
+      if (records.length > 0) {
+        hasAnyContent = true;
+        ensureSpace(30);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.setTextColor(dark[0], dark[1], dark[2]);
+        doc.text('Récords personales', margin, y);
+        y += 10;
 
-      var recBody = records.map(function(r) {
-        return [
-          r.nombre,
-          r.oneRm ? (r.oneRm + ' kg') : '-',
-          (r.repMaxPeso || r.repMaxReps) ? ((r.repMaxPeso || '-') + ' kg x ' + (r.repMaxReps || '-') + ' reps') : '-'
-        ];
-      });
-      doc.autoTable({
-        startY: y + 6,
-        margin: { left: margin, right: margin },
-        head: [['Ejercicio', '1RM', 'Récord a reps máximas']],
-        body: recBody,
-        theme: 'grid',
-        styles: { fontSize: 9, cellPadding: 5, textColor: [40, 40, 36], lineColor: lineGrey, lineWidth: 0.5 },
-        headStyles: { fillColor: dark, textColor: gold, fontStyle: 'bold' }
-      });
-      y = doc.lastAutoTable.finalY + 10;
+        var recBody = records.map(function(r) {
+          return [
+            r.nombre,
+            r.oneRm ? (r.oneRm + ' kg') : '-',
+            (r.repMaxPeso || r.repMaxReps) ? ((r.repMaxPeso || '-') + ' kg x ' + (r.repMaxReps || '-') + ' reps') : '-'
+          ];
+        });
+        doc.autoTable({
+          startY: y + 6,
+          margin: { left: margin, right: margin },
+          head: [['Ejercicio', '1RM', 'Récord a reps máximas']],
+          body: recBody,
+          theme: 'grid',
+          styles: { fontSize: 9, cellPadding: 5, textColor: [40, 40, 36], lineColor: lineGrey, lineWidth: 0.5 },
+          headStyles: { fillColor: dark, textColor: gold, fontStyle: 'bold' }
+        });
+        y = doc.lastAutoTable.finalY + 10;
+      }
     }
 
     if (!hasAnyContent) {
-      alert('Todavía no hay registros cargados para generar un reporte.');
+      alert(filterWeek ? 'No hay registros cargados para esa semana.' : 'Todavía no hay registros cargados para generar un reporte.');
       return;
     }
 
     var todayStr = new Date().toISOString().slice(0, 10);
-    doc.save('reporte-slab-' + todayStr + '.pdf');
+    var filename = (filterMonth && filterWeek)
+      ? ('reporte-slab-mes' + filterMonth + '-semana' + filterWeek + '-' + todayStr + '.pdf')
+      : ('reporte-slab-' + todayStr + '.pdf');
+    doc.save(filename);
   }
 
-  document.getElementById('pdfReportBtn').onclick = generatePDFReport;
+  document.getElementById('pdfReportBtn').onclick = function() { generatePDFReport(); };
 
   document.getElementById('exportBtn').onclick = function() {
     var blob = new Blob([JSON.stringify(STATE.data, null, 2)], { type: 'application/json' });
