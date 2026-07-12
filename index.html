@@ -810,7 +810,7 @@
   <header class="topbar">
     <div class="topbar-left">
       <h1 id="pageTitle">REGISTRO DE ENTRENAMIENTOS</h1>
-      <p>· 3 meses · 4 semanas · 5 días</p>
+      <p> 3 meses · 4 semanas · 5 días</p>
     </div>
     <button class="btn-hoy" id="btnHoy" title="Ir al día de hoy">
       <span class="hoy-label">Hoy</span>
@@ -846,6 +846,17 @@
       </label>
       <p class="backup-hint">Toca "PDF" en cualquier semana para descargar solo ese reporte semanal. El reporte completo incluye todos los meses. El respaldo .json restaura todos tus datos.</p>
       <button id="showWelcomeBtn" class="backup-btn" style="margin-top:8px;">Ver guía de la app</button>
+    </div>
+
+    <!-- Nombre del cliente -->
+    <div class="start-date-section" id="clientNameSection">
+      <div class="start-date-title">Nombre del cliente</div>
+      <div class="start-date-desc">Se usará en el encabezado y en el nombre del archivo de los reportes PDF.</div>
+      <div class="start-date-row">
+        <input type="text" class="start-date-input" id="clientNameInput" placeholder="Ej: Marcelo Olivares" autocomplete="off">
+        <button class="start-date-btn" id="clientNameSaveBtn">Guardar</button>
+      </div>
+      <div class="start-date-current" id="clientNameCurrent"></div>
     </div>
 
     <!-- Configuración de fecha de inicio -->
@@ -1096,6 +1107,33 @@
       numEl.classList.remove('empty-val');
       wrap.classList.remove('empty');
     }
+  }
+
+  /* ══════════════════════════════════════
+     NOMBRE DEL CLIENTE
+  ══════════════════════════════════════ */
+  var CLIENT_NAME_KEY = 'slab-client-name';
+
+  function getClientName() {
+    return localStorage.getItem(CLIENT_NAME_KEY) || '';
+  }
+  function setClientName(name) {
+    localStorage.setItem(CLIENT_NAME_KEY, name.trim());
+  }
+  function renderClientName() {
+    var name = getClientName();
+    document.getElementById('clientNameInput').value = name;
+    document.getElementById('clientNameCurrent').textContent = name ? ('Cliente actual: ' + name) : 'Aún no configurado';
+  }
+  document.getElementById('clientNameSaveBtn').onclick = function() {
+    var val = document.getElementById('clientNameInput').value;
+    setClientName(val);
+    renderClientName();
+    showToast(val.trim() ? 'Nombre guardado' : 'Nombre borrado', 'ok');
+  };
+  function slugify(str) {
+    return str.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   }
 
   /* ══════════════════════════════════════
@@ -1542,6 +1580,7 @@
   function renderProgress() {
     renderMonthPillsProgress();
     renderStartDateConfig();
+    renderClientName();
     var month = STATE.progressMonth;
     var summaryEl = document.getElementById('weekSummary'); summaryEl.innerHTML = '';
     for (var w = 1; w <= 4; w++) {
@@ -1735,6 +1774,11 @@
     doc.text('STRENGTHLAB', margin, y); y += 16;
     doc.setFont('helvetica','italic'); doc.setFontSize(10); doc.setTextColor(grey[0],grey[1],grey[2]);
     doc.text('by @reennzolifts', margin, y); y += 18;
+    var clientName = getClientName();
+    if (clientName) {
+      doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(dark[0],dark[1],dark[2]);
+      doc.text('Cliente: ' + clientName, margin, y); y += 16;
+    }
     doc.setFont('helvetica','normal'); doc.setFontSize(12); doc.setTextColor(dark[0],dark[1],dark[2]);
     var reportTitle = (filterMonth && filterWeek) ? ('Reporte semanal — Mes ' + filterMonth + ' · Semana ' + filterWeek) : 'Reporte de entrenamiento';
     doc.text(reportTitle, margin, y); y += 14;
@@ -1766,8 +1810,8 @@
           doc.text('Semana ' + w + ' · Día ' + d, margin, y); y += 4;
           var sess = STATE.data[sessionKey(m, w, d)];
           var sessText = (sess && sess.rpeSesion !== '') ? 'RPE de toda la sesión: ' + sess.rpeSesion : '';
-          var body = dayRows.map(function(e) { return [e.nombre, e.sets||'-', e.reps||'-', (e.rpe||'-') + ' → ' + (e.rpeReal||'-'), e.peso ? e.peso + ' kg' : '-', e.nota||'']; });
-          doc.autoTable({ startY: y+6, margin:{left:margin,right:margin}, head:[['Ejercicio','Series','Reps','RPE obj→real','Peso','Nota']], body: body, theme:'grid', styles:{fontSize:8.5,cellPadding:4,textColor:[40,40,36],lineColor:lineGrey,lineWidth:0.5}, headStyles:{fillColor:dark,textColor:gold,fontStyle:'bold'}, columnStyles:{0:{cellWidth:80},5:{cellWidth:125}} });
+          var body = dayRows.map(function(e) { return [e.nombre, e.sets||'-', e.reps||'-', (e.rpe||'-') + ' -> ' + (e.rpeReal||'-'), e.peso ? e.peso + ' kg' : '-', e.nota||'']; });
+          doc.autoTable({ startY: y+6, margin:{left:margin,right:margin}, head:[['Ejercicio','Series','Reps','RPE obj->real','Peso','Nota']], body: body, theme:'grid', styles:{fontSize:8.5,cellPadding:4,textColor:[40,40,36],lineColor:lineGrey,lineWidth:0.5}, headStyles:{fillColor:dark,textColor:gold,fontStyle:'bold'}, columnStyles:{0:{cellWidth:80},5:{cellWidth:125}} });
           y = doc.lastAutoTable.finalY + (sessText ? 14 : 8);
           if (sessText) { ensureSpace(14); doc.setFont('helvetica','italic'); doc.setFontSize(8.5); doc.setTextColor(grey[0],grey[1],grey[2]); doc.text(sessText, margin, y); y += 16; }
         }
@@ -1783,7 +1827,7 @@
         var recBody = records.map(function(r) {
           var ormEst = calcOrm1RM(r.repMaxPeso, r.repMaxReps);
           var repMaxStr = (r.repMaxPeso||r.repMaxReps) ? (r.repMaxPeso||'-') + ' kg x ' + (r.repMaxReps||'-') + ' reps' : '-';
-          if (ormEst) repMaxStr += ' → 1RM est. ' + ormEst + ' kg';
+          if (ormEst) repMaxStr += ' -> 1RM est. ' + ormEst + ' kg';
           return [r.nombre, r.oneRm ? r.oneRm + ' kg' : '-', repMaxStr];
         });
         doc.autoTable({ startY: y+6, margin:{left:margin,right:margin}, head:[['Ejercicio','1RM directo','Récord a reps (1RM estimado)']], body: recBody, theme:'grid', styles:{fontSize:9,cellPadding:5,textColor:[40,40,36],lineColor:lineGrey,lineWidth:0.5}, headStyles:{fillColor:dark,textColor:gold,fontStyle:'bold'} });
@@ -1792,7 +1836,8 @@
     }
     if (!hasAnyContent) { showToast(filterWeek ? 'No hay registros para esa semana' : 'No hay registros para generar el reporte', 'warn', 3000); return; }
     var todayStr = new Date().toISOString().slice(0,10);
-    doc.save((filterMonth && filterWeek) ? ('reporte-slab-mes' + filterMonth + '-semana' + filterWeek + '-' + todayStr + '.pdf') : ('reporte-slab-' + todayStr + '.pdf'));
+    var namePart = clientName ? (slugify(clientName) + '-') : '';
+    doc.save((filterMonth && filterWeek) ? ('reporte-slab-' + namePart + 'mes' + filterMonth + '-semana' + filterWeek + '-' + todayStr + '.pdf') : ('reporte-slab-' + namePart + todayStr + '.pdf'));
   }
   document.getElementById('pdfReportBtn').onclick = function() { generatePDFReport(); };
   document.getElementById('exportBtn').onclick = function() {
