@@ -32,6 +32,14 @@
     --font-display: 'Playfair Display', serif;
     --font-mono: 'DM Mono', monospace;
     --font-body: 'Inter', -apple-system, sans-serif;
+    /* RPE calc plate colors */
+    --plate-25: #C8313A;
+    --plate-20: #2D5FA3;
+    --plate-15: #C9A96E;
+    --plate-10: #3C8051;
+    --plate-5: #F5F0E8;
+    --plate-2_5: #2A2A2A;
+    --plate-1_25: #9CA3AF;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
@@ -60,16 +68,19 @@
   }
 
   nav.tabs {
-    display: flex; gap: 4px; padding: 12px 16px 0;
+    display: flex; gap: 0; padding: 0 16px;
     border-bottom: 1px solid var(--border);
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
   }
+  nav.tabs::-webkit-scrollbar { display: none; }
   nav.tabs button {
-    flex: 1; padding: 10px 2px 12px; font-size: 11px; font-weight: 500;
-    font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.8px;
+    flex-shrink: 0; padding: 10px 10px 12px; font-size: 10px; font-weight: 500;
+    font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.6px;
     background: transparent; color: var(--text-dim);
     border: none; border-bottom: 1px solid transparent;
     cursor: pointer;
     transition: color 0.15s ease, border-color 0.15s ease;
+    white-space: nowrap;
   }
   nav.tabs button.active {
     color: var(--gold); border-bottom-color: var(--gold); font-weight: 500;
@@ -84,7 +95,7 @@
     padding: 12px 4px; font-size: 12.5px; font-weight: 500;
     font-family: var(--font-mono); letter-spacing: 0.3px;
     background: var(--dark-2); color: var(--text);
-    border: 1px solid var(--border); border-radius: 6px;
+    border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
   }
   .month-pills button.active {
     background: var(--month-accent); color: var(--dark); border-color: var(--month-accent);
@@ -97,7 +108,7 @@
     padding: 10px 4px; font-size: 11.5px; font-weight: 500;
     font-family: var(--font-mono); letter-spacing: 0.3px;
     background: var(--card); color: var(--text);
-    border: 1px solid var(--border); border-radius: 6px;
+    border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
   }
   .week-pills button.active {
     background: var(--week-accent); color: var(--dark); border-color: var(--week-accent);
@@ -110,7 +121,7 @@
     padding: 9px 2px; font-size: 10.5px; font-weight: 500;
     font-family: var(--font-mono); letter-spacing: 0.2px;
     background: var(--day-bg); color: var(--text);
-    border: 1px solid var(--border); border-radius: 6px;
+    border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
   }
   .day-pills button.active {
     background: var(--day-accent); color: var(--dark); border-color: var(--day-accent);
@@ -199,6 +210,7 @@
     background: var(--dark-2); border: 1px solid var(--border);
     display: flex; align-items: center; justify-content: center; gap: 8px;
     font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--text-dim);
+    cursor: pointer;
   }
   .done-toggle.on { background: transparent; border-color: var(--gold); color: var(--gold); }
   .done-toggle input { width: 16px; height: 16px; accent-color: var(--gold); }
@@ -228,15 +240,12 @@
     padding: 6px 4px; border-bottom: 1px solid var(--border); font-size: 9.5px;
     text-transform: uppercase; letter-spacing: 0.4px;
   }
-  table.history td {
-    padding: 7px 4px; border-bottom: 1px solid var(--border);
-  }
+  table.history td { padding: 7px 4px; border-bottom: 1px solid var(--border); }
   table.history tr:last-child td { border-bottom: none; }
   .empty-state {
     text-align: center; padding: 40px 20px; color: var(--text-dim);
     font-family: var(--font-body); font-size: 13px;
   }
-  .empty-state i { font-size: 28px; display: block; margin-bottom: 10px; opacity: 0.5; }
 
   .week-summary {
     display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; padding: 14px 16px;
@@ -256,27 +265,18 @@
     color: var(--gold); font-family: var(--font-mono); font-size: 8.5px;
     text-transform: uppercase; letter-spacing: 0.6px; cursor: pointer;
   }
-  .week-pdf-btn:disabled {
-    color: var(--text-dim); border-color: var(--border); opacity: 0.4; cursor: default;
-  }
+  .week-pdf-btn:disabled { color: var(--text-dim); opacity: 0.4; cursor: default; }
 
   .loading { text-align: center; padding: 60px 20px; color: var(--text-dim); font-family: var(--font-body); font-size: 13px; }
 
-  .session-card {
-    border: 1px solid var(--gold-dim);
-    margin-top: 4px; margin-bottom: 20px;
-  }
+  .session-card { border: 1px solid var(--gold-dim); margin-top: 4px; margin-bottom: 20px; }
   .session-label {
     font-family: var(--font-display); font-style: italic;
     font-size: 15px; font-weight: 600; color: var(--gold); letter-spacing: 0.2px;
   }
-  .session-fields {
-    grid-template-columns: 1fr !important;
-  }
+  .session-fields { grid-template-columns: 1fr !important; }
   .session-fields .field input,
-  .session-fields .field select {
-    font-size: 17px; padding: 12px 6px; color: var(--gold);
-  }
+  .session-fields .field select { font-size: 17px; padding: 12px 6px; color: var(--gold); }
 
   .add-record-btn, .add-exercise-btn {
     width: 100%; padding: 13px; margin: 12px 0 16px;
@@ -305,7 +305,6 @@
     background: transparent; border: none; color: var(--text-dim);
     font-size: 18px; padding: 4px 6px; cursor: pointer; line-height: 1; flex-shrink: 0;
   }
-
   .record-block { padding: 12px 14px; border-bottom: 1px solid var(--border); }
   .record-block:last-child { border-bottom: none; }
   .record-block-label {
@@ -314,7 +313,6 @@
   }
   .record-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .record-row .field input { font-size: 16px; }
-
   .records-empty {
     text-align: center; padding: 50px 20px; color: var(--text-dim);
     font-family: var(--font-body); font-size: 13px; line-height: 1.6;
@@ -332,6 +330,152 @@
     font-family: var(--font-body); font-size: 11px; color: var(--text-dim);
     text-align: center; margin: 10px 0 0; line-height: 1.6;
   }
+
+  /* ── CALCULADORA RPE ── */
+  #view-rpe { padding: 16px 16px 0; }
+
+  .rpe-mode-toggle, .rpe-unit-toggle {
+    display: flex; gap: 6px; margin-bottom: 14px;
+  }
+  .rpe-mode-toggle button, .rpe-unit-toggle button {
+    flex: 1; padding: 9px 6px;
+    font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    background: transparent; color: var(--text-dim);
+    border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .rpe-mode-toggle button.active, .rpe-unit-toggle button.active {
+    background: var(--gold); color: var(--dark); border-color: var(--gold);
+  }
+  .rpe-unit-toggle { margin-bottom: 16px; }
+  .rpe-unit-toggle button { flex: 0 0 auto; padding: 7px 18px; border-radius: 999px; }
+
+  .rpe-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px; margin-bottom: 12px;
+  }
+  .rpe-field { margin-bottom: 12px; }
+  .rpe-field:last-child { margin-bottom: 0; }
+  .rpe-field label {
+    display: block; font-family: var(--font-mono); font-size: 9.5px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px;
+  }
+  .rpe-field label .opt { color: var(--text-dim); font-style: italic; opacity: 0.6; }
+  .rpe-field input, .rpe-field select {
+    width: 100%; background: var(--dark-2); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-family: var(--font-mono); font-size: 18px; font-weight: 500;
+    padding: 10px 12px; outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .rpe-field input:focus, .rpe-field select:focus { border-color: var(--gold); }
+  .rpe-field input::placeholder { color: var(--text-dim); font-size: 14px; }
+  .rpe-field select {
+    -webkit-appearance: none; appearance: none; cursor: pointer;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9'><path d='M1 1l6 6 6-6' stroke='%238C8778' stroke-width='1.6' fill='none'/></svg>");
+    background-repeat: no-repeat; background-position: right 12px center;
+  }
+  .rpe-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .rpe-result {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 20px 16px; margin-bottom: 12px; text-align: center;
+  }
+  .rpe-result-label {
+    font-family: var(--font-mono); font-size: 9.5px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;
+  }
+  .rpe-result-value {
+    font-family: var(--font-mono); font-size: 58px; font-weight: 500;
+    line-height: 1; color: var(--text);
+  }
+  .rpe-result-value .rpe-unit { font-size: 20px; color: var(--text-dim); margin-left: 4px; }
+  .rpe-result-meta {
+    font-family: var(--font-body); font-size: 12px; color: var(--text-dim); margin-top: 8px;
+  }
+  .rpe-result-meta strong { color: var(--gold); }
+  .rpe-barbell-wrap { margin: 20px 0 6px; overflow-x: auto; }
+  .rpe-barbell-wrap svg { width: 100%; height: auto; display: block; }
+  .rpe-chain-wrap { margin: 20px auto 6px; max-width: 150px; }
+  .rpe-chain-wrap svg { width: 100%; height: auto; display: block; }
+  .rpe-plate-readout {
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-dim);
+    line-height: 1.6; margin-top: 6px;
+  }
+  .rpe-plate-readout .side-lbl { color: var(--text-dim); opacity: 0.6; }
+  .rpe-plate-readout strong { color: var(--text); }
+  .rpe-bw-warning {
+    font-family: var(--font-body); font-size: 12px; color: var(--gold); line-height: 1.5; margin-top: 8px;
+  }
+  .rpe-bw-stat {
+    margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);
+    font-family: var(--font-body); font-size: 12px; color: var(--text-dim);
+  }
+  .rpe-bw-stat strong { color: var(--gold); font-family: var(--font-mono); font-size: 15px; }
+
+  .rpe-chart-card { padding: 0; }
+  .rpe-chart-toggle {
+    width: 100%; background: none; border: none; color: var(--text);
+    font-family: var(--font-body); font-size: 13px; font-weight: 600;
+    padding: 14px 16px; text-align: left; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .rpe-chart-toggle .arr { color: var(--text-dim); transition: transform .15s ease; font-size: 11px; }
+  .rpe-chart-toggle.open .arr { transform: rotate(180deg); }
+  .rpe-chart-body { padding: 0 16px 16px; }
+
+  table.rpe-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 12px; }
+  table.rpe-table th {
+    text-align: left; color: var(--text-dim); font-weight: 500;
+    padding: 6px 4px; border-bottom: 1px solid var(--border); font-size: 9.5px;
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  table.rpe-table td { padding: 7px 4px; border-bottom: 1px solid var(--border); color: var(--text-dim); }
+  table.rpe-table td.num, table.rpe-table th.num { text-align: right; }
+  table.rpe-table tr.current td { color: var(--text); font-weight: 600; }
+  table.rpe-table tr.current { background: rgba(201,169,110,0.07); }
+  table.rpe-table tr:last-child td { border-bottom: none; }
+
+  .rpe-footer {
+    font-family: var(--font-body); font-size: 11px; color: var(--text-dim);
+    text-align: center; margin-top: 20px; line-height: 1.6; padding-bottom: 20px;
+  }
+
+  /* zona de trabajo como sección propia */
+  .rpe-zona-result-card {
+    background: var(--card); border: 1px solid var(--gold-dim); border-radius: 8px;
+    padding: 16px; margin-bottom: 12px;
+  }
+  .rpe-zona-result-label {
+    font-family: var(--font-mono); font-size: 9.5px; color: var(--gold);
+    text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px;
+  }
+  .rpe-zona-row {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .rpe-zona-row:last-of-type { border-bottom: none; }
+  .rpe-zona-row .zr-label {
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-dim);
+  }
+  .rpe-zona-row .zr-weight {
+    font-family: var(--font-mono); font-size: 26px; font-weight: 500; color: var(--gold);
+  }
+  .rpe-zona-row .zr-detail {
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); margin-left: 5px;
+  }
+  .rpe-zona-range-bar {
+    height: 3px; background: var(--border); border-radius: 2px; margin: 14px 0 6px; position: relative;
+  }
+  .rpe-zona-range-fill {
+    position: absolute; height: 3px; background: var(--gold); border-radius: 2px; opacity: 0.6;
+  }
+  .rpe-zona-range-hint {
+    font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); text-align: center; margin-top: 6px;
+  }
+  .rpe-zona-empty {
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); padding: 8px 0;
+  }
 </style>
 </head>
 <body>
@@ -345,6 +489,7 @@
     <button id="tab-registro" class="active">Registro</button>
     <button id="tab-progreso">Progreso</button>
     <button id="tab-records">Récords</button>
+    <button id="tab-rpe">Calcular RPE</button>
   </nav>
 
   <div id="view-registro" class="panel">
@@ -359,13 +504,13 @@
     <div class="week-summary" id="weekSummary"></div>
     <div class="progress-section" id="progressContent"></div>
     <div class="backup-section">
-      <button id="pdfReportBtn" class="backup-btn" style="background:var(--gold); color:var(--dark); border-color:var(--gold); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Descargar reporte completo (PDF)</button>
+      <button id="pdfReportBtn" class="backup-btn" style="background:var(--gold);color:var(--dark);border-color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Descargar reporte completo (PDF)</button>
       <button id="exportBtn" class="backup-btn">Descargar respaldo (.json)</button>
       <label class="backup-btn" id="importLabel">
         Restaurar desde respaldo
         <input type="file" id="importInput" accept="application/json" style="display:none;">
       </label>
-      <p class="backup-hint">Tocá "PDF" en cualquier semana para descargar solo ese reporte semanal. El reporte completo junta todos los meses. El respaldo .json es el que sirve para restaurar tus datos si cambias de celular o borras el caché.</p>
+      <p class="backup-hint">Tocá "PDF" en cualquier semana para descargar solo ese reporte semanal. El reporte completo junta todos los meses. El respaldo .json restaura todos tus datos.</p>
     </div>
   </div>
 
@@ -374,27 +519,142 @@
     <div id="recordsList"></div>
   </div>
 
+  <!-- CALCULADORA RPE -->
+  <div id="view-rpe" style="display:none;">
+
+    <div class="rpe-mode-toggle" role="group">
+      <button type="button" data-rpemode="barbell" class="active">Barra libre</button>
+      <button type="button" data-rpemode="bodyweight">Calistenia</button>
+      <button type="button" data-rpemode="zona">Zona de trabajo</button>
+    </div>
+
+    <div class="rpe-unit-toggle" role="group">
+      <button type="button" data-rpeunit="kg" class="active">KG</button>
+      <button type="button" data-rpeunit="lb">LB</button>
+    </div>
+
+    <!-- BARRA LIBRE + CALISTENIA -->
+    <div id="rpeMainView">
+      <div class="rpe-card">
+        <div id="rpeFieldsBarbell">
+          <div class="rpe-field">
+            <label>1RM <span class="unit-lbl">kg</span></label>
+            <input id="rpeOrm" type="number" inputmode="decimal" min="0" step="0.5" value="100" placeholder="100">
+          </div>
+          <div class="rpe-field">
+            <label>Peso corporal <span class="opt">(opcional)</span> <span class="unit-lbl">kg</span></label>
+            <input id="rpeBw" type="number" inputmode="decimal" min="0" step="0.5" value="77" placeholder="77">
+          </div>
+        </div>
+        <div id="rpeFieldsBw" hidden>
+          <div class="rpe-field">
+            <label>Ejercicio</label>
+            <select id="rpeExercise">
+              <option value="Dominadas">Dominadas</option>
+              <option value="Fondos">Fondos</option>
+              <option value="Muscle-up">Muscle-up</option>
+            </select>
+          </div>
+          <div class="rpe-field">
+            <label>1RM lastre <span class="opt">(peso extra máx. 1 rep)</span> <span class="unit-lbl">kg</span></label>
+            <input id="rpeOrmAdded" type="number" inputmode="decimal" min="0" step="0.5" value="20" placeholder="20">
+          </div>
+          <div class="rpe-field">
+            <label>Peso corporal <span class="unit-lbl">kg</span></label>
+            <input id="rpeBwReq" type="number" inputmode="decimal" min="0" step="0.5" value="77" placeholder="77">
+          </div>
+        </div>
+        <div class="rpe-field-row">
+          <div class="rpe-field">
+            <label>Repeticiones</label>
+            <select id="rpeReps"></select>
+          </div>
+          <div class="rpe-field">
+            <label>RPE</label>
+            <select id="rpeRpe"></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpe-result">
+        <div class="rpe-result-label" id="rpeResultLabel">Peso de la serie</div>
+        <div class="rpe-result-value"><span id="rpeWeightValue">--</span><span class="rpe-unit" id="rpeWeightUnit">kg</span></div>
+        <div class="rpe-result-meta"><strong id="rpePctValue">--%</strong> de tu 1RM · <span id="rpeRepsEcho">4</span> reps @ RPE <span id="rpeRpeEcho">7</span><span id="rpeExerciseEcho"></span></div>
+        <div class="rpe-barbell-wrap" id="rpeBarbellWrap" aria-hidden="true">
+          <svg id="rpeBarbellSvg" viewBox="0 0 600 130" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+        <div class="rpe-chain-wrap" id="rpeChainWrap" aria-hidden="true" hidden>
+          <svg id="rpeChainSvg" viewBox="0 0 200 160" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+        <div class="rpe-plate-readout" id="rpePlateReadout"></div>
+        <div class="rpe-bw-warning" id="rpeBwWarning" hidden></div>
+        <div class="rpe-bw-stat" id="rpeBwStat" hidden>
+          <strong id="rpeBwRatio">--</strong> <span id="rpeBwStatText">de tu peso corporal</span>
+        </div>
+      </div>
+
+      <div class="rpe-card rpe-chart-card">
+        <button class="rpe-chart-toggle" id="rpeChartToggle" type="button">
+          <span>Ver tabla RPE completa — <span id="rpeChartReps">4</span> reps</span>
+          <span class="arr">▾</span>
+        </button>
+        <div class="rpe-chart-body" id="rpeChartBody" hidden>
+          <table class="rpe-table">
+            <thead><tr><th>RPE</th><th class="num">% 1RM</th><th class="num" id="rpeChartWeightHeader">Peso</th></tr></thead>
+            <tbody id="rpeChartTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ZONA DE TRABAJO -->
+    <div id="rpeZonaView" hidden>
+      <div class="rpe-card">
+        <div class="rpe-field">
+          <label>1RM <span class="unit-lbl">kg</span></label>
+          <input id="rpeZonaOrm" type="number" inputmode="decimal" min="0" step="0.5" value="100" placeholder="Ej: 100">
+        </div>
+        <div class="rpe-field-row" style="margin-bottom:12px;">
+          <div class="rpe-field">
+            <label>Reps mínimas</label>
+            <select id="rpeZonaMin"></select>
+          </div>
+          <div class="rpe-field">
+            <label>Reps máximas</label>
+            <select id="rpeZonaMax"></select>
+          </div>
+        </div>
+        <div class="rpe-field" style="margin-bottom:0;">
+          <label>RPE objetivo</label>
+          <select id="rpeZonaRpe"></select>
+        </div>
+      </div>
+
+      <div class="rpe-zona-result-card" id="rpeZonaResultCard">
+        <div class="rpe-zona-result-label">Rango de peso recomendado</div>
+        <div id="rpeZonaRows"></div>
+      </div>
+    </div>
+
+    <p class="rpe-footer">Tabla %1RM basada en el sistema RPE/RIR de powerlifting (Tuchscherer). En calistenia, la carga total (corporal + lastre) define el %1RM.</p>
+  </div>
+
   <div class="save-bar" id="saveBar">Listo para registrar</div>
 </div>
 
 <script>
 (function() {
-  var STATE = {
-    month: 1,
-    week: 1,
-    day: 1,
-    progressMonth: 1,
-    data: {}
-  };
+
+  /* ══════════════════════════════════════
+     ESTADO Y STORAGE - REGISTRO
+  ══════════════════════════════════════ */
+  var STATE = { month: 1, week: 1, day: 1, progressMonth: 1, data: {} };
   var STORAGE_KEY = 'slab-registro-plan';
   var saveTimeout = null;
 
   function dayKey(m, w, d) { return 'm' + m + 'w' + w + 'd' + d; }
   function sessionKey(m, w, d) { return dayKey(m, w, d) + '_session'; }
-
-  function emptyExercise() {
-    return { nombre: '', sets: '', reps: '', rpe: '', rpeReal: '', peso: '', nota: '', hecho: false };
-  }
+  function emptyExercise() { return { nombre: '', sets: '', reps: '', rpe: '', rpeReal: '', peso: '', nota: '', hecho: false }; }
 
   function ensureDay(m, w, d) {
     var key = dayKey(m, w, d);
@@ -405,628 +665,355 @@
     }
     return STATE.data[key];
   }
-
   function ensureSession(m, w, d) {
     var key = sessionKey(m, w, d);
-    if (!STATE.data[key]) {
-      STATE.data[key] = { rpeSesion: '' };
-    }
+    if (!STATE.data[key]) STATE.data[key] = { rpeSesion: '' };
     return STATE.data[key];
   }
-
   function ensureAllDays() {
-    for (var m = 1; m <= 3; m++) {
-      for (var w = 1; w <= 4; w++) {
-        for (var d = 1; d <= 5; d++) {
-          ensureDay(m, w, d);
-          ensureSession(m, w, d);
-        }
-      }
-    }
+    for (var m = 1; m <= 3; m++)
+      for (var w = 1; w <= 4; w++)
+        for (var d = 1; d <= 5; d++) { ensureDay(m, w, d); ensureSession(m, w, d); }
     ensureRecords();
   }
-
   function ensureRecords() {
-    if (!STATE.data.records || !Array.isArray(STATE.data.records)) {
-      STATE.data.records = [];
-    }
+    if (!STATE.data.records || !Array.isArray(STATE.data.records)) STATE.data.records = [];
     return STATE.data.records;
   }
-
   function emptyRecord() {
-    return { id: 'r' + Date.now() + Math.random().toString(36).slice(2, 7), nombre: '', oneRm: '', repMaxPeso: '', repMaxReps: '' };
+    return { id: 'r' + Date.now() + Math.random().toString(36).slice(2,7), nombre: '', oneRm: '', repMaxPeso: '', repMaxReps: '' };
   }
 
   async function loadData() {
-    try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        STATE.data = JSON.parse(raw);
-      }
-    } catch (e) {
-      STATE.data = {};
-    }
+    try { var raw = localStorage.getItem(STORAGE_KEY); if (raw) STATE.data = JSON.parse(raw); }
+    catch(e) { STATE.data = {}; }
     ensureAllDays();
   }
-
   async function saveData() {
     var bar = document.getElementById('saveBar');
-    bar.textContent = 'Guardando...';
-    bar.classList.remove('saved');
+    bar.textContent = 'Guardando...'; bar.classList.remove('saved');
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE.data));
-      bar.textContent = 'Guardado ✓';
-      bar.classList.add('saved');
-      setTimeout(function() {
-        bar.textContent = 'Listo para registrar';
-        bar.classList.remove('saved');
-      }, 1500);
-    } catch (e) {
-      bar.textContent = 'Error al guardar — espacio lleno o navegador en modo privado';
-    }
+      bar.textContent = 'Guardado ✓'; bar.classList.add('saved');
+      setTimeout(function() { bar.textContent = 'Listo para registrar'; bar.classList.remove('saved'); }, 1500);
+    } catch(e) { bar.textContent = 'Error al guardar'; }
   }
+  function scheduleSave() { clearTimeout(saveTimeout); saveTimeout = setTimeout(saveData, 500); }
 
-  function scheduleSave() {
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(saveData, 500);
-  }
-
+  /* ══════════════════════════════════════
+     RENDER - REGISTRO
+  ══════════════════════════════════════ */
   function renderMonthPills() {
-    var el = document.getElementById('monthPills');
-    el.innerHTML = '';
+    var el = document.getElementById('monthPills'); el.innerHTML = '';
     for (var m = 1; m <= 3; m++) {
       var btn = document.createElement('button');
       btn.textContent = 'Mes ' + m;
       if (m === STATE.month) btn.classList.add('active');
-      btn.onclick = (function(mm) {
-        return function() { STATE.month = mm; STATE.week = 1; STATE.day = 1; renderAll(); };
-      })(m);
+      btn.onclick = (function(mm) { return function() { STATE.month = mm; STATE.week = 1; STATE.day = 1; renderAll(); }; })(m);
       el.appendChild(btn);
     }
   }
-
   function renderWeekPills() {
-    var el = document.getElementById('weekPills');
-    el.innerHTML = '';
+    var el = document.getElementById('weekPills'); el.innerHTML = '';
     for (var w = 1; w <= 4; w++) {
       var btn = document.createElement('button');
       btn.textContent = 'Semana ' + w;
       if (w === STATE.week) btn.classList.add('active');
-      btn.onclick = (function(ww) {
-        return function() { STATE.week = ww; renderAll(); };
-      })(w);
+      btn.onclick = (function(ww) { return function() { STATE.week = ww; renderAll(); }; })(w);
       el.appendChild(btn);
     }
   }
-
   function dayComplete(m, w, d) {
     var arr = STATE.data[dayKey(m, w, d)];
     if (!arr) return false;
     var any = arr.some(function(e) { return e.nombre.trim() !== ''; });
     if (!any) return false;
-    return arr.every(function(e) {
-      return e.nombre.trim() === '' || e.hecho;
-    });
+    return arr.every(function(e) { return e.nombre.trim() === '' || e.hecho; });
   }
-
   function renderDayPills() {
-    var el = document.getElementById('dayPills');
-    el.innerHTML = '';
+    var el = document.getElementById('dayPills'); el.innerHTML = '';
     for (var d = 1; d <= 5; d++) {
       var btn = document.createElement('button');
       var complete = dayComplete(STATE.month, STATE.week, d);
       btn.innerHTML = 'Día ' + d + (complete ? '<span class="check">✓ hecho</span>' : '');
       if (d === STATE.day) btn.classList.add('active');
-      btn.onclick = (function(dd) {
-        return function() { STATE.day = dd; renderAll(); };
-      })(d);
+      btn.onclick = (function(dd) { return function() { STATE.day = dd; renderAll(); }; })(d);
       el.appendChild(btn);
     }
   }
-
   function renderExercises() {
-    var el = document.getElementById('exerciseList');
-    el.innerHTML = '';
+    var el = document.getElementById('exerciseList'); el.innerHTML = '';
     var arr = ensureDay(STATE.month, STATE.week, STATE.day);
-
     if (arr.length === 0) {
       var emptyMsg = document.createElement('div');
       emptyMsg.className = 'records-empty';
-      emptyMsg.textContent = 'No hay ejercicios cargados para este día. Tocá "+ Añadir ejercicio" para empezar.';
+      emptyMsg.textContent = 'No hay ejercicios cargados. Tocá "+ Añadir ejercicio" para empezar.';
       el.appendChild(emptyMsg);
     }
-
     arr.forEach(function(ex, idx) {
       var card = document.createElement('div');
       card.className = 'exercise-card' + (ex.hecho && ex.nombre.trim() ? ' complete' : '');
-
-      var head = document.createElement('div');
-      head.className = 'ex-head';
-      var num = document.createElement('div');
-      num.className = 'ex-num';
-      num.textContent = idx + 1;
+      var head = document.createElement('div'); head.className = 'ex-head';
+      var num = document.createElement('div'); num.className = 'ex-num'; num.textContent = idx + 1;
       var nameInput = document.createElement('input');
-      nameInput.className = 'ex-name-input';
-      nameInput.type = 'text';
-      nameInput.placeholder = 'Nombre del ejercicio';
-      nameInput.value = ex.nombre;
-      nameInput.setAttribute('aria-label', 'Nombre del ejercicio ' + (idx + 1));
+      nameInput.className = 'ex-name-input'; nameInput.type = 'text';
+      nameInput.placeholder = 'Nombre del ejercicio'; nameInput.value = ex.nombre;
+      nameInput.setAttribute('aria-label', 'Nombre del ejercicio ' + (idx+1));
       nameInput.oninput = function() { ex.nombre = this.value; scheduleSave(); };
       nameInput.onblur = function() { renderDayPills(); };
       var delExBtn = document.createElement('button');
-      delExBtn.className = 'record-delete-btn';
-      delExBtn.textContent = '✕';
+      delExBtn.className = 'record-delete-btn'; delExBtn.textContent = '✕';
       delExBtn.setAttribute('aria-label', 'Eliminar ejercicio');
       delExBtn.onclick = function() {
         var label = ex.nombre.trim() || 'este ejercicio';
         if (!confirm('¿Eliminar "' + label + '" de este día? Esta acción no se puede deshacer.')) return;
-        var i = arr.indexOf(ex);
-        if (i > -1) arr.splice(i, 1);
-        scheduleSave();
-        renderExercises();
-        renderDayPills();
+        var i = arr.indexOf(ex); if (i > -1) arr.splice(i, 1);
+        scheduleSave(); renderExercises(); renderDayPills();
       };
-      head.appendChild(num);
-      head.appendChild(nameInput);
-      head.appendChild(delExBtn);
+      head.appendChild(num); head.appendChild(nameInput); head.appendChild(delExBtn);
       card.appendChild(head);
-
-      var fields1 = document.createElement('div');
-      fields1.className = 'ex-fields';
+      var fields1 = document.createElement('div'); fields1.className = 'ex-fields';
       fields1.appendChild(makeField('Series', ex, 'sets', 'number'));
       fields1.appendChild(makeField('Reps', ex, 'reps', 'text'));
       fields1.appendChild(makeRPEField('RPE obj.', ex, 'rpe', 'rpe-select'));
       card.appendChild(fields1);
-
-      var fields2 = document.createElement('div');
-      fields2.className = 'ex-fields-row2';
+      var fields2 = document.createElement('div'); fields2.className = 'ex-fields-row2';
       var rpeRealField = makeRPEField('RPE real', ex, 'rpeReal', 'rpe-real');
       rpeRealField.classList.add('rpe-real');
       var pesoField = makeField('Peso usado (kg)', ex, 'peso', 'number');
       pesoField.classList.add('peso');
-      fields2.appendChild(rpeRealField);
-      fields2.appendChild(pesoField);
+      fields2.appendChild(rpeRealField); fields2.appendChild(pesoField);
       card.appendChild(fields2);
-
       card.appendChild(makeNoteField(ex));
-
       var doneWrap = document.createElement('label');
       doneWrap.className = 'done-toggle' + (ex.hecho ? ' on' : '');
-      var checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.checked = ex.hecho;
+      var checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.checked = ex.hecho;
       checkbox.onchange = function() {
-        ex.hecho = this.checked;
-        scheduleSave();
-        renderExercises();
-        renderDayPills();
+        ex.hecho = this.checked; scheduleSave(); renderExercises(); renderDayPills();
       };
       var doneLabel = document.createElement('span');
       doneLabel.textContent = ex.hecho ? 'Serie completada' : 'Marcar como hecho';
-      doneWrap.appendChild(checkbox);
-      doneWrap.appendChild(doneLabel);
+      doneWrap.appendChild(checkbox); doneWrap.appendChild(doneLabel);
       card.appendChild(doneWrap);
-
       el.appendChild(card);
     });
-
     var addExBtn = document.createElement('button');
-    addExBtn.className = 'add-exercise-btn';
-    addExBtn.textContent = '+ Añadir ejercicio';
-    addExBtn.onclick = function() {
-      arr.push(emptyExercise());
-      scheduleSave();
-      renderExercises();
-    };
+    addExBtn.className = 'add-exercise-btn'; addExBtn.textContent = '+ Añadir ejercicio';
+    addExBtn.onclick = function() { arr.push(emptyExercise()); scheduleSave(); renderExercises(); };
     el.appendChild(addExBtn);
-
     var session = ensureSession(STATE.month, STATE.week, STATE.day);
     var sessionCard = document.createElement('div');
     sessionCard.className = 'exercise-card session-card';
-
-    var sessionHead = document.createElement('div');
-    sessionHead.className = 'ex-head';
-    var sessionLabel = document.createElement('div');
-    sessionLabel.className = 'session-label';
-    sessionLabel.textContent = 'RPE entrenamiento';
-    sessionHead.appendChild(sessionLabel);
+    var sessionHead = document.createElement('div'); sessionHead.className = 'ex-head';
+    var sessionLabel = document.createElement('div'); sessionLabel.className = 'session-label';
+    sessionLabel.textContent = 'RPE entrenamiento'; sessionHead.appendChild(sessionLabel);
     sessionCard.appendChild(sessionHead);
-
-    var sessionFields = document.createElement('div');
-    sessionFields.className = 'ex-fields session-fields';
+    var sessionFields = document.createElement('div'); sessionFields.className = 'ex-fields session-fields';
     var sessionField = makeRPEField('RPE de toda la sesión', session, 'rpeSesion', null);
-    sessionFields.appendChild(sessionField);
-    sessionCard.appendChild(sessionFields);
-
+    sessionFields.appendChild(sessionField); sessionCard.appendChild(sessionFields);
     el.appendChild(sessionCard);
   }
 
   function makeNoteField(ex) {
-    var wrap = document.createElement('div');
-    wrap.className = 'note-field';
-    var label = document.createElement('label');
-    label.textContent = 'Nota / feedback';
+    var wrap = document.createElement('div'); wrap.className = 'note-field';
+    var label = document.createElement('label'); label.textContent = 'Nota / feedback';
     var textarea = document.createElement('textarea');
     textarea.placeholder = 'Cómo se sintió, técnica, dolores, ajustes para la próxima...';
-    textarea.value = ex.nota || '';
-    textarea.setAttribute('aria-label', 'Nota del ejercicio');
+    textarea.value = ex.nota || ''; textarea.setAttribute('aria-label', 'Nota del ejercicio');
     textarea.oninput = function() { ex.nota = this.value; scheduleSave(); };
-    wrap.appendChild(label);
-    wrap.appendChild(textarea);
-    return wrap;
+    wrap.appendChild(label); wrap.appendChild(textarea); return wrap;
   }
-
   function makeRPEField(labelText, ex, key, extraClass) {
     var wrap = document.createElement('div');
     wrap.className = 'field' + (extraClass ? ' ' + extraClass : '');
-    var label = document.createElement('label');
-    label.textContent = labelText;
-    var select = document.createElement('select');
-    select.setAttribute('aria-label', labelText);
-    var blankOpt = document.createElement('option');
-    blankOpt.value = '';
-    blankOpt.textContent = '—';
+    var label = document.createElement('label'); label.textContent = labelText;
+    var select = document.createElement('select'); select.setAttribute('aria-label', labelText);
+    var blankOpt = document.createElement('option'); blankOpt.value = ''; blankOpt.textContent = '—';
     select.appendChild(blankOpt);
     for (var v = 5; v <= 10; v += 0.5) {
-      var val = (Math.round(v * 10) / 10).toString();
-      var opt = document.createElement('option');
-      opt.value = val;
-      opt.textContent = val;
+      var val = (Math.round(v*10)/10).toString();
+      var opt = document.createElement('option'); opt.value = val; opt.textContent = val;
       select.appendChild(opt);
     }
     select.value = ex[key] || '';
     select.onchange = function() { ex[key] = this.value; scheduleSave(); };
-    wrap.appendChild(label);
-    wrap.appendChild(select);
-    return wrap;
+    wrap.appendChild(label); wrap.appendChild(select); return wrap;
   }
-
   function makeField(labelText, ex, key, type) {
-    var wrap = document.createElement('div');
-    wrap.className = 'field';
-    var label = document.createElement('label');
-    label.textContent = labelText;
-    var input = document.createElement('input');
-    input.type = type;
-    if (type === 'number') {
-      input.inputMode = 'decimal';
-      input.min = '0';
-    }
-    input.value = ex[key];
-    input.setAttribute('aria-label', labelText);
+    var wrap = document.createElement('div'); wrap.className = 'field';
+    var label = document.createElement('label'); label.textContent = labelText;
+    var input = document.createElement('input'); input.type = type;
+    if (type === 'number') { input.inputMode = 'decimal'; input.min = '0'; }
+    input.value = ex[key]; input.setAttribute('aria-label', labelText);
     input.oninput = function() { ex[key] = this.value; scheduleSave(); };
-    wrap.appendChild(label);
-    wrap.appendChild(input);
-    return wrap;
+    wrap.appendChild(label); wrap.appendChild(input); return wrap;
   }
 
+  /* ══════════════════════════════════════
+     RENDER - PROGRESO
+  ══════════════════════════════════════ */
   function renderMonthPillsProgress() {
-    var el = document.getElementById('monthPillsProgress');
-    el.innerHTML = '';
+    var el = document.getElementById('monthPillsProgress'); el.innerHTML = '';
     for (var m = 1; m <= 3; m++) {
       var btn = document.createElement('button');
       btn.textContent = 'Mes ' + m;
       if (m === STATE.progressMonth) btn.classList.add('active');
-      btn.onclick = (function(mm) {
-        return function() { STATE.progressMonth = mm; renderProgress(); };
-      })(m);
+      btn.onclick = (function(mm) { return function() { STATE.progressMonth = mm; renderProgress(); }; })(m);
       el.appendChild(btn);
     }
   }
-
   function renderProgress() {
     renderMonthPillsProgress();
     var month = STATE.progressMonth;
-
-    var summaryEl = document.getElementById('weekSummary');
-    summaryEl.innerHTML = '';
+    var summaryEl = document.getElementById('weekSummary'); summaryEl.innerHTML = '';
     for (var w = 1; w <= 4; w++) {
       var totalDays = 0, doneDays = 0;
       for (var d = 1; d <= 5; d++) {
         var arr = STATE.data[dayKey(month, w, d)] || [];
         var hasContent = arr.some(function(e) { return e.nombre.trim() !== ''; });
-        if (hasContent) {
-          totalDays++;
-          if (dayComplete(month, w, d)) doneDays++;
-        }
+        if (hasContent) { totalDays++; if (dayComplete(month, w, d)) doneDays++; }
       }
       var weekHasContent = totalDays > 0;
-      var stat = document.createElement('div');
-      stat.className = 'stat';
+      var stat = document.createElement('div'); stat.className = 'stat';
       stat.innerHTML = '<div class="n">' + doneDays + '/' + (totalDays || 5) + '</div><div class="l">Semana ' + w + '</div>';
-      var weekBtn = document.createElement('button');
-      weekBtn.className = 'week-pdf-btn';
-      weekBtn.textContent = 'PDF';
-      weekBtn.disabled = !weekHasContent;
-      weekBtn.onclick = (function(mm, ww) {
-        return function() { generatePDFReport(mm, ww); };
-      })(month, w);
-      stat.appendChild(weekBtn);
-      summaryEl.appendChild(stat);
+      var weekBtn = document.createElement('button'); weekBtn.className = 'week-pdf-btn';
+      weekBtn.textContent = 'PDF'; weekBtn.disabled = !weekHasContent;
+      weekBtn.onclick = (function(mm, ww) { return function() { generatePDFReport(mm, ww); }; })(month, w);
+      stat.appendChild(weekBtn); summaryEl.appendChild(stat);
     }
-
-    var contentEl = document.getElementById('progressContent');
-    contentEl.innerHTML = '';
-
+    var contentEl = document.getElementById('progressContent'); contentEl.innerHTML = '';
     var sessionRecords = [];
-    for (var ws = 1; ws <= 4; ws++) {
+    for (var ws = 1; ws <= 4; ws++)
       for (var ds = 1; ds <= 5; ds++) {
         var sess = STATE.data[sessionKey(month, ws, ds)];
-        if (sess && sess.rpeSesion !== '') {
-          sessionRecords.push({ week: ws, day: ds, rpe: sess.rpeSesion });
-        }
+        if (sess && sess.rpeSesion !== '') sessionRecords.push({ week: ws, day: ds, rpe: sess.rpeSesion });
       }
-    }
     if (sessionRecords.length > 0) {
-      var sessCard = document.createElement('div');
-      sessCard.className = 'progress-card';
-      var sessH3 = document.createElement('h3');
-      sessH3.textContent = 'RPE entrenamiento por sesión';
+      var sessCard = document.createElement('div'); sessCard.className = 'progress-card';
+      var sessH3 = document.createElement('h3'); sessH3.textContent = 'RPE entrenamiento por sesión';
       sessCard.appendChild(sessH3);
-
-      var sessTable = document.createElement('table');
-      sessTable.className = 'history';
+      var sessTable = document.createElement('table'); sessTable.className = 'history';
       var sessThead = document.createElement('tr');
-      ['Sem/Día', 'RPE entrenamiento'].forEach(function(h) {
-        var th = document.createElement('th');
-        th.textContent = h;
-        sessThead.appendChild(th);
-      });
+      ['Sem/Día','RPE entrenamiento'].forEach(function(h) { var th = document.createElement('th'); th.textContent = h; sessThead.appendChild(th); });
       sessTable.appendChild(sessThead);
-
       sessionRecords.forEach(function(r) {
         var tr = document.createElement('tr');
-        var c1 = document.createElement('td');
-        c1.textContent = 'S' + r.week + ' D' + r.day;
-        var c2 = document.createElement('td');
-        c2.textContent = r.rpe;
-        tr.appendChild(c1); tr.appendChild(c2);
-        sessTable.appendChild(tr);
+        var c1 = document.createElement('td'); c1.textContent = 'S' + r.week + ' D' + r.day;
+        var c2 = document.createElement('td'); c2.textContent = r.rpe;
+        tr.appendChild(c1); tr.appendChild(c2); sessTable.appendChild(tr);
       });
-
-      sessCard.appendChild(sessTable);
-      contentEl.appendChild(sessCard);
+      sessCard.appendChild(sessTable); contentEl.appendChild(sessCard);
     }
-
     var exerciseMap = {};
-    for (var w2 = 1; w2 <= 4; w2++) {
+    for (var w2 = 1; w2 <= 4; w2++)
       for (var d2 = 1; d2 <= 5; d2++) {
         var arr2 = STATE.data[dayKey(month, w2, d2)] || [];
         arr2.forEach(function(ex) {
-          var name = ex.nombre.trim();
-          if (!name) return;
+          var name = ex.nombre.trim(); if (!name) return;
           if (!exerciseMap[name]) exerciseMap[name] = [];
-          if (ex.peso !== '' || ex.rpeReal !== '') {
-            exerciseMap[name].push({
-              week: w2, day: d2,
-              sets: ex.sets, reps: ex.reps,
-              rpe: ex.rpe, rpeReal: ex.rpeReal, peso: ex.peso
-            });
-          }
+          if (ex.peso !== '' || ex.rpeReal !== '')
+            exerciseMap[name].push({ week: w2, day: d2, sets: ex.sets, reps: ex.reps, rpe: ex.rpe, rpeReal: ex.rpeReal, peso: ex.peso });
         });
       }
-    }
-
     var names = Object.keys(exerciseMap);
     if (names.length === 0) {
-      if (sessionRecords.length === 0) {
-        contentEl.innerHTML = '<div class="empty-state">Aún no hay registros en este mes.<br>Ve a la pestaña Registro y completa tus ejercicios.</div>';
-      }
+      if (sessionRecords.length === 0) contentEl.innerHTML = '<div class="empty-state">Aún no hay registros en este mes.</div>';
       return;
     }
-
     names.sort();
     names.forEach(function(name) {
       var records = exerciseMap[name];
-      var card = document.createElement('div');
-      card.className = 'progress-card';
-      var h3 = document.createElement('h3');
-      h3.textContent = name;
-      card.appendChild(h3);
-
-      var table = document.createElement('table');
-      table.className = 'history';
+      var card = document.createElement('div'); card.className = 'progress-card';
+      var h3 = document.createElement('h3'); h3.textContent = name; card.appendChild(h3);
+      var table = document.createElement('table'); table.className = 'history';
       var thead = document.createElement('tr');
-      ['Sem/Día', 'Series x Reps', 'RPE obj→real', 'Peso'].forEach(function(h) {
-        var th = document.createElement('th');
-        th.textContent = h;
-        thead.appendChild(th);
-      });
+      ['Sem/Día','Series x Reps','RPE obj→real','Peso'].forEach(function(h) { var th = document.createElement('th'); th.textContent = h; thead.appendChild(th); });
       table.appendChild(thead);
-
       records.forEach(function(r) {
         var tr = document.createElement('tr');
-        var c1 = document.createElement('td');
-        c1.textContent = 'S' + r.week + ' D' + r.day;
-        var c2 = document.createElement('td');
-        c2.textContent = (r.sets || '-') + ' x ' + (r.reps || '-');
-        var c3 = document.createElement('td');
-        c3.textContent = (r.rpe || '-') + ' → ' + (r.rpeReal || '-');
-        var c4 = document.createElement('td');
-        c4.textContent = r.peso ? r.peso + ' kg' : '-';
-        tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3); tr.appendChild(c4);
-        table.appendChild(tr);
+        var c1 = document.createElement('td'); c1.textContent = 'S' + r.week + ' D' + r.day;
+        var c2 = document.createElement('td'); c2.textContent = (r.sets||'-') + ' x ' + (r.reps||'-');
+        var c3 = document.createElement('td'); c3.textContent = (r.rpe||'-') + ' → ' + (r.rpeReal||'-');
+        var c4 = document.createElement('td'); c4.textContent = r.peso ? r.peso + ' kg' : '-';
+        tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3); tr.appendChild(c4); table.appendChild(tr);
       });
-
-      card.appendChild(table);
-      contentEl.appendChild(card);
+      card.appendChild(table); contentEl.appendChild(card);
     });
   }
 
+  /* ══════════════════════════════════════
+     RENDER - RÉCORDS
+  ══════════════════════════════════════ */
   function renderRecords() {
     var records = ensureRecords();
-    var el = document.getElementById('recordsList');
-    el.innerHTML = '';
-
+    var el = document.getElementById('recordsList'); el.innerHTML = '';
     if (records.length === 0) {
-      el.innerHTML = '<div class="records-empty">Aún no tienes récords guardados.<br>Toca "+ Añadir ejercicio" para registrar tu primer 1RM o récord de repeticiones.</div>';
+      el.innerHTML = '<div class="records-empty">Aún no tenés récords guardados.<br>Tocá "+ Añadir ejercicio" para registrar tu primer 1RM.</div>';
       return;
     }
-
     records.forEach(function(rec) {
-      var card = document.createElement('div');
-      card.className = 'record-card';
-
-      var head = document.createElement('div');
-      head.className = 'record-head';
+      var card = document.createElement('div'); card.className = 'record-card';
+      var head = document.createElement('div'); head.className = 'record-head';
       var nameInput = document.createElement('input');
-      nameInput.className = 'record-name-input';
-      nameInput.type = 'text';
-      nameInput.placeholder = 'Nombre del ejercicio';
-      nameInput.value = rec.nombre;
+      nameInput.className = 'record-name-input'; nameInput.type = 'text';
+      nameInput.placeholder = 'Nombre del ejercicio'; nameInput.value = rec.nombre;
       nameInput.setAttribute('aria-label', 'Nombre del ejercicio en récords');
       nameInput.oninput = function() { rec.nombre = this.value; scheduleSave(); };
       var delBtn = document.createElement('button');
-      delBtn.className = 'record-delete-btn';
-      delBtn.textContent = '✕';
+      delBtn.className = 'record-delete-btn'; delBtn.textContent = '✕';
       delBtn.setAttribute('aria-label', 'Eliminar récord');
       delBtn.onclick = function() {
         var label = rec.nombre.trim() || 'este récord';
         if (!confirm('¿Eliminar "' + label + '"? Esta acción no se puede deshacer.')) return;
-        var idx = records.indexOf(rec);
-        if (idx > -1) records.splice(idx, 1);
-        scheduleSave();
-        renderRecords();
+        var idx = records.indexOf(rec); if (idx > -1) records.splice(idx, 1);
+        scheduleSave(); renderRecords();
       };
-      head.appendChild(nameInput);
-      head.appendChild(delBtn);
-      card.appendChild(head);
-
-      var block1 = document.createElement('div');
-      block1.className = 'record-block';
-      var label1 = document.createElement('span');
-      label1.className = 'record-block-label';
-      label1.textContent = 'Récord a 1 repetición';
+      head.appendChild(nameInput); head.appendChild(delBtn); card.appendChild(head);
+      var block1 = document.createElement('div'); block1.className = 'record-block';
+      var label1 = document.createElement('span'); label1.className = 'record-block-label'; label1.textContent = 'Récord a 1 repetición';
       block1.appendChild(label1);
-      var row1 = document.createElement('div');
-      row1.className = 'record-row';
-      row1.appendChild(makeField('Peso (kg)', rec, 'oneRm', 'number'));
-      block1.appendChild(row1);
-      card.appendChild(block1);
-
-      var block2 = document.createElement('div');
-      block2.className = 'record-block';
-      var label2 = document.createElement('span');
-      label2.className = 'record-block-label';
-      label2.textContent = 'Récord a repeticiones máximas';
+      var row1 = document.createElement('div'); row1.className = 'record-row';
+      row1.appendChild(makeField('Peso (kg)', rec, 'oneRm', 'number')); block1.appendChild(row1); card.appendChild(block1);
+      var block2 = document.createElement('div'); block2.className = 'record-block';
+      var label2 = document.createElement('span'); label2.className = 'record-block-label'; label2.textContent = 'Récord a repeticiones máximas';
       block2.appendChild(label2);
-      var row2 = document.createElement('div');
-      row2.className = 'record-row';
+      var row2 = document.createElement('div'); row2.className = 'record-row';
       row2.appendChild(makeField('Peso (kg)', rec, 'repMaxPeso', 'number'));
       row2.appendChild(makeField('Reps logradas', rec, 'repMaxReps', 'number'));
-      block2.appendChild(row2);
-      card.appendChild(block2);
-
+      block2.appendChild(row2); card.appendChild(block2);
       el.appendChild(card);
     });
   }
-
   document.getElementById('addRecordBtn').onclick = function() {
-    var records = ensureRecords();
-    records.push(emptyRecord());
-    scheduleSave();
-    renderRecords();
+    ensureRecords().push(emptyRecord()); scheduleSave(); renderRecords();
   };
 
-  function renderAll() {
-    renderMonthPills();
-    renderWeekPills();
-    renderDayPills();
-    renderExercises();
-  }
-
-  function switchTab(tab) {
-    var tabRegistro = document.getElementById('tab-registro');
-    var tabProgreso = document.getElementById('tab-progreso');
-    var tabRecords = document.getElementById('tab-records');
-    var viewRegistro = document.getElementById('view-registro');
-    var viewProgreso = document.getElementById('view-progreso');
-    var viewRecords = document.getElementById('view-records');
-
-    tabRegistro.classList.remove('active');
-    tabProgreso.classList.remove('active');
-    tabRecords.classList.remove('active');
-    viewRegistro.style.display = 'none';
-    viewProgreso.style.display = 'none';
-    viewRecords.style.display = 'none';
-
-    if (tab === 'registro') {
-      tabRegistro.classList.add('active');
-      viewRegistro.style.display = '';
-    } else if (tab === 'progreso') {
-      tabProgreso.classList.add('active');
-      viewProgreso.style.display = '';
-      STATE.progressMonth = STATE.month;
-      renderProgress();
-    } else if (tab === 'records') {
-      tabRecords.classList.add('active');
-      viewRecords.style.display = '';
-      renderRecords();
-    }
-  }
-
-  document.getElementById('tab-registro').onclick = function() { switchTab('registro'); };
-  document.getElementById('tab-progreso').onclick = function() { switchTab('progreso'); };
-  document.getElementById('tab-records').onclick = function() { switchTab('records'); };
-
+  /* ══════════════════════════════════════
+     PDF REPORT
+  ══════════════════════════════════════ */
   function generatePDFReport(filterMonth, filterWeek) {
-    if (typeof window.jspdf === 'undefined') {
-      alert('No se pudo cargar la librería de PDF. Verificá tu conexión a internet e intentá de nuevo.');
-      return;
-    }
+    if (typeof window.jspdf === 'undefined') { alert('No se pudo cargar la librería de PDF. Verificá tu conexión.'); return; }
     var jsPDFLib = window.jspdf.jsPDF;
     var doc = new jsPDFLib({ unit: 'pt', format: 'a4' });
-    var pageW = doc.internal.pageSize.getWidth();
-    var pageH = doc.internal.pageSize.getHeight();
-    var margin = 40;
-    var y = margin;
-
-    var gold = [201, 169, 110];
-    var dark = [13, 13, 13];
-    var grey = [140, 135, 120];
-    var lineGrey = [214, 210, 198];
-
-    function ensureSpace(needed) {
-      if (y + needed > pageH - margin) {
-        doc.addPage();
-        y = margin;
-      }
-    }
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(20);
-    doc.setTextColor(gold[0], gold[1], gold[2]);
-    doc.text('STRENGTHLAB', margin, y);
-    y += 16;
-    doc.setFont('helvetica', 'italic');
-    doc.setFontSize(10);
-    doc.setTextColor(grey[0], grey[1], grey[2]);
-    doc.text('by @reennzolifts', margin, y);
-    y += 18;
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(12);
-    doc.setTextColor(dark[0], dark[1], dark[2]);
-    var reportTitle = (filterMonth && filterWeek)
-      ? ('Reporte semanal — Mes ' + filterMonth + ' · Semana ' + filterWeek)
-      : 'Reporte de entrenamiento';
-    doc.text(reportTitle, margin, y);
-    y += 14;
-    doc.setFontSize(9);
-    doc.setTextColor(grey[0], grey[1], grey[2]);
-    var todayLabel = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
-    doc.text('Generado el ' + todayLabel, margin, y);
-    y += 8;
-    doc.setDrawColor(gold[0], gold[1], gold[2]);
-    doc.setLineWidth(1.2);
-    doc.line(margin, y, pageW - margin, y);
-    y += 22;
-
+    var pageW = doc.internal.pageSize.getWidth(), pageH = doc.internal.pageSize.getHeight();
+    var margin = 40, y = margin;
+    var gold = [201,169,110], dark = [13,13,13], grey = [140,135,120], lineGrey = [214,210,198];
+    function ensureSpace(n) { if (y + n > pageH - margin) { doc.addPage(); y = margin; } }
+    doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor(gold[0],gold[1],gold[2]);
+    doc.text('STRENGTHLAB', margin, y); y += 16;
+    doc.setFont('helvetica','italic'); doc.setFontSize(10); doc.setTextColor(grey[0],grey[1],grey[2]);
+    doc.text('by @reennzolifts', margin, y); y += 18;
+    doc.setFont('helvetica','normal'); doc.setFontSize(12); doc.setTextColor(dark[0],dark[1],dark[2]);
+    var reportTitle = (filterMonth && filterWeek) ? ('Reporte semanal — Mes ' + filterMonth + ' · Semana ' + filterWeek) : 'Reporte de entrenamiento';
+    doc.text(reportTitle, margin, y); y += 14;
+    doc.setFontSize(9); doc.setTextColor(grey[0],grey[1],grey[2]);
+    doc.text('Generado el ' + new Date().toLocaleDateString('es-AR', {year:'numeric',month:'long',day:'numeric'}), margin, y); y += 8;
+    doc.setDrawColor(gold[0],gold[1],gold[2]); doc.setLineWidth(1.2);
+    doc.line(margin, y, pageW - margin, y); y += 22;
     var hasAnyContent = false;
-
-    var monthsToRender = filterMonth ? [filterMonth] : [1, 2, 3];
-
+    var monthsToRender = filterMonth ? [filterMonth] : [1,2,3];
     monthsToRender.forEach(function(m) {
-      var weeksToRender = filterWeek ? [filterWeek] : [1, 2, 3, 4];
+      var weeksToRender = filterWeek ? [filterWeek] : [1,2,3,4];
       var monthHasContent = false;
       weeksToRender.forEach(function(wc) {
         for (var dc = 1; dc <= 5; dc++) {
@@ -1036,157 +1023,444 @@
       });
       if (!monthHasContent) return;
       hasAnyContent = true;
-
-      ensureSpace(30);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.setTextColor(dark[0], dark[1], dark[2]);
-      doc.text('Mes ' + m, margin, y);
-      y += 16;
-
+      ensureSpace(30); doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(dark[0],dark[1],dark[2]);
+      doc.text('Mes ' + m, margin, y); y += 16;
       weeksToRender.forEach(function(w) {
         for (var d = 1; d <= 5; d++) {
           var arrDay = STATE.data[dayKey(m, w, d)] || [];
           var dayRows = arrDay.filter(function(e) { return e.nombre.trim() !== ''; });
           if (dayRows.length === 0) continue;
-
-          ensureSpace(40);
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(10.5);
-          doc.setTextColor(gold[0], gold[1], gold[2]);
-          doc.text('Semana ' + w + ' · Día ' + d, margin, y);
-          y += 4;
-
+          ensureSpace(40); doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(gold[0],gold[1],gold[2]);
+          doc.text('Semana ' + w + ' · Día ' + d, margin, y); y += 4;
           var sess = STATE.data[sessionKey(m, w, d)];
-          var sessText = (sess && sess.rpeSesion !== '') ? ('RPE de toda la sesión: ' + sess.rpeSesion) : '';
-
-          var body = dayRows.map(function(e) {
-            return [
-              e.nombre,
-              e.sets || '-',
-              e.reps || '-',
-              (e.rpe || '-') + ' → ' + (e.rpeReal || '-'),
-              e.peso ? (e.peso + ' kg') : '-',
-              e.nota || ''
-            ];
-          });
-
-          doc.autoTable({
-            startY: y + 6,
-            margin: { left: margin, right: margin },
-            head: [['Ejercicio', 'Series', 'Reps', 'RPE obj→real', 'Peso', 'Nota']],
-            body: body,
-            theme: 'grid',
-            styles: { fontSize: 8.5, cellPadding: 4, textColor: [40, 40, 36], lineColor: lineGrey, lineWidth: 0.5 },
-            headStyles: { fillColor: dark, textColor: gold, fontStyle: 'bold' },
-            columnStyles: { 0: { cellWidth: 80 }, 5: { cellWidth: 125 } }
-          });
-
+          var sessText = (sess && sess.rpeSesion !== '') ? 'RPE de toda la sesión: ' + sess.rpeSesion : '';
+          var body = dayRows.map(function(e) { return [e.nombre, e.sets||'-', e.reps||'-', (e.rpe||'-') + ' → ' + (e.rpeReal||'-'), e.peso ? e.peso + ' kg' : '-', e.nota||'']; });
+          doc.autoTable({ startY: y+6, margin:{left:margin,right:margin}, head:[['Ejercicio','Series','Reps','RPE obj→real','Peso','Nota']], body: body, theme:'grid', styles:{fontSize:8.5,cellPadding:4,textColor:[40,40,36],lineColor:lineGrey,lineWidth:0.5}, headStyles:{fillColor:dark,textColor:gold,fontStyle:'bold'}, columnStyles:{0:{cellWidth:80},5:{cellWidth:125}} });
           y = doc.lastAutoTable.finalY + (sessText ? 14 : 8);
-
-          if (sessText) {
-            ensureSpace(14);
-            doc.setFont('helvetica', 'italic');
-            doc.setFontSize(8.5);
-            doc.setTextColor(grey[0], grey[1], grey[2]);
-            doc.text(sessText, margin, y);
-            y += 16;
-          }
+          if (sessText) { ensureSpace(14); doc.setFont('helvetica','italic'); doc.setFontSize(8.5); doc.setTextColor(grey[0],grey[1],grey[2]); doc.text(sessText, margin, y); y += 16; }
         }
       });
       y += 6;
     });
-
     if (!filterWeek) {
       var records = ensureRecords().filter(function(r) { return r.nombre.trim() !== ''; });
       if (records.length > 0) {
-        hasAnyContent = true;
-        ensureSpace(30);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(13);
-        doc.setTextColor(dark[0], dark[1], dark[2]);
-        doc.text('Récords personales', margin, y);
-        y += 10;
-
-        var recBody = records.map(function(r) {
-          return [
-            r.nombre,
-            r.oneRm ? (r.oneRm + ' kg') : '-',
-            (r.repMaxPeso || r.repMaxReps) ? ((r.repMaxPeso || '-') + ' kg x ' + (r.repMaxReps || '-') + ' reps') : '-'
-          ];
-        });
-        doc.autoTable({
-          startY: y + 6,
-          margin: { left: margin, right: margin },
-          head: [['Ejercicio', '1RM', 'Récord a reps máximas']],
-          body: recBody,
-          theme: 'grid',
-          styles: { fontSize: 9, cellPadding: 5, textColor: [40, 40, 36], lineColor: lineGrey, lineWidth: 0.5 },
-          headStyles: { fillColor: dark, textColor: gold, fontStyle: 'bold' }
-        });
+        hasAnyContent = true; ensureSpace(30);
+        doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(dark[0],dark[1],dark[2]);
+        doc.text('Récords personales', margin, y); y += 10;
+        var recBody = records.map(function(r) { return [r.nombre, r.oneRm ? r.oneRm + ' kg' : '-', (r.repMaxPeso||r.repMaxReps) ? (r.repMaxPeso||'-') + ' kg x ' + (r.repMaxReps||'-') + ' reps' : '-']; });
+        doc.autoTable({ startY: y+6, margin:{left:margin,right:margin}, head:[['Ejercicio','1RM','Récord a reps máximas']], body: recBody, theme:'grid', styles:{fontSize:9,cellPadding:5,textColor:[40,40,36],lineColor:lineGrey,lineWidth:0.5}, headStyles:{fillColor:dark,textColor:gold,fontStyle:'bold'} });
         y = doc.lastAutoTable.finalY + 10;
       }
     }
-
-    if (!hasAnyContent) {
-      alert(filterWeek ? 'No hay registros cargados para esa semana.' : 'Todavía no hay registros cargados para generar un reporte.');
-      return;
-    }
-
-    var todayStr = new Date().toISOString().slice(0, 10);
-    var filename = (filterMonth && filterWeek)
-      ? ('reporte-slab-mes' + filterMonth + '-semana' + filterWeek + '-' + todayStr + '.pdf')
-      : ('reporte-slab-' + todayStr + '.pdf');
-    doc.save(filename);
+    if (!hasAnyContent) { alert(filterWeek ? 'No hay registros cargados para esa semana.' : 'Todavía no hay registros para generar un reporte.'); return; }
+    var todayStr = new Date().toISOString().slice(0,10);
+    doc.save((filterMonth && filterWeek) ? ('reporte-slab-mes' + filterMonth + '-semana' + filterWeek + '-' + todayStr + '.pdf') : ('reporte-slab-' + todayStr + '.pdf'));
   }
-
   document.getElementById('pdfReportBtn').onclick = function() { generatePDFReport(); };
-
   document.getElementById('exportBtn').onclick = function() {
-    var blob = new Blob([JSON.stringify(STATE.data, null, 2)], { type: 'application/json' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    var today = new Date().toISOString().slice(0, 10);
-    a.href = url;
-    a.download = 'respaldo-slab-' + today + '.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    var blob = new Blob([JSON.stringify(STATE.data, null, 2)], {type:'application/json'});
+    var url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = 'respaldo-slab-' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
   };
-
   document.getElementById('importInput').onchange = function(e) {
-    var file = e.target.files[0];
-    if (!file) return;
-    if (!confirm('Esto va a reemplazar TODOS los datos actuales (registro, progreso y récords) por los del archivo de respaldo. Esta acción no se puede deshacer. ¿Querés continuar?')) {
-      e.target.value = '';
-      return;
-    }
+    var file = e.target.files[0]; if (!file) return;
+    if (!confirm('Esto va a reemplazar TODOS los datos actuales. Esta acción no se puede deshacer. ¿Querés continuar?')) { e.target.value = ''; return; }
     var reader = new FileReader();
     reader.onload = function(ev) {
-      try {
-        var parsed = JSON.parse(ev.target.result);
-        STATE.data = parsed;
-        ensureAllDays();
-        saveData();
-        renderAll();
-        renderProgress();
-        alert('Respaldo restaurado correctamente.');
-      } catch (err) {
-        alert('Ese archivo no es un respaldo válido.');
-      }
+      try { STATE.data = JSON.parse(ev.target.result); ensureAllDays(); saveData(); renderAll(); renderProgress(); alert('Respaldo restaurado correctamente.'); }
+      catch(err) { alert('Ese archivo no es un respaldo válido.'); }
     };
-    reader.readAsText(file);
-    e.target.value = '';
+    reader.readAsText(file); e.target.value = '';
   };
 
+  /* ══════════════════════════════════════
+     TABS
+  ══════════════════════════════════════ */
+  function renderAll() { renderMonthPills(); renderWeekPills(); renderDayPills(); renderExercises(); }
+  function switchTab(tab) {
+    ['registro','progreso','records','rpe'].forEach(function(t) {
+      document.getElementById('tab-' + t).classList.remove('active');
+      document.getElementById('view-' + t).style.display = 'none';
+    });
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.getElementById('view-' + tab).style.display = '';
+    if (tab === 'progreso') { STATE.progressMonth = STATE.month; renderProgress(); }
+    if (tab === 'records') renderRecords();
+    if (tab === 'rpe') rpeUpdate();
+  }
+  document.getElementById('tab-registro').onclick = function() { switchTab('registro'); };
+  document.getElementById('tab-progreso').onclick = function() { switchTab('progreso'); };
+  document.getElementById('tab-records').onclick = function() { switchTab('records'); };
+  document.getElementById('tab-rpe').onclick = function() { switchTab('rpe'); };
+
+  /* ══════════════════════════════════════
+     CALCULADORA RPE
+  ══════════════════════════════════════ */
+  var RPE_TABLE = {
+    "10":  [100.0,95.5,92.2,89.2,86.3,83.7,81.1,78.6,76.2,73.9,71.6,69.4],
+    "9.5": [97.8,93.9,90.7,87.8,85.0,82.5,80.0,77.5,75.2,72.9,70.7,68.6],
+    "9":   [95.5,92.2,89.2,86.3,83.7,81.1,78.6,76.2,73.9,71.6,69.4,67.4],
+    "8.5": [93.9,90.7,87.8,85.0,82.5,80.0,77.5,75.2,72.9,70.7,68.6,66.7],
+    "8":   [92.2,89.2,86.3,83.7,81.1,78.6,76.2,73.9,71.6,69.4,67.4,65.6],
+    "7.5": [90.7,87.8,85.0,82.5,80.0,77.5,75.2,72.9,70.7,68.6,66.7,65.0],
+    "7":   [89.2,86.3,83.7,81.1,78.6,76.2,73.9,71.6,69.4,67.4,65.6,64.0],
+    "6.5": [87.8,85.0,82.5,80.0,77.5,75.2,72.9,70.7,68.6,66.7,65.0,63.4],
+    "6":   [86.3,83.7,81.1,78.6,76.2,73.9,71.6,69.4,67.4,65.6,64.0,62.6]
+  };
+  var RPE_KEYS = ["10","9.5","9","8.5","8","7.5","7","6.5","6"];
+  var PLATE_SETS = {
+    kg: { bar: 20, sizes: [25,20,15,10,5,2.5,1.25] },
+    lb: { bar: 45, sizes: [45,35,25,10,5,2.5] }
+  };
+  var rpeUnit = 'kg', rpeMode = 'barbell';
+
+  function rpePlateColor(u, size) {
+    if (u === 'kg') return ({25:'var(--plate-25)',20:'var(--plate-20)',15:'var(--plate-15)',10:'var(--plate-10)',5:'var(--plate-5)',2.5:'var(--plate-2_5)',1.25:'var(--plate-1_25)'})[size];
+    return ({45:'var(--plate-25)',35:'var(--plate-20)',25:'var(--plate-15)',10:'var(--plate-10)',5:'var(--plate-5)',2.5:'var(--plate-1_25)'})[size];
+  }
+  function rpePlateOutline(u, size) { return (u==='kg') ? (size===5||size===2.5) : size===5; }
+  function rpeRound1(n) { return Math.round(n*10)/10; }
+  function rpeNearestLoadable(target, base, smallest, mult) {
+    mult = mult || 2; if (target <= base) return base;
+    return rpeRound1(base + Math.round((target-base)/(smallest*mult)) * smallest * mult);
+  }
+  function rpeDecompose(weight, sizes) {
+    var rem = weight, used = [];
+    for (var i = 0; i < sizes.length; i++) while (rem + 1e-6 >= sizes[i]) { used.push(sizes[i]); rem -= sizes[i]; }
+    return used;
+  }
+  function rpeGroupCounts(arr) {
+    var map = {};
+    arr.forEach(function(v) { map[v] = (map[v]||0) + 1; });
+    return Object.keys(map).map(function(k) { return [parseFloat(k), map[k]]; }).sort(function(a,b) { return b[0]-a[0]; });
+  }
+  function rpeFmt(n) { return (Math.round(n*100)/100).toString().replace(/\.00$/,'').replace(/(\.\d)0$/,'$1'); }
+
+  // Populate rpe selects
+  var rpeRepsEl = document.getElementById('rpeReps');
+  var rpeRpeEl = document.getElementById('rpeRpe');
+  for (var r = 1; r <= 12; r++) {
+    var o = document.createElement('option'); o.value = r; o.textContent = r;
+    if (r === 4) o.selected = true;
+    rpeRepsEl.appendChild(o);
+  }
+  RPE_KEYS.forEach(function(k) {
+    var o = document.createElement('option'); o.value = k; o.textContent = k;
+    if (k === '7') o.selected = true;
+    rpeRpeEl.appendChild(o);
+  });
+
+  function rpeRenderBarbell(usedPlates, sizes) {
+    var svg = document.getElementById('rpeBarbellSvg');
+    svg.innerHTML = '';
+    var ns = 'http://www.w3.org/2000/svg';
+    var cx = 300, barY = 65, barH = 10;
+    var line = document.createElementNS(ns,'line');
+    line.setAttribute('x1',40); line.setAttribute('x2',560);
+    line.setAttribute('y1',barY); line.setAttribute('y2',barY);
+    line.setAttribute('stroke','var(--text-dim)'); line.setAttribute('stroke-width',barH);
+    line.setAttribute('stroke-linecap','round'); svg.appendChild(line);
+    var maxH = 100, minH = 30, maxSize = Math.max.apply(null, sizes);
+    function heightFor(size) { return minH + (maxH-minH) * (size/maxSize); }
+    var plateW = 13, gap = 3, collarGap = 14;
+    function drawSide(dir) {
+      var x = cx + dir * collarGap;
+      usedPlates.forEach(function(size) {
+        var h = heightFor(size), w = plateW;
+        var rect = document.createElementNS(ns,'rect');
+        rect.setAttribute('x', dir===1 ? x : x-w);
+        rect.setAttribute('y', barY - h/2); rect.setAttribute('width', w); rect.setAttribute('height', h);
+        rect.setAttribute('rx', 2.5); rect.setAttribute('fill', rpePlateColor(rpeUnit, size));
+        if (rpePlateOutline(rpeUnit, size)) { rect.setAttribute('stroke','var(--text-dim)'); rect.setAttribute('stroke-width',1); }
+        svg.appendChild(rect); x += dir*(w+gap);
+      });
+    }
+    drawSide(1); drawSide(-1);
+    [1,-1].forEach(function(dir) {
+      var collar = document.createElementNS(ns,'rect');
+      collar.setAttribute('x', dir===1 ? cx+collarGap-7 : cx-collarGap+2);
+      collar.setAttribute('y', barY-18); collar.setAttribute('width', 5); collar.setAttribute('height', 36);
+      collar.setAttribute('fill','var(--border)'); svg.appendChild(collar);
+    });
+  }
+
+  function rpeRenderChain(usedPlates, sizes) {
+    var svg = document.getElementById('rpeChainSvg'); svg.innerHTML = '';
+    var ns = 'http://www.w3.org/2000/svg', cx = 100;
+    var minW = 50, maxW = 150, maxSize = Math.max.apply(null, sizes.length ? sizes : [1]);
+    function widthFor(size) { return minW + (maxW-minW) * (size/maxSize); }
+    var plateH = 16, gap = 4, topMargin = 14, chainH = 22;
+    var totalH = topMargin + chainH + usedPlates.length*(plateH+gap) + 16;
+    svg.setAttribute('viewBox','0 0 200 ' + Math.max(totalH, 90));
+    var circle = document.createElementNS(ns,'circle');
+    circle.setAttribute('cx',cx); circle.setAttribute('cy',topMargin); circle.setAttribute('r',6);
+    circle.setAttribute('fill','none'); circle.setAttribute('stroke','var(--text-dim)'); circle.setAttribute('stroke-width',3);
+    svg.appendChild(circle);
+    var vline = document.createElementNS(ns,'line');
+    vline.setAttribute('x1',cx); vline.setAttribute('x2',cx);
+    vline.setAttribute('y1',topMargin+5); vline.setAttribute('y2',topMargin+chainH);
+    vline.setAttribute('stroke','var(--text-dim)'); vline.setAttribute('stroke-width',3); svg.appendChild(vline);
+    var y = topMargin + chainH;
+    usedPlates.forEach(function(size) {
+      var w = widthFor(size);
+      var rect = document.createElementNS(ns,'rect');
+      rect.setAttribute('x', cx-w/2); rect.setAttribute('y', y); rect.setAttribute('width', w); rect.setAttribute('height', plateH);
+      rect.setAttribute('rx', 3); rect.setAttribute('fill', rpePlateColor(rpeUnit, size));
+      if (rpePlateOutline(rpeUnit, size)) { rect.setAttribute('stroke','var(--text-dim)'); rect.setAttribute('stroke-width',1); }
+      svg.appendChild(rect); y += plateH + gap;
+    });
+  }
+
+  function rpeUpdate() {
+    var reps = parseInt(rpeRepsEl.value, 10);
+    var rpe = rpeRpeEl.value;
+    var pct = RPE_TABLE[rpe][reps-1];
+    document.getElementById('rpeRepsEcho').textContent = reps;
+    document.getElementById('rpeRpeEcho').textContent = rpe;
+    document.getElementById('rpeChartReps').textContent = reps;
+    document.getElementById('rpeWeightUnit').textContent = rpeUnit;
+    document.querySelectorAll('.unit-lbl').forEach(function(el) { el.textContent = rpeUnit; });    document.getElementById('rpePctValue').textContent = rpeFmt(pct) + '%';
+    rpeRenderChart(reps, rpe);
+    if (rpeMode === 'barbell') rpeUpdateBarbell(pct);
+    else rpeUpdateBodyweight(pct);
+  }
+
+  function rpeUpdateBarbell(pct) {
+    var orm = parseFloat(document.getElementById('rpeOrm').value);
+    var bw = parseFloat(document.getElementById('rpeBw').value);
+    document.getElementById('rpeExerciseEcho').textContent = '';
+    document.getElementById('rpeBwWarning').hidden = true;
+    if (!orm || orm <= 0) {
+      document.getElementById('rpeWeightValue').textContent = '--';
+      document.getElementById('rpePlateReadout').textContent = 'Introducí tu 1RM para calcular la carga.';
+      document.getElementById('rpeBwStat').hidden = true;
+      document.getElementById('rpeBarbellSvg').innerHTML = '';
+      return;
+    }
+    var targetWeight = orm * pct / 100;
+    document.getElementById('rpeWeightValue').textContent = rpeFmt(targetWeight);
+    var set = PLATE_SETS[rpeUnit];
+    var loadable = rpeNearestLoadable(targetWeight, set.bar, Math.min.apply(null, set.sizes), 2);
+    var perSide = rpeRound1((loadable - set.bar) / 2);
+    var used = perSide > 0 ? rpeDecompose(perSide, set.sizes) : [];
+    rpeRenderBarbell(used, set.sizes);
+    if (used.length === 0) {
+      document.getElementById('rpePlateReadout').innerHTML = '<span class="side-lbl">Solo la barra</span> · <strong>' + rpeFmt(set.bar) + ' ' + rpeUnit + '</strong>';
+    } else {
+      var groups = rpeGroupCounts(used);
+      var sideStr = groups.map(function(g) { return g[1] + '×' + rpeFmt(g[0]) + rpeUnit; }).join(' + ');
+      document.getElementById('rpePlateReadout').innerHTML = '<span class="side-lbl">Por lado:</span> <strong>' + sideStr + '</strong> · barra <strong>' + rpeFmt(loadable) + ' ' + rpeUnit + '</strong>' + (Math.abs(loadable-targetWeight) > 0.05 ? ' <span class="side-lbl">(redondeado de ' + rpeFmt(targetWeight) + ' ' + rpeUnit + ')</span>' : '');
+    }
+    if (bw && bw > 0) {
+      document.getElementById('rpeBwStat').hidden = false;
+      document.getElementById('rpeBwStatText').textContent = 'de tu peso corporal';
+      document.getElementById('rpeBwRatio').textContent = rpeFmt(targetWeight/bw) + '×';
+    } else { document.getElementById('rpeBwStat').hidden = true; }
+  }
+
+  function rpeUpdateBodyweight(pct) {
+    var ormAdded = parseFloat(document.getElementById('rpeOrmAdded').value) || 0;
+    var bwReq = parseFloat(document.getElementById('rpeBwReq').value);
+    var exercise = document.getElementById('rpeExercise').value;
+    document.getElementById('rpeExerciseEcho').textContent = ' · ' + exercise;
+    if (!bwReq || bwReq <= 0) {
+      document.getElementById('rpeWeightValue').textContent = '--';
+      document.getElementById('rpePlateReadout').textContent = 'Introducí tu peso corporal para calcular la carga.';
+      document.getElementById('rpeBwStat').hidden = true; document.getElementById('rpeBwWarning').hidden = true;
+      document.getElementById('rpeChainSvg').innerHTML = ''; return;
+    }
+    var total1RM = bwReq + ormAdded;
+    var targetTotal = total1RM * pct / 100;
+    var addedTarget = targetTotal - bwReq;
+    var set = PLATE_SETS[rpeUnit];
+    if (addedTarget <= 0) {
+      document.getElementById('rpeWeightValue').textContent = '0';
+      rpeRenderChain([], set.sizes);
+      document.getElementById('rpePlateReadout').innerHTML = '<span class="side-lbl">Sin lastre</span> · la serie queda por debajo de tu peso corporal';
+      document.getElementById('rpeBwWarning').hidden = false;
+      document.getElementById('rpeBwWarning').textContent = 'Tu peso corporal ya cubre esta intensidad. Para bajarla más necesitarías asistencia (banda elástica).';
+    } else {
+      document.getElementById('rpeBwWarning').hidden = true;
+      var loadable = rpeNearestLoadable(addedTarget, 0, Math.min.apply(null, set.sizes), 1);
+      var used = loadable > 0 ? rpeDecompose(loadable, set.sizes) : [];
+      document.getElementById('rpeWeightValue').textContent = rpeFmt(loadable);
+      rpeRenderChain(used, set.sizes);
+      if (used.length === 0) {
+        document.getElementById('rpePlateReadout').innerHTML = '<span class="side-lbl">Sin lastre</span> · solo tu peso corporal';
+      } else {
+        var groups = rpeGroupCounts(used);
+        var str = groups.map(function(g) { return g[1] + '×' + rpeFmt(g[0]) + rpeUnit; }).join(' + ');
+        document.getElementById('rpePlateReadout').innerHTML = '<span class="side-lbl">Lastre:</span> <strong>' + str + '</strong>' + (Math.abs(loadable-addedTarget) > 0.05 ? ' <span class="side-lbl">(redondeado de ' + rpeFmt(addedTarget) + ' ' + rpeUnit + ')</span>' : '');
+      }
+    }
+    document.getElementById('rpeBwStat').hidden = false;
+    document.getElementById('rpeBwStatText').textContent = 'carga total (corporal + lastre)';
+    document.getElementById('rpeBwRatio').textContent = rpeFmt(targetTotal) + ' ' + rpeUnit;
+  }
+
+  function rpeRenderChart(reps, currentRpe) {
+    var tbody = document.getElementById('rpeChartTbody'); tbody.innerHTML = '';
+    if (rpeMode === 'barbell') {
+      var orm = parseFloat(document.getElementById('rpeOrm').value);
+      document.getElementById('rpeChartWeightHeader').textContent = 'Peso';
+      RPE_KEYS.forEach(function(k) {
+        var pct = RPE_TABLE[k][reps-1];
+        var tr = document.createElement('tr'); if (k === currentRpe) tr.className = 'current';
+        var w = orm ? rpeFmt(orm*pct/100) + ' ' + rpeUnit : '—';
+        tr.innerHTML = '<td>' + k + '</td><td class="num">' + rpeFmt(pct) + '%</td><td class="num">' + w + '</td>';
+        tbody.appendChild(tr);
+      });
+    } else {
+      var ormAdded = parseFloat(document.getElementById('rpeOrmAdded').value) || 0;
+      var bwReq = parseFloat(document.getElementById('rpeBwReq').value);
+      var total1RM = bwReq ? bwReq + ormAdded : 0;
+      document.getElementById('rpeChartWeightHeader').textContent = 'Lastre';
+      RPE_KEYS.forEach(function(k) {
+        var pct = RPE_TABLE[k][reps-1];
+        var tr = document.createElement('tr'); if (k === currentRpe) tr.className = 'current';
+        var w = '—';
+        if (total1RM) { var added = total1RM*pct/100 - bwReq; w = added > 0 ? rpeFmt(added) + ' ' + rpeUnit : 'BW'; }
+        tr.innerHTML = '<td>' + k + '</td><td class="num">' + rpeFmt(pct) + '%</td><td class="num">' + w + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+  }
+
+  // Toggles de unidad
+  document.querySelectorAll('[data-rpeunit]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var newUnit = btn.getAttribute('data-rpeunit');
+      if (newUnit === rpeUnit) return;
+      var factor = newUnit === 'lb' ? 2.20462 : 1/2.20462;
+      ['rpeOrm','rpeBw','rpeOrmAdded','rpeBwReq'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el.value !== '' && !isNaN(parseFloat(el.value))) el.value = rpeRound1(parseFloat(el.value)*factor);
+      });
+      rpeUnit = newUnit;
+      document.querySelectorAll('[data-rpeunit]').forEach(function(b) { b.classList.toggle('active', b === btn); });
+      rpeUpdate();
+      if (rpeMode === 'zona') renderZona();
+    });
+  });
+
+  // Toggles de modo (barbell / bodyweight / zona)
+  document.querySelectorAll('[data-rpemode]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var newMode = btn.getAttribute('data-rpemode');
+      if (newMode === rpeMode) return;
+      rpeMode = newMode;
+      document.querySelectorAll('[data-rpemode]').forEach(function(b) { b.classList.toggle('active', b === btn); });
+      var isZona = rpeMode === 'zona';
+      var isBW = rpeMode === 'bodyweight';
+      document.getElementById('rpeMainView').hidden = isZona;
+      document.getElementById('rpeZonaView').hidden = !isZona;
+      if (!isZona) {
+        document.getElementById('rpeFieldsBarbell').hidden = isBW;
+        document.getElementById('rpeFieldsBw').hidden = !isBW;
+        document.getElementById('rpeBarbellWrap').hidden = isBW;
+        document.getElementById('rpeChainWrap').hidden = !isBW;
+        document.getElementById('rpeResultLabel').textContent = isBW ? 'Peso a añadir' : 'Peso de la serie';
+        rpeUpdate();
+      } else {
+        renderZona();
+      }
+    });
+  });
+
+  // Toggle tabla expandible
+  document.getElementById('rpeChartToggle').addEventListener('click', function() {
+    var body = document.getElementById('rpeChartBody');
+    var open = body.hidden; body.hidden = !open;
+    document.getElementById('rpeChartToggle').classList.toggle('open', open);
+  });
+
+  // Inputs de la calculadora
+  ['rpeOrm','rpeBw','rpeReps','rpeRpe','rpeExercise','rpeOrmAdded','rpeBwReq'].forEach(function(id) {
+    var el = document.getElementById(id);
+    el.addEventListener('input', rpeUpdate);
+    el.addEventListener('change', rpeUpdate);
+  });
+
+  /* ══════════════════════════════════════
+     ZONA DE TRABAJO
+  ══════════════════════════════════════ */
+  var zonaMinEl = document.getElementById('rpeZonaMin');
+  var zonaMaxEl = document.getElementById('rpeZonaMax');
+  var zonaRpeEl = document.getElementById('rpeZonaRpe');
+  var zonaOrmEl = document.getElementById('rpeZonaOrm');
+
+  for (var zr = 1; zr <= 12; zr++) {
+    var zo1 = document.createElement('option'); zo1.value = zr; zo1.textContent = zr; if (zr === 6) zo1.selected = true; zonaMinEl.appendChild(zo1);
+    var zo2 = document.createElement('option'); zo2.value = zr; zo2.textContent = zr; if (zr === 8) zo2.selected = true; zonaMaxEl.appendChild(zo2);
+  }
+  RPE_KEYS.forEach(function(k) {
+    var o = document.createElement('option'); o.value = k; o.textContent = k; if (k === '7') o.selected = true; zonaRpeEl.appendChild(o);
+  });
+
+  function renderZona() {
+    var rMin = parseInt(zonaMinEl.value, 10);
+    var rMax = parseInt(zonaMaxEl.value, 10);
+    var rpe = zonaRpeEl.value;
+    var orm = parseFloat(zonaOrmEl.value);
+    var rowsEl = document.getElementById('rpeZonaRows');
+    rowsEl.innerHTML = '';
+    if (!orm || orm <= 0) {
+      var emp = document.createElement('div'); emp.className = 'rpe-zona-empty';
+      emp.textContent = 'Introducí tu 1RM para ver el rango de peso.';
+      rowsEl.appendChild(emp); return;
+    }
+    if (rMin > rMax) { var tmp = rMin; rMin = rMax; rMax = tmp; }
+    function calcW(reps) {
+      var pct = RPE_TABLE[rpe][reps - 1];
+      var target = orm * pct / 100;
+      var set = PLATE_SETS[rpeUnit];
+      var loadable = rpeNearestLoadable(target, set.bar, Math.min.apply(null, set.sizes), 2);
+      return { pct: pct, target: target, loadable: loadable };
+    }
+    var resMax = calcW(rMax); // menos peso (más reps)
+    var resMin = calcW(rMin); // más peso (menos reps)
+    function makeRow(label, res) {
+      var div = document.createElement('div'); div.className = 'rpe-zona-row';
+      var lbl = document.createElement('div'); lbl.className = 'zr-label'; lbl.textContent = label;
+      var right = document.createElement('div'); right.style.display = 'flex'; right.style.alignItems = 'baseline';
+      var w = document.createElement('span'); w.className = 'zr-weight'; w.textContent = rpeFmt(res.loadable);
+      var d = document.createElement('span'); d.className = 'zr-detail'; d.textContent = rpeUnit + ' · ' + rpeFmt(res.pct) + '%';
+      right.appendChild(w); right.appendChild(d); div.appendChild(lbl); div.appendChild(right);
+      return div;
+    }
+    rowsEl.appendChild(makeRow(rMax + ' reps', resMax));
+    rowsEl.appendChild(makeRow(rMin + ' reps', resMin));
+    // barra de rango visual
+    var barWrap = document.createElement('div'); barWrap.className = 'rpe-zona-range-bar';
+    var fill = document.createElement('div'); fill.className = 'rpe-zona-range-fill';
+    fill.style.left = resMax.pct + '%';
+    fill.style.width = (resMin.pct - resMax.pct) + '%';
+    barWrap.appendChild(fill); rowsEl.appendChild(barWrap);
+    var hint = document.createElement('div'); hint.className = 'rpe-zona-range-hint';
+    hint.textContent = rpeFmt(resMax.pct) + '% – ' + rpeFmt(resMin.pct) + '% de tu 1RM';
+    rowsEl.appendChild(hint);
+  }
+
+  [zonaMinEl, zonaMaxEl, zonaRpeEl, zonaOrmEl].forEach(function(el) {
+    el.addEventListener('input', renderZona);
+    el.addEventListener('change', renderZona);
+  });
+
+  // actualizar zona cuando cambia la unidad
+  // (ya cubierto por el toggle de unidad abajo)
+
+  /* ══════════════════════════════════════
+     INIT
+  ══════════════════════════════════════ */
   async function init() {
     document.getElementById('exerciseList').innerHTML = '<div class="loading">Cargando tu plan...</div>';
     await loadData();
     renderAll();
   }
-
   init();
+
 })();
 </script>
 </body>
