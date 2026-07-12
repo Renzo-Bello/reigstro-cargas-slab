@@ -12,6 +12,7 @@
   :root {
     --gold: #C9A96E;
     --gold-dim: #A8895A;
+    --gold-glow: rgba(201,169,110,0.12);
     --month-accent: #E3B34C;
     --week-accent: #C9A96E;
     --week-accent-dim: #A8895A;
@@ -27,12 +28,14 @@
     --text: #F5F0E8;
     --text-dim: #8C8778;
     --border: #2A2A2A;
+    --border-hover: #3A3A3A;
     --success: #C9A96E;
     --warning: #C9A96E;
+    --complete-border: #C9A96E;
+    --complete-bg: rgba(201,169,110,0.04);
     --font-display: 'Playfair Display', serif;
     --font-mono: 'DM Mono', monospace;
     --font-body: 'Inter', -apple-system, sans-serif;
-    /* RPE calc plate colors */
     --plate-25: #C8313A;
     --plate-20: #2D5FA3;
     --plate-15: #C9A96E;
@@ -40,6 +43,7 @@
     --plate-5: #F5F0E8;
     --plate-2_5: #2A2A2A;
     --plate-1_25: #9CA3AF;
+    --touch-min: 44px;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
@@ -51,22 +55,63 @@
   }
   #app { max-width: 480px; margin: 0 auto; padding-bottom: 80px; }
 
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 18px; font-family: var(--font-mono); font-size: 11px;
+    color: var(--text); letter-spacing: 0.4px; white-space: nowrap;
+    opacity: 0; transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 200; pointer-events: none; max-width: calc(100vw - 32px);
+    text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.toast-warn { border-color: var(--gold); color: var(--gold); }
+  #toast.toast-error { border-color: #C8313A; color: #ff6b6b; }
+  #toast.toast-ok { border-color: var(--gold); color: var(--gold); }
+
+  /* ── TOPBAR ── */
   header.topbar {
     background: var(--dark);
     border-bottom: 2px solid var(--gold);
-    padding: 18px 16px 14px;
+    padding: 14px 16px 12px;
     position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
   }
+  .topbar-left { flex: 1; min-width: 0; }
   header.topbar h1 {
-    margin: 0; font-size: 17px; font-weight: 700;
+    margin: 0; font-size: 15px; font-weight: 700;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-    color: var(--gold); letter-spacing: 0.3px;
+    color: var(--gold); letter-spacing: 0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   header.topbar p {
-    margin: 6px 0 0; font-size: 10.5px; color: var(--text-dim);
+    margin: 4px 0 0; font-size: 9.5px; color: var(--text-dim);
     font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.6px;
   }
 
+  /* ── BOTÓN HOY ── */
+  .btn-hoy {
+    flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-width: var(--touch-min); min-height: var(--touch-min);
+    padding: 7px 12px;
+    background: transparent; border: 1.5px solid var(--gold); border-radius: 8px;
+    color: var(--gold); cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    gap: 1px;
+  }
+  .btn-hoy:hover, .btn-hoy:active { background: var(--gold); color: var(--dark); }
+  .btn-hoy .hoy-label {
+    font-family: var(--font-mono); font-size: 8px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 500;
+  }
+  .btn-hoy .hoy-date {
+    font-family: var(--font-mono); font-size: 13px; font-weight: 500; line-height: 1;
+  }
+  .btn-hoy.is-today {
+    background: var(--gold); color: var(--dark);
+  }
+
+  /* ── TABS ── */
   nav.tabs {
     display: flex; gap: 0; padding: 0 16px;
     border-bottom: 1px solid var(--border);
@@ -74,7 +119,8 @@
   }
   nav.tabs::-webkit-scrollbar { display: none; }
   nav.tabs button {
-    flex-shrink: 0; padding: 10px 10px 12px; font-size: 10px; font-weight: 500;
+    flex-shrink: 0; min-height: var(--touch-min);
+    padding: 10px 10px 12px; font-size: 10px; font-weight: 500;
     font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.6px;
     background: transparent; color: var(--text-dim);
     border: none; border-bottom: 1px solid transparent;
@@ -88,78 +134,179 @@
 
   .panel { padding: 14px 16px 0; }
 
+  /* ── PILLS ── */
   .month-pills {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;
   }
   .month-pills button {
-    padding: 12px 4px; font-size: 12.5px; font-weight: 500;
+    padding: 12px 4px; min-height: var(--touch-min);
+    font-size: 12.5px; font-weight: 500;
     font-family: var(--font-mono); letter-spacing: 0.3px;
     background: var(--dark-2); color: var(--text);
     border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
   }
   .month-pills button.active {
     background: var(--month-accent); color: var(--dark); border-color: var(--month-accent);
   }
-
   .week-pills {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px;
   }
   .week-pills button {
-    padding: 10px 4px; font-size: 11.5px; font-weight: 500;
+    padding: 10px 4px; min-height: var(--touch-min);
+    font-size: 11.5px; font-weight: 500;
     font-family: var(--font-mono); letter-spacing: 0.3px;
     background: var(--card); color: var(--text);
     border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
   }
   .week-pills button.active {
     background: var(--week-accent); color: var(--dark); border-color: var(--week-accent);
   }
-
   .day-pills {
-    display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 16px;
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 20px;
   }
   .day-pills button {
-    padding: 9px 2px; font-size: 10.5px; font-weight: 500;
+    padding: 9px 2px; min-height: 52px;
+    font-size: 10.5px; font-weight: 500;
     font-family: var(--font-mono); letter-spacing: 0.2px;
     background: var(--day-bg); color: var(--text);
     border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
   }
   .day-pills button.active {
     background: var(--day-accent); color: var(--dark); border-color: var(--day-accent);
+  }
+  .day-pills button.is-today-pill {
+    border-color: var(--gold-dim);
   }
   .day-pills button .check {
     display: block; font-size: 9px; margin-top: 2px; color: var(--success);
   }
   .day-pills button.active .check { color: var(--dark); }
 
+  /* ── EXERCISE CARDS ── */
+  .exercises-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .exercises-count {
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.6px;
+  }
+  .exercises-count .count-done { color: var(--gold); font-weight: 500; }
+
   .exercise-card {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    margin-bottom: 12px;
+    border-radius: 10px;
+    margin-bottom: 14px;
     overflow: hidden;
+    transition: border-color 0.2s ease;
+    position: relative;
   }
-  .exercise-card.complete { border-color: var(--gold); }
+  .exercise-card.complete {
+    border-color: var(--complete-border);
+    background: var(--complete-bg);
+  }
+  @keyframes completeFlash {
+    0%   { background: rgba(201,169,110,0.0); }
+    30%  { background: rgba(201,169,110,0.18); }
+    100% { background: rgba(201,169,110,0.04); }
+  }
+  .exercise-card.complete-animate {
+    animation: completeFlash 0.5s ease-out forwards;
+  }
+
+  .exercise-card::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--border); border-radius: 10px 0 0 10px;
+    transition: background 0.2s ease;
+  }
+  .exercise-card.complete::before { background: var(--gold); }
+
   .ex-head {
     display: flex; align-items: center; gap: 10px;
-    padding: 12px 14px; border-bottom: 1px solid var(--border);
+    padding: 12px 14px 12px 18px;
+    border-bottom: 1px solid var(--border);
   }
+  .exercise-card.complete .ex-head { border-bottom-color: rgba(201,169,110,0.2); }
+
   .ex-num {
-    width: 24px; height: 24px; border-radius: 50%;
+    width: 32px; height: 32px; border-radius: 50%;
     background: transparent; color: var(--gold);
-    border: 1px solid var(--gold);
+    border: 1.5px solid var(--border);
     display: flex; align-items: center; justify-content: center;
     font-family: var(--font-mono); font-size: 11px; font-weight: 500; flex-shrink: 0;
+    transition: border-color 0.2s, background 0.2s, color 0.2s;
   }
+  .exercise-card.complete .ex-num {
+    border-color: var(--gold); background: var(--gold); color: var(--dark);
+  }
+
   .ex-name-input {
     flex: 1; background: transparent; border: none; color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
     font-size: 15px; font-weight: 600; padding: 4px 0; min-width: 0;
+    min-height: var(--touch-min);
   }
   .ex-name-input::placeholder { color: var(--text-dim); font-weight: 400; }
   .ex-name-input:focus { outline: none; }
 
+  /* ── BOTÓN RPE INLINE ── */
+  .ex-rpe-btn {
+    flex-shrink: 0;
+    min-width: var(--touch-min); min-height: var(--touch-min);
+    display: flex; align-items: center; justify-content: center;
+    background: transparent; border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text-dim); font-family: var(--font-mono); font-size: 9px;
+    padding: 5px 8px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px;
+    transition: border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .ex-rpe-btn:hover, .ex-rpe-btn:active { border-color: var(--gold); color: var(--gold); }
+  .ex-rpe-btn.open { border-color: var(--gold); color: var(--gold); background: var(--gold-glow); }
+
+  /* ── POPOVER RPE INLINE ── */
+  .inline-rpe-panel {
+    background: var(--dark-2); border-top: 1px solid var(--border);
+    padding: 14px 18px; display: none; flex-direction: column; gap: 12px;
+  }
+  .inline-rpe-panel.visible { display: flex; }
+  .inline-rpe-panel.complete-panel { border-top-color: rgba(201,169,110,0.2); }
+
+  .irpe-title {
+    font-family: var(--font-mono); font-size: 9px; color: var(--gold);
+    text-transform: uppercase; letter-spacing: 0.7px;
+  }
+  .irpe-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .irpe-field { display: flex; flex-direction: column; gap: 4px; }
+  .irpe-field label {
+    font-family: var(--font-mono); font-size: 9px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .irpe-field input, .irpe-field select {
+    background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-family: var(--font-mono); font-size: 14px; font-weight: 500;
+    padding: 8px 6px; text-align: center; width: 100%;
+    -webkit-appearance: none; appearance: none;
+    transition: border-color 0.15s;
+    min-height: var(--touch-min);
+  }
+  .irpe-field input:focus, .irpe-field select:focus { outline: none; border-color: var(--gold); }
+  .irpe-result {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .irpe-result-label { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+  .irpe-result-weight { font-family: var(--font-mono); font-size: 28px; font-weight: 500; color: var(--gold); line-height: 1; }
+  .irpe-result-unit { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); margin-left: 3px; }
+  .irpe-result-pct { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); margin-top: 3px; }
+  .irpe-result-right { text-align: right; }
+
   .ex-fields {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px 14px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px 14px 12px 18px;
   }
   .field { display: flex; flex-direction: column; gap: 4px; }
   .field label {
@@ -170,28 +317,30 @@
     background: var(--dark-2); border: 1px solid var(--border); border-radius: 6px;
     color: var(--text); font-family: var(--font-mono); font-size: 15px; padding: 9px 6px;
     text-align: center; width: 100%; font-weight: 500;
+    transition: border-color 0.15s;
+    min-height: var(--touch-min);
   }
   .field input:focus { outline: none; border-color: var(--gold); }
   .field.rpe-real input { color: var(--gold); }
   .field.peso input { color: var(--gold); }
-
   .field select {
     background: var(--dark-2); border: 1px solid var(--border); border-radius: 6px;
     color: var(--text); font-family: var(--font-mono); font-size: 15px; padding: 9px 4px;
     text-align: center; width: 100%; font-weight: 500;
     -webkit-appearance: none; -moz-appearance: none; appearance: none;
     text-align-last: center;
+    transition: border-color 0.15s;
+    min-height: var(--touch-min);
   }
   .field select:focus { outline: none; border-color: var(--gold); }
   .field.rpe-real select { color: var(--gold); }
   .field.rpe-select select { color: var(--gold); }
 
   .ex-fields-row2 {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 14px 12px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 14px 12px 18px;
   }
-
   .note-field {
-    padding: 0 14px 12px; display: flex; flex-direction: column; gap: 4px;
+    padding: 0 14px 12px 18px; display: flex; flex-direction: column; gap: 4px;
   }
   .note-field label {
     font-family: var(--font-mono); font-size: 9.5px; color: var(--text-dim);
@@ -201,20 +350,62 @@
     background: var(--dark-2); border: 1px solid var(--border); border-radius: 6px;
     color: var(--text); font-family: var(--font-body); font-size: 13px; padding: 9px 10px;
     width: 100%; resize: vertical; min-height: 50px; line-height: 1.5;
+    transition: border-color 0.15s;
   }
   .note-field textarea::placeholder { color: var(--text-dim); }
   .note-field textarea:focus { outline: none; border-color: var(--gold); }
 
+  /* ── DONE TOGGLE ── */
   .done-toggle {
-    margin: 0 14px 14px; padding: 10px; border-radius: 6px;
+    margin: 0 14px 14px 18px; padding: 12px 14px; border-radius: 6px;
     background: var(--dark-2); border: 1px solid var(--border);
     display: flex; align-items: center; justify-content: center; gap: 8px;
     font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--text-dim);
-    cursor: pointer;
+    cursor: pointer; transition: border-color 0.15s, color 0.15s, background 0.15s;
+    min-height: var(--touch-min);
   }
-  .done-toggle.on { background: transparent; border-color: var(--gold); color: var(--gold); }
-  .done-toggle input { width: 16px; height: 16px; accent-color: var(--gold); }
+  .done-toggle.on {
+    background: rgba(201,169,110,0.07); border-color: var(--gold); color: var(--gold);
+  }
+  .done-toggle input {
+    width: 18px; height: 18px; accent-color: var(--gold);
+    cursor: pointer; flex-shrink: 0;
+  }
 
+  /* ── DELETE BUTTON ── */
+  .record-delete-btn {
+    background: transparent; border: none; color: var(--text-dim);
+    font-size: 16px; cursor: pointer; line-height: 1; flex-shrink: 0;
+    width: var(--touch-min); height: var(--touch-min);
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+    opacity: 0.5; transition: opacity 0.15s, background 0.15s;
+  }
+  .record-delete-btn:hover, .record-delete-btn:active { opacity: 1; background: rgba(200,49,58,0.1); }
+
+  /* ── ADD EXERCISE ── */
+  .add-exercise-btn {
+    width: 100%; padding: 13px; margin: 4px 0 16px;
+    background: transparent; color: var(--gold);
+    font-family: var(--font-body); text-transform: uppercase; letter-spacing: 0.5px;
+    border: 1px dashed var(--gold-dim); border-radius: 8px;
+    font-size: 12.5px; font-weight: 600; cursor: pointer;
+    min-height: var(--touch-min);
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .add-exercise-btn:hover { border-style: solid; background: var(--gold-glow); }
+
+  /* ── SESSION CARD ── */
+  .session-card { border: 1px solid var(--gold-dim); margin-top: 4px; margin-bottom: 20px; }
+  .session-label {
+    font-family: var(--font-display); font-style: italic;
+    font-size: 15px; font-weight: 600; color: var(--gold); letter-spacing: 0.2px;
+  }
+  .session-fields { grid-template-columns: 1fr !important; }
+  .session-fields .field input,
+  .session-fields .field select { font-size: 17px; padding: 12px 6px; color: var(--gold); }
+
+  /* ── SAVE BAR ── */
   .save-bar {
     position: fixed; bottom: 0; left: 0; right: 0;
     background: var(--dark); border-top: 1px solid var(--border);
@@ -225,6 +416,7 @@
   }
   .save-bar.saved { color: var(--gold); }
 
+  /* ── PROGRESS ── */
   .progress-section { padding: 0 16px 24px; }
   .progress-card {
     background: var(--card); border: 1px solid var(--border); border-radius: 8px;
@@ -260,7 +452,8 @@
     text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px;
   }
   .week-pdf-btn {
-    display: block; width: 100%; margin-top: 8px; padding: 4px 2px;
+    display: block; width: 100%; margin-top: 8px; padding: 6px 2px;
+    min-height: 32px;
     background: transparent; border: 1px solid var(--border); border-radius: 4px;
     color: var(--gold); font-family: var(--font-mono); font-size: 8.5px;
     text-transform: uppercase; letter-spacing: 0.6px; cursor: pointer;
@@ -269,23 +462,24 @@
 
   .loading { text-align: center; padding: 60px 20px; color: var(--text-dim); font-family: var(--font-body); font-size: 13px; }
 
-  .session-card { border: 1px solid var(--gold-dim); margin-top: 4px; margin-bottom: 20px; }
-  .session-label {
-    font-family: var(--font-display); font-style: italic;
-    font-size: 15px; font-weight: 600; color: var(--gold); letter-spacing: 0.2px;
+  /* ── STORAGE WARNING BANNER ── */
+  .storage-banner {
+    margin: 0 16px 12px; padding: 10px 14px; border-radius: 6px;
+    background: rgba(201,169,110,0.08); border: 1px solid var(--gold-dim);
+    font-family: var(--font-body); font-size: 12px; color: var(--gold); line-height: 1.5;
+    display: none;
   }
-  .session-fields { grid-template-columns: 1fr !important; }
-  .session-fields .field input,
-  .session-fields .field select { font-size: 17px; padding: 12px 6px; color: var(--gold); }
+  .storage-banner.visible { display: block; }
 
-  .add-record-btn, .add-exercise-btn {
+  /* ── RECORDS ── */
+  .add-record-btn {
     width: 100%; padding: 13px; margin: 12px 0 16px;
+    min-height: var(--touch-min);
     background: transparent; color: var(--gold);
     font-family: var(--font-body); text-transform: uppercase; letter-spacing: 0.5px;
     border: 1px solid var(--gold); border-radius: 6px;
     font-size: 12.5px; font-weight: 600; cursor: pointer;
   }
-
   .record-card {
     background: var(--card); border: 1px solid var(--border); border-radius: 8px;
     margin-bottom: 12px; overflow: hidden;
@@ -298,13 +492,10 @@
     flex: 1; background: transparent; border: none; color: var(--text);
     font-family: var(--font-display); font-style: italic;
     font-size: 16px; font-weight: 600; padding: 4px 0; min-width: 0;
+    min-height: var(--touch-min);
   }
   .record-name-input::placeholder { color: var(--text-dim); font-weight: 400; font-style: normal; }
   .record-name-input:focus { outline: none; }
-  .record-delete-btn {
-    background: transparent; border: none; color: var(--text-dim);
-    font-size: 18px; padding: 4px 6px; cursor: pointer; line-height: 1; flex-shrink: 0;
-  }
   .record-block { padding: 12px 14px; border-bottom: 1px solid var(--border); }
   .record-block:last-child { border-bottom: none; }
   .record-block-label {
@@ -318,10 +509,41 @@
     font-family: var(--font-body); font-size: 13px; line-height: 1.6;
   }
 
+  /* ── 1RM ESTIMADO (desde reps máximas) ── */
+  .orm-estimate-wrap {
+    margin-top: 12px; padding: 12px 14px;
+    background: rgba(201,169,110,0.06);
+    border: 1px solid rgba(201,169,110,0.25);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: opacity 0.2s;
+  }
+  .orm-estimate-wrap.empty { opacity: 0.45; }
+  .orm-estimate-left {}
+  .orm-estimate-tag {
+    font-family: var(--font-mono); font-size: 8.5px; color: var(--gold);
+    text-transform: uppercase; letter-spacing: 0.7px; font-weight: 500;
+  }
+  .orm-estimate-desc {
+    font-family: var(--font-mono); font-size: 8px; color: var(--text-dim);
+    margin-top: 3px; line-height: 1.4;
+  }
+  .orm-estimate-right { display: flex; align-items: baseline; gap: 4px; }
+  .orm-estimate-num {
+    font-family: var(--font-mono); font-size: 30px; font-weight: 500;
+    color: var(--gold); line-height: 1;
+  }
+  .orm-estimate-num.empty-val { color: var(--text-dim); font-size: 18px; font-weight: 400; }
+  .orm-estimate-unit {
+    font-family: var(--font-mono); font-size: 12px; color: var(--text-dim);
+  }
+
+  /* ── BACKUP ── */
   .backup-section { padding: 8px 16px 24px; }
   .backup-btn {
     display: flex; align-items: center; justify-content: center;
     width: 100%; padding: 11px; margin-bottom: 8px;
+    min-height: var(--touch-min);
     background: transparent; border: 1px solid var(--border); border-radius: 6px;
     color: var(--gold); font-family: var(--font-body); font-size: 12.5px; font-weight: 600; cursor: pointer;
     text-align: center;
@@ -329,6 +551,42 @@
   .backup-hint {
     font-family: var(--font-body); font-size: 11px; color: var(--text-dim);
     text-align: center; margin: 10px 0 0; line-height: 1.6;
+  }
+
+  /* ── CONFIGURACIÓN FECHA DE INICIO ── */
+  .start-date-section {
+    margin: 0 16px 16px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px;
+  }
+  .start-date-title {
+    font-family: var(--font-mono); font-size: 10px; color: var(--gold);
+    text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px;
+  }
+  .start-date-desc {
+    font-family: var(--font-body); font-size: 12px; color: var(--text-dim);
+    line-height: 1.55; margin-bottom: 12px;
+  }
+  .start-date-row { display: flex; gap: 8px; align-items: center; }
+  .start-date-input {
+    flex: 1; background: var(--dark-2); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-family: var(--font-mono); font-size: 13px;
+    padding: 9px 10px; outline: none; transition: border-color 0.15s;
+    min-height: var(--touch-min);
+    color-scheme: dark;
+  }
+  .start-date-input:focus { border-color: var(--gold); }
+  .start-date-btn {
+    padding: 9px 14px; min-height: var(--touch-min);
+    background: var(--gold); color: var(--dark);
+    border: none; border-radius: 6px;
+    font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.4px; cursor: pointer;
+    white-space: nowrap;
+  }
+  .start-date-current {
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);
+    margin-top: 8px;
   }
 
   /* ── CALCULADORA RPE ── */
@@ -339,6 +597,7 @@
   }
   .rpe-mode-toggle button, .rpe-unit-toggle button {
     flex: 1; padding: 9px 6px;
+    min-height: var(--touch-min);
     font-family: var(--font-mono); font-size: 10px; font-weight: 500;
     text-transform: uppercase; letter-spacing: 0.6px;
     background: transparent; color: var(--text-dim);
@@ -367,6 +626,7 @@
     color: var(--text); font-family: var(--font-mono); font-size: 18px; font-weight: 500;
     padding: 10px 12px; outline: none;
     transition: border-color 0.15s ease;
+    min-height: var(--touch-min);
   }
   .rpe-field input:focus, .rpe-field select:focus { border-color: var(--gold); }
   .rpe-field input::placeholder { color: var(--text-dim); font-size: 14px; }
@@ -417,7 +677,7 @@
   .rpe-chart-toggle {
     width: 100%; background: none; border: none; color: var(--text);
     font-family: var(--font-body); font-size: 13px; font-weight: 600;
-    padding: 14px 16px; text-align: left; cursor: pointer;
+    padding: 14px 16px; text-align: left; cursor: pointer; min-height: var(--touch-min);
     display: flex; justify-content: space-between; align-items: center;
   }
   .rpe-chart-toggle .arr { color: var(--text-dim); transition: transform .15s ease; font-size: 11px; }
@@ -441,7 +701,7 @@
     text-align: center; margin-top: 20px; line-height: 1.6; padding-bottom: 20px;
   }
 
-  /* zona de trabajo como sección propia */
+  /* zona de trabajo */
   .rpe-zona-result-card {
     background: var(--card); border: 1px solid var(--gold-dim); border-radius: 8px;
     padding: 16px; margin-bottom: 12px;
@@ -455,34 +715,107 @@
     padding: 10px 0; border-bottom: 1px solid var(--border);
   }
   .rpe-zona-row:last-of-type { border-bottom: none; }
-  .rpe-zona-row .zr-label {
-    font-family: var(--font-mono); font-size: 11px; color: var(--text-dim);
+  .rpe-zona-row .zr-label { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
+  .rpe-zona-row .zr-weight { font-family: var(--font-mono); font-size: 26px; font-weight: 500; color: var(--gold); }
+  .rpe-zona-row .zr-detail { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); margin-left: 5px; }
+  .rpe-zona-range-bar { height: 3px; background: var(--border); border-radius: 2px; margin: 14px 0 6px; position: relative; }
+  .rpe-zona-range-fill { position: absolute; height: 3px; background: var(--gold); border-radius: 2px; opacity: 0.6; }
+  .rpe-zona-range-hint { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); text-align: center; margin-top: 6px; }
+  .rpe-zona-empty { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); padding: 8px 0; }
+
+  /* ── MODAL BIENVENIDA ── */
+  .welcome-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.85);
+    display: flex; align-items: flex-end; justify-content: center;
+    padding: 0;
   }
-  .rpe-zona-row .zr-weight {
-    font-family: var(--font-mono); font-size: 26px; font-weight: 500; color: var(--gold);
+  .welcome-sheet {
+    background: var(--dark-2); border-top: 2px solid var(--gold);
+    border-radius: 16px 16px 0 0;
+    width: 100%; max-width: 480px;
+    max-height: 88vh; overflow-y: auto;
+    padding: 28px 20px calc(36px + env(safe-area-inset-bottom));
+    -webkit-overflow-scrolling: touch;
   }
-  .rpe-zona-row .zr-detail {
-    font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); margin-left: 5px;
-  }
-  .rpe-zona-range-bar {
-    height: 3px; background: var(--border); border-radius: 2px; margin: 14px 0 6px; position: relative;
-  }
-  .rpe-zona-range-fill {
-    position: absolute; height: 3px; background: var(--gold); border-radius: 2px; opacity: 0.6;
-  }
-  .rpe-zona-range-hint {
-    font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); text-align: center; margin-top: 6px;
-  }
-  .rpe-zona-empty {
-    font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); padding: 8px 0;
-  }
+  .welcome-logo { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 13px; font-weight: 700; color: var(--gold); letter-spacing: 0.5px; margin-bottom: 4px; }
+  .welcome-tagline { font-family: var(--font-mono); font-size: 9.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 24px; }
+  .welcome-title { font-family: var(--font-display); font-style: italic; font-size: 22px; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 8px; }
+  .welcome-intro { font-family: var(--font-body); font-size: 13.5px; color: var(--text-dim); line-height: 1.65; margin-bottom: 24px; }
+  .welcome-section { margin-bottom: 20px; }
+  .welcome-section-title { font-family: var(--font-mono); font-size: 9.5px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .welcome-features { display: flex; flex-direction: column; gap: 8px; }
+  .welcome-feature { display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
+  .welcome-feature-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; width: 28px; text-align: center; }
+  .welcome-feature-text strong { display: block; font-family: var(--font-body); font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .welcome-feature-text span { font-family: var(--font-body); font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+  .welcome-steps { display: flex; flex-direction: column; gap: 8px; }
+  .welcome-step { display: flex; align-items: flex-start; gap: 12px; }
+  .welcome-step-num { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--gold); color: var(--gold); font-family: var(--font-mono); font-size: 10px; font-weight: 500; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+  .welcome-step-text { font-family: var(--font-body); font-size: 13px; color: var(--text-dim); line-height: 1.55; }
+  .welcome-step-text strong { color: var(--text); font-weight: 600; }
+  .welcome-install { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .welcome-install p { font-family: var(--font-body); font-size: 12.5px; color: var(--text-dim); line-height: 1.6; margin: 0 0 6px; }
+  .welcome-install p:last-child { margin-bottom: 0; }
+  .welcome-install strong { color: var(--text); font-weight: 600; }
+  .welcome-cta { width: 100%; padding: 15px; margin-top: 24px; background: var(--gold); color: var(--dark); font-family: var(--font-body); font-size: 14px; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; letter-spacing: 0.2px; min-height: 50px; }
+  .welcome-footnote { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); text-align: center; margin-top: 12px; line-height: 1.5; }
 </style>
 </head>
 <body>
+
+<!-- MODAL BIENVENIDA -->
+<div class="welcome-overlay" id="welcomeOverlay">
+  <div class="welcome-sheet">
+    <div class="welcome-logo">STRENGTHLAB | SLAB</div>
+    <div class="welcome-tagline">by @reennzolifts</div>
+    <div class="welcome-title">Tu herramienta de entrenamiento personalizada</div>
+    <p class="welcome-intro">Esta aplicación fue diseñada especialmente para tu proceso de transformación. Aquí podrás registrar cada entrenamiento, ver tu progreso y calcular las cargas de trabajo — todo en un solo lugar, guardado en tu teléfono.</p>
+    <div class="welcome-section">
+      <div class="welcome-section-title">Qué puedes hacer</div>
+      <div class="welcome-features">
+        <div class="welcome-feature"><div class="welcome-feature-icon">📋</div><div class="welcome-feature-text"><strong>Registro</strong><span>Anota cada ejercicio con series, reps, RPE objetivo y real, peso usado y notas de feedback. Marca el día como completado cuando termines.</span></div></div>
+        <div class="welcome-feature"><div class="welcome-feature-icon">📈</div><div class="welcome-feature-text"><strong>Progreso</strong><span>Revisa semana a semana cómo evolucionan tus cargas por ejercicio. Descarga el reporte semanal en PDF para enviárselo a tu entrenador.</span></div></div>
+        <div class="welcome-feature"><div class="welcome-feature-icon">🏆</div><div class="welcome-feature-text"><strong>Récords</strong><span>Guarda tu 1RM y tus mejores marcas por ejercicio. Ingresa peso y reps de tu récord y la app calcula automáticamente tu 1RM estimado (fórmula Epley).</span></div></div>
+        <div class="welcome-feature"><div class="welcome-feature-icon">🧮</div><div class="welcome-feature-text"><strong>Calcular RPE</strong><span>Calcula el peso exacto para una serie según tu 1RM y el RPE objetivo. Incluye visualización de discos, modo calistenia y mini-calculadora integrada en cada ejercicio.</span></div></div>
+      </div>
+    </div>
+    <div class="welcome-section">
+      <div class="welcome-section-title">Cómo registrar un entrenamiento</div>
+      <div class="welcome-steps">
+        <div class="welcome-step"><div class="welcome-step-num">1</div><div class="welcome-step-text">Toca <strong>"Hoy"</strong> en el encabezado para ir directo al día actual, o selecciona manualmente mes, semana y día.</div></div>
+        <div class="welcome-step"><div class="welcome-step-num">2</div><div class="welcome-step-text">Toca <strong>+ Añadir ejercicio</strong> y completa el nombre, series, reps y el RPE objetivo que te indicó tu entrenador.</div></div>
+        <div class="welcome-step"><div class="welcome-step-num">3</div><div class="welcome-step-text">Usa el botón <strong>"RPE"</strong> en cada ejercicio para calcular el peso de trabajo sin salir del registro.</div></div>
+        <div class="welcome-step"><div class="welcome-step-num">4</div><div class="welcome-step-text">Al terminar, completa el <strong>RPE real</strong>, el <strong>peso usado</strong> y marca <strong>"Serie completada"</strong>.</div></div>
+        <div class="welcome-step"><div class="welcome-step-num">5</div><div class="welcome-step-text">Todo se <strong>guarda automáticamente</strong> en tu teléfono. No necesitas hacer nada más.</div></div>
+      </div>
+    </div>
+    <div class="welcome-section">
+      <div class="welcome-section-title">Agrégala a tu pantalla de inicio</div>
+      <div class="welcome-install">
+        <p>Para acceder fácilmente desde tu teléfono, agrégala como un ícono en tu pantalla de inicio — funciona como una app.</p>
+        <p><strong>iPhone (Safari):</strong> toca el ícono de compartir (cuadrado con flecha ↑) → "Añadir a pantalla de inicio".</p>
+        <p><strong>Android (Chrome):</strong> toca los tres puntos ⋮ → "Agregar a pantalla de inicio" o "Instalar app".</p>
+      </div>
+    </div>
+    <button class="welcome-cta" id="welcomeCloseBtn">Empezar a entrenar</button>
+    <p class="welcome-footnote">Este mensaje no vuelve a aparecer. Puedes verlo de nuevo desde Progreso si lo necesitas.</p>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" role="status" aria-live="polite"></div>
+
 <div id="app">
   <header class="topbar">
-    <h1 id="pageTitle">REGISTRO DE ENTRENAMIENTOS | SLAB</h1>
-    <p>Registro de cargas · 3 meses · 4 semanas · 5 días</p>
+    <div class="topbar-left">
+      <h1 id="pageTitle">REGISTRO DE ENTRENAMIENTOS | SLAB</h1>
+      <p>Registro de cargas · 3 meses · 4 semanas · 5 días</p>
+    </div>
+    <button class="btn-hoy" id="btnHoy" title="Ir al día de hoy">
+      <span class="hoy-label">Hoy</span>
+      <span class="hoy-date" id="btnHoyDate">—</span>
+    </button>
   </header>
 
   <nav class="tabs">
@@ -496,6 +829,7 @@
     <div class="month-pills" id="monthPills"></div>
     <div class="week-pills" id="weekPills"></div>
     <div class="day-pills" id="dayPills"></div>
+    <div id="storageBanner" class="storage-banner">⚠️ El espacio de almacenamiento está casi lleno. Descarga un respaldo (.json) desde la pestaña Progreso antes de continuar.</div>
     <div id="exerciseList"></div>
   </div>
 
@@ -510,7 +844,19 @@
         Restaurar desde respaldo
         <input type="file" id="importInput" accept="application/json" style="display:none;">
       </label>
-      <p class="backup-hint">Tocá "PDF" en cualquier semana para descargar solo ese reporte semanal. El reporte completo junta todos los meses. El respaldo .json restaura todos tus datos.</p>
+      <p class="backup-hint">Toca "PDF" en cualquier semana para descargar solo ese reporte semanal. El reporte completo incluye todos los meses. El respaldo .json restaura todos tus datos.</p>
+      <button id="showWelcomeBtn" class="backup-btn" style="margin-top:8px;">Ver guía de la app</button>
+    </div>
+
+    <!-- Configuración de fecha de inicio -->
+    <div class="start-date-section">
+      <div class="start-date-title">Fecha de inicio del plan</div>
+      <div class="start-date-desc">Indica el lunes en que empezaste el plan de entrenamiento. Esto define qué día corresponde al "Hoy" en el registro.</div>
+      <div class="start-date-row">
+        <input type="date" class="start-date-input" id="startDateInput">
+        <button class="start-date-btn" id="startDateSaveBtn">Guardar</button>
+      </div>
+      <div class="start-date-current" id="startDateCurrent"></div>
     </div>
   </div>
 
@@ -521,19 +867,16 @@
 
   <!-- CALCULADORA RPE -->
   <div id="view-rpe" style="display:none;">
-
+    <div style="padding:16px 16px 0;">
     <div class="rpe-mode-toggle" role="group">
       <button type="button" data-rpemode="barbell" class="active">Barra libre</button>
       <button type="button" data-rpemode="bodyweight">Calistenia</button>
       <button type="button" data-rpemode="zona">Zona de trabajo</button>
     </div>
-
     <div class="rpe-unit-toggle" role="group">
       <button type="button" data-rpeunit="kg" class="active">KG</button>
       <button type="button" data-rpeunit="lb">LB</button>
     </div>
-
-    <!-- BARRA LIBRE + CALISTENIA -->
     <div id="rpeMainView">
       <div class="rpe-card">
         <div id="rpeFieldsBarbell">
@@ -575,7 +918,6 @@
           </div>
         </div>
       </div>
-
       <div class="rpe-result">
         <div class="rpe-result-label" id="rpeResultLabel">Peso de la serie</div>
         <div class="rpe-result-value"><span id="rpeWeightValue">--</span><span class="rpe-unit" id="rpeWeightUnit">kg</span></div>
@@ -592,7 +934,6 @@
           <strong id="rpeBwRatio">--</strong> <span id="rpeBwStatText">de tu peso corporal</span>
         </div>
       </div>
-
       <div class="rpe-card rpe-chart-card">
         <button class="rpe-chart-toggle" id="rpeChartToggle" type="button">
           <span>Ver tabla RPE completa — <span id="rpeChartReps">4</span> reps</span>
@@ -606,8 +947,6 @@
         </div>
       </div>
     </div>
-
-    <!-- ZONA DE TRABAJO -->
     <div id="rpeZonaView" hidden>
       <div class="rpe-card">
         <div class="rpe-field">
@@ -629,14 +968,13 @@
           <select id="rpeZonaRpe"></select>
         </div>
       </div>
-
       <div class="rpe-zona-result-card" id="rpeZonaResultCard">
         <div class="rpe-zona-result-label">Rango de peso recomendado</div>
         <div id="rpeZonaRows"></div>
       </div>
     </div>
-
     <p class="rpe-footer">Tabla %1RM basada en el sistema RPE/RIR de powerlifting (Tuchscherer). En calistenia, la carga total (corporal + lastre) define el %1RM.</p>
+    </div>
   </div>
 
   <div class="save-bar" id="saveBar">Listo para registrar</div>
@@ -646,11 +984,35 @@
 (function() {
 
   /* ══════════════════════════════════════
-     ESTADO Y STORAGE - REGISTRO
+     TOAST
+  ══════════════════════════════════════ */
+  var toastTimer = null;
+  function showToast(msg, type, duration) {
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'show' + (type ? ' toast-' + type : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { el.className = ''; }, duration || 2500);
+  }
+
+  /* ══════════════════════════════════════
+     MODAL BIENVENIDA
+  ══════════════════════════════════════ */
+  var WELCOME_KEY = 'slab-welcome-seen';
+  function showWelcome() { document.getElementById('welcomeOverlay').style.display = 'flex'; }
+  function hideWelcome() { document.getElementById('welcomeOverlay').style.display = 'none'; localStorage.setItem(WELCOME_KEY, '1'); }
+  document.getElementById('welcomeCloseBtn').onclick = hideWelcome;
+  document.getElementById('welcomeOverlay').onclick = function(e) { if (e.target === this) hideWelcome(); };
+  document.getElementById('showWelcomeBtn').onclick = showWelcome;
+  if (!localStorage.getItem(WELCOME_KEY)) { showWelcome(); } else { document.getElementById('welcomeOverlay').style.display = 'none'; }
+
+  /* ══════════════════════════════════════
+     ESTADO Y STORAGE
   ══════════════════════════════════════ */
   var STATE = { month: 1, week: 1, day: 1, progressMonth: 1, data: {} };
   var STORAGE_KEY = 'slab-registro-plan';
   var saveTimeout = null;
+  var STORAGE_WARN_BYTES = 4 * 1024 * 1024;
 
   function dayKey(m, w, d) { return 'm' + m + 'w' + w + 'd' + d; }
   function sessionKey(m, w, d) { return dayKey(m, w, d) + '_session'; }
@@ -658,23 +1020,13 @@
 
   function ensureDay(m, w, d) {
     var key = dayKey(m, w, d);
-    if (!STATE.data[key]) {
-      var arr = [];
-      for (var i = 0; i < 7; i++) arr.push(emptyExercise());
-      STATE.data[key] = arr;
-    }
+    if (!STATE.data[key]) STATE.data[key] = [];
     return STATE.data[key];
   }
   function ensureSession(m, w, d) {
     var key = sessionKey(m, w, d);
     if (!STATE.data[key]) STATE.data[key] = { rpeSesion: '' };
     return STATE.data[key];
-  }
-  function ensureAllDays() {
-    for (var m = 1; m <= 3; m++)
-      for (var w = 1; w <= 4; w++)
-        for (var d = 1; d <= 5; d++) { ensureDay(m, w, d); ensureSession(m, w, d); }
-    ensureRecords();
   }
   function ensureRecords() {
     if (!STATE.data.records || !Array.isArray(STATE.data.records)) STATE.data.records = [];
@@ -684,11 +1036,22 @@
     return { id: 'r' + Date.now() + Math.random().toString(36).slice(2,7), nombre: '', oneRm: '', repMaxPeso: '', repMaxReps: '' };
   }
 
-  async function loadData() {
-    try { var raw = localStorage.getItem(STORAGE_KEY); if (raw) STATE.data = JSON.parse(raw); }
-    catch(e) { STATE.data = {}; }
-    ensureAllDays();
+  function checkStorageQuota() {
+    try {
+      var total = 0;
+      for (var k in localStorage) {
+        if (localStorage.hasOwnProperty(k)) total += (localStorage[k].length + k.length) * 2;
+      }
+      var banner = document.getElementById('storageBanner');
+      if (total > STORAGE_WARN_BYTES) { banner.classList.add('visible'); } else { banner.classList.remove('visible'); }
+    } catch(e) {}
   }
+
+  async function loadData() {
+    try { var raw = localStorage.getItem(STORAGE_KEY); if (raw) STATE.data = JSON.parse(raw); } catch(e) { STATE.data = {}; }
+    ensureRecords();
+  }
+
   async function saveData() {
     var bar = document.getElementById('saveBar');
     bar.textContent = 'Guardando...'; bar.classList.remove('saved');
@@ -696,9 +1059,173 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE.data));
       bar.textContent = 'Guardado ✓'; bar.classList.add('saved');
       setTimeout(function() { bar.textContent = 'Listo para registrar'; bar.classList.remove('saved'); }, 1500);
-    } catch(e) { bar.textContent = 'Error al guardar'; }
+      checkStorageQuota();
+    } catch(e) {
+      bar.textContent = 'Error al guardar';
+      if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+        showToast('❌ Sin espacio. Descarga un respaldo desde Progreso.', 'error', 5000);
+        document.getElementById('storageBanner').classList.add('visible');
+      } else {
+        showToast('Error al guardar los datos', 'error', 3000);
+      }
+    }
   }
-  function scheduleSave() { clearTimeout(saveTimeout); saveTimeout = setTimeout(saveData, 500); }
+  function scheduleSave() { clearTimeout(saveTimeout); saveTimeout = setTimeout(saveData, 600); }
+
+  /* ══════════════════════════════════════
+     1RM ESTIMADO — FÓRMULA EPLEY
+     1RM = peso × (1 + reps / 30)
+     Si reps = 1, es el valor directo.
+  ══════════════════════════════════════ */
+  function calcOrm1RM(peso, reps) {
+    peso = parseFloat(peso);
+    reps = parseInt(reps, 10);
+    if (!peso || peso <= 0 || !reps || reps <= 0) return null;
+    if (reps === 1) return Math.round(peso * 10) / 10;
+    return Math.round(peso * (1 + reps / 30) * 10) / 10;
+  }
+
+  function updateOrmEstimate(wrap, numEl, rec) {
+    var val = calcOrm1RM(rec.repMaxPeso, rec.repMaxReps);
+    if (val === null) {
+      numEl.textContent = '--';
+      numEl.classList.add('empty-val');
+      wrap.classList.add('empty');
+    } else {
+      numEl.textContent = val;
+      numEl.classList.remove('empty-val');
+      wrap.classList.remove('empty');
+    }
+  }
+
+  /* ══════════════════════════════════════
+     FECHA DE INICIO DEL PLAN
+  ══════════════════════════════════════ */
+  var START_KEY = 'slab-start-date';
+
+  function getStartDate() {
+    var stored = localStorage.getItem(START_KEY);
+    if (stored) { var d = new Date(stored); if (!isNaN(d.getTime())) return d; }
+    var now = new Date();
+    var day = now.getDay();
+    var diff = day === 0 ? -6 : 1 - day;
+    var monday = new Date(now);
+    monday.setDate(now.getDate() + diff);
+    monday.setHours(0,0,0,0);
+    localStorage.setItem(START_KEY, monday.toISOString().slice(0,10));
+    return monday;
+  }
+
+  function setStartDate(dateStr) {
+    var d = new Date(dateStr + 'T00:00:00');
+    if (isNaN(d.getTime())) { showToast('Fecha inválida', 'warn'); return false; }
+    if (d.getDay() !== 1) { showToast('El plan debe comenzar un lunes', 'warn', 3000); return false; }
+    localStorage.setItem(START_KEY, dateStr);
+    return true;
+  }
+
+  function formatDateDisplay(d) {
+    var days = ['dom','lun','mar','mié','jue','vie','sáb'];
+    var months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    return days[d.getDay()] + ' ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  function renderStartDateConfig() {
+    var start = getStartDate();
+    document.getElementById('startDateInput').value = start.toISOString().slice(0,10);
+    document.getElementById('startDateCurrent').textContent = 'Inicio actual: ' + formatDateDisplay(start);
+  }
+
+  document.getElementById('startDateSaveBtn').onclick = function() {
+    var val = document.getElementById('startDateInput').value;
+    if (setStartDate(val)) { renderStartDateConfig(); updateBtnHoy(); renderDayPills(); showToast('Fecha de inicio actualizada', 'ok'); }
+  };
+
+  function todayPlanPosition() {
+    var start = getStartDate();
+    var now = new Date(); now.setHours(0,0,0,0);
+    var diffMs = now - start;
+    var diffDays = Math.floor(diffMs / 86400000);
+    if (diffDays < 0) return null;
+    var weekIdx = Math.floor(diffDays / 7);
+    if (weekIdx >= 12) return null;
+    var dayOfWeek = now.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) return null;
+    var month = Math.floor(weekIdx / 4) + 1;
+    var week = (weekIdx % 4) + 1;
+    var day = dayOfWeek;
+    if (month > 3 || week > 4 || day > 5) return null;
+    return { month: month, week: week, day: day };
+  }
+
+  function nextTrainingDay() {
+    var start = getStartDate();
+    var now = new Date(); now.setHours(0,0,0,0);
+    var dw = now.getDay();
+    var daysUntil = dw === 6 ? 2 : 1;
+    var next = new Date(now); next.setDate(now.getDate() + daysUntil);
+    var diffMs = next - start;
+    var diffDays = Math.floor(diffMs / 86400000);
+    if (diffDays < 0) return null;
+    var weekIdx = Math.floor(diffDays / 7);
+    if (weekIdx >= 12) return null;
+    var month = Math.floor(weekIdx / 4) + 1;
+    var week = (weekIdx % 4) + 1;
+    var day = next.getDay();
+    if (month > 3 || week > 4 || day < 1 || day > 5) return null;
+    return { month: month, week: week, day: day, daysUntil: daysUntil };
+  }
+
+  function updateBtnHoy() {
+    var btn = document.getElementById('btnHoy');
+    var dateEl = document.getElementById('btnHoyDate');
+    var pos = todayPlanPosition();
+    var now = new Date();
+    dateEl.textContent = now.getDate() + '/' + (now.getMonth()+1);
+    if (pos && pos.month === STATE.month && pos.week === STATE.week && pos.day === STATE.day) {
+      btn.classList.add('is-today');
+    } else { btn.classList.remove('is-today'); }
+  }
+
+  document.getElementById('btnHoy').onclick = function() {
+    var pos = todayPlanPosition();
+    if (!pos) {
+      var next = nextTrainingDay();
+      if (next) {
+        var msg = next.daysUntil === 1
+          ? 'Hoy es domingo — el próximo entrenamiento es mañana (M' + next.month + ' S' + next.week + ' D' + next.day + ')'
+          : 'Hoy es sábado — el próximo entrenamiento es el lunes (M' + next.month + ' S' + next.week + ' D' + next.day + ')';
+        showToast(msg, 'warn', 4000);
+      } else { showToast('Hoy no hay entrenamiento programado', 'warn', 3000); }
+      return;
+    }
+    STATE.month = pos.month; STATE.week = pos.week; STATE.day = pos.day;
+    renderAll(); switchTab('registro');
+  };
+
+  /* ══════════════════════════════════════
+     CERRAR RPE PANEL AL TOCAR AFUERA
+  ══════════════════════════════════════ */
+  document.addEventListener('touchstart', function(e) {
+    var openPanels = document.querySelectorAll('.inline-rpe-panel.visible');
+    if (openPanels.length === 0) return;
+    var touchedInside = false;
+    openPanels.forEach(function(panel) { if (panel.contains(e.target)) touchedInside = true; });
+    document.querySelectorAll('.ex-rpe-btn.open').forEach(function(btn) { if (btn.contains(e.target)) touchedInside = true; });
+    if (!touchedInside) {
+      openPanels.forEach(function(p) { p.classList.remove('visible'); });
+      document.querySelectorAll('.ex-rpe-btn.open').forEach(function(b) { b.classList.remove('open'); });
+    }
+  }, { passive: true });
+
+  var scrollCloseTimeout = null;
+  document.addEventListener('scroll', function() {
+    clearTimeout(scrollCloseTimeout);
+    scrollCloseTimeout = setTimeout(function() {
+      document.querySelectorAll('.inline-rpe-panel.visible').forEach(function(p) { p.classList.remove('visible'); });
+      document.querySelectorAll('.ex-rpe-btn.open').forEach(function(b) { b.classList.remove('open'); });
+    }, 100);
+  }, { passive: true });
 
   /* ══════════════════════════════════════
      RENDER - REGISTRO
@@ -725,125 +1252,276 @@
   }
   function dayComplete(m, w, d) {
     var arr = STATE.data[dayKey(m, w, d)];
-    if (!arr) return false;
+    if (!arr || arr.length === 0) return false;
     var any = arr.some(function(e) { return e.nombre.trim() !== ''; });
     if (!any) return false;
     return arr.every(function(e) { return e.nombre.trim() === '' || e.hecho; });
   }
   function renderDayPills() {
     var el = document.getElementById('dayPills'); el.innerHTML = '';
+    var todayPos = todayPlanPosition();
     for (var d = 1; d <= 5; d++) {
       var btn = document.createElement('button');
       var complete = dayComplete(STATE.month, STATE.week, d);
-      btn.innerHTML = 'Día ' + d + (complete ? '<span class="check">✓ hecho</span>' : '');
+      var isToday = todayPos && todayPos.month === STATE.month && todayPos.week === STATE.week && todayPos.day === d;
+      btn.innerHTML = 'Día ' + d + (complete ? '<span class="check">✓ hecho</span>' : (isToday ? '<span class="check" style="color:var(--gold-dim)">hoy</span>' : ''));
       if (d === STATE.day) btn.classList.add('active');
-      btn.onclick = (function(dd) { return function() { STATE.day = dd; renderAll(); }; })(d);
+      if (isToday && d !== STATE.day) btn.classList.add('is-today-pill');
+      btn.onclick = (function(dd) { return function() { STATE.day = dd; renderExercises(); renderDayPills(); updateBtnHoy(); }; })(d);
       el.appendChild(btn);
     }
   }
+
+  function getExercisesHeader(arr) {
+    var total = arr.filter(function(e) { return e.nombre.trim() !== ''; }).length;
+    var done = arr.filter(function(e) { return e.nombre.trim() !== '' && e.hecho; }).length;
+    return { total: total, done: done };
+  }
+
+  var _lastDayKey = null;
+
   function renderExercises() {
     var el = document.getElementById('exerciseList'); el.innerHTML = '';
     var arr = ensureDay(STATE.month, STATE.week, STATE.day);
+    _lastDayKey = dayKey(STATE.month, STATE.week, STATE.day);
+
+    var counts = getExercisesHeader(arr);
+    if (counts.total > 0) {
+      var wrap = document.createElement('div'); wrap.className = 'exercises-header';
+      var count = document.createElement('div'); count.className = 'exercises-count';
+      count.innerHTML = 'Sesión: <span class="count-done">' + counts.done + '</span> / ' + counts.total + ' ejercicios';
+      wrap.appendChild(count); el.appendChild(wrap);
+    }
+
     if (arr.length === 0) {
-      var emptyMsg = document.createElement('div');
-      emptyMsg.className = 'records-empty';
-      emptyMsg.textContent = 'No hay ejercicios cargados. Tocá "+ Añadir ejercicio" para empezar.';
+      var emptyMsg = document.createElement('div'); emptyMsg.className = 'records-empty';
+      emptyMsg.textContent = 'No hay ejercicios registrados. Toca "+ Añadir ejercicio" para comenzar.';
       el.appendChild(emptyMsg);
     }
+
     arr.forEach(function(ex, idx) {
       var card = document.createElement('div');
       card.className = 'exercise-card' + (ex.hecho && ex.nombre.trim() ? ' complete' : '');
+
       var head = document.createElement('div'); head.className = 'ex-head';
       var num = document.createElement('div'); num.className = 'ex-num'; num.textContent = idx + 1;
+
       var nameInput = document.createElement('input');
       nameInput.className = 'ex-name-input'; nameInput.type = 'text';
       nameInput.placeholder = 'Nombre del ejercicio'; nameInput.value = ex.nombre;
       nameInput.setAttribute('aria-label', 'Nombre del ejercicio ' + (idx+1));
+      nameInput.setAttribute('autocomplete', 'off'); nameInput.setAttribute('autocorrect', 'off'); nameInput.setAttribute('spellcheck', 'false');
       nameInput.oninput = function() { ex.nombre = this.value; scheduleSave(); };
-      nameInput.onblur = function() { renderDayPills(); };
+      nameInput.onblur = function() { renderDayPills(); updateExerciseHeader(); };
+
+      var rpeBtn = document.createElement('button');
+      rpeBtn.className = 'ex-rpe-btn'; rpeBtn.innerHTML = '⚖ RPE';
+      rpeBtn.setAttribute('aria-label', 'Calculadora RPE integrada'); rpeBtn.setAttribute('type', 'button');
+      rpeBtn.onclick = function(e) {
+        e.preventDefault();
+        var panel = card.querySelector('.inline-rpe-panel');
+        var isOpen = panel.classList.contains('visible');
+        document.querySelectorAll('.inline-rpe-panel.visible').forEach(function(p) { p.classList.remove('visible'); });
+        document.querySelectorAll('.ex-rpe-btn.open').forEach(function(b) { b.classList.remove('open'); });
+        if (!isOpen) { panel.classList.add('visible'); rpeBtn.classList.add('open'); iRpeUpdate(panel); }
+      };
+
       var delExBtn = document.createElement('button');
       delExBtn.className = 'record-delete-btn'; delExBtn.textContent = '✕';
-      delExBtn.setAttribute('aria-label', 'Eliminar ejercicio');
+      delExBtn.setAttribute('aria-label', 'Eliminar ejercicio'); delExBtn.setAttribute('type', 'button');
       delExBtn.onclick = function() {
         var label = ex.nombre.trim() || 'este ejercicio';
-        if (!confirm('¿Eliminar "' + label + '" de este día? Esta acción no se puede deshacer.')) return;
+        if (!confirm('¿Eliminar "' + label + '" de este día?')) return;
         var i = arr.indexOf(ex); if (i > -1) arr.splice(i, 1);
         scheduleSave(); renderExercises(); renderDayPills();
       };
-      head.appendChild(num); head.appendChild(nameInput); head.appendChild(delExBtn);
+
+      head.appendChild(num); head.appendChild(nameInput); head.appendChild(rpeBtn); head.appendChild(delExBtn);
       card.appendChild(head);
+
+      var iRpePanel = buildInlineRpePanel(ex); card.appendChild(iRpePanel);
+
       var fields1 = document.createElement('div'); fields1.className = 'ex-fields';
-      fields1.appendChild(makeField('Series', ex, 'sets', 'number'));
-      fields1.appendChild(makeField('Reps', ex, 'reps', 'text'));
+      fields1.appendChild(makeField('Series', ex, 'sets', 'number', 'numeric'));
+      fields1.appendChild(makeField('Reps', ex, 'reps', 'text', 'numeric'));
       fields1.appendChild(makeRPEField('RPE obj.', ex, 'rpe', 'rpe-select'));
       card.appendChild(fields1);
+
       var fields2 = document.createElement('div'); fields2.className = 'ex-fields-row2';
-      var rpeRealField = makeRPEField('RPE real', ex, 'rpeReal', 'rpe-real');
-      rpeRealField.classList.add('rpe-real');
-      var pesoField = makeField('Peso usado (kg)', ex, 'peso', 'number');
-      pesoField.classList.add('peso');
+      var rpeRealField = makeRPEField('RPE real', ex, 'rpeReal', 'rpe-real'); rpeRealField.classList.add('rpe-real');
+      var pesoField = makeField('Peso usado (kg)', ex, 'peso', 'number', 'decimal'); pesoField.classList.add('peso');
       fields2.appendChild(rpeRealField); fields2.appendChild(pesoField);
       card.appendChild(fields2);
       card.appendChild(makeNoteField(ex));
+
       var doneWrap = document.createElement('label');
       doneWrap.className = 'done-toggle' + (ex.hecho ? ' on' : '');
       var checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.checked = ex.hecho;
       checkbox.onchange = function() {
-        ex.hecho = this.checked; scheduleSave(); renderExercises(); renderDayPills();
+        ex.hecho = this.checked; scheduleSave();
+        if (ex.hecho) {
+          card.classList.add('complete', 'complete-animate');
+          setTimeout(function() { card.classList.remove('complete-animate'); }, 500);
+        } else { card.classList.remove('complete'); }
+        doneWrap.className = 'done-toggle' + (ex.hecho ? ' on' : '');
+        doneLabel.textContent = ex.hecho ? '✓ Serie completada' : 'Marcar como completado';
+        renderDayPills(); updateExerciseHeader();
       };
       var doneLabel = document.createElement('span');
-      doneLabel.textContent = ex.hecho ? 'Serie completada' : 'Marcar como hecho';
+      doneLabel.textContent = ex.hecho ? '✓ Serie completada' : 'Marcar como completado';
       doneWrap.appendChild(checkbox); doneWrap.appendChild(doneLabel);
       card.appendChild(doneWrap);
       el.appendChild(card);
     });
+
     var addExBtn = document.createElement('button');
     addExBtn.className = 'add-exercise-btn'; addExBtn.textContent = '+ Añadir ejercicio';
-    addExBtn.onclick = function() { arr.push(emptyExercise()); scheduleSave(); renderExercises(); };
+    addExBtn.setAttribute('type', 'button');
+    addExBtn.onclick = function() {
+      arr.push(emptyExercise()); scheduleSave(); renderExercises();
+      setTimeout(function() {
+        var cards = el.querySelectorAll('.exercise-card');
+        var last = cards[cards.length - 1];
+        if (last) last.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    };
     el.appendChild(addExBtn);
+
     var session = ensureSession(STATE.month, STATE.week, STATE.day);
-    var sessionCard = document.createElement('div');
-    sessionCard.className = 'exercise-card session-card';
+    var sessionCard = document.createElement('div'); sessionCard.className = 'exercise-card session-card';
     var sessionHead = document.createElement('div'); sessionHead.className = 'ex-head';
     var sessionLabel = document.createElement('div'); sessionLabel.className = 'session-label';
     sessionLabel.textContent = 'RPE entrenamiento'; sessionHead.appendChild(sessionLabel);
     sessionCard.appendChild(sessionHead);
     var sessionFields = document.createElement('div'); sessionFields.className = 'ex-fields session-fields';
-    var sessionField = makeRPEField('RPE de toda la sesión', session, 'rpeSesion', null);
-    sessionFields.appendChild(sessionField); sessionCard.appendChild(sessionFields);
+    sessionFields.appendChild(makeRPEField('RPE de toda la sesión', session, 'rpeSesion', null));
+    sessionCard.appendChild(sessionFields);
     el.appendChild(sessionCard);
+
+    updateBtnHoy();
   }
 
+  function updateExerciseHeader() {
+    var arr = STATE.data[_lastDayKey] || [];
+    var counts = getExercisesHeader(arr);
+    var el = document.querySelector('#exerciseList .exercises-count');
+    if (el) el.innerHTML = 'Sesión: <span class="count-done">' + counts.done + '</span> / ' + counts.total + ' ejercicios';
+  }
+
+  /* ══════════════════════════════════════
+     MINI CALCULADORA RPE INLINE
+  ══════════════════════════════════════ */
+  var RPE_TABLE = {
+    "10":  [100.0,95.5,92.2,89.2,86.3,83.7,81.1,78.6,76.2,73.9,71.6,69.4],
+    "9.5": [97.8,93.9,90.7,87.8,85.0,82.5,80.0,77.5,75.2,72.9,70.7,68.6],
+    "9":   [95.5,92.2,89.2,86.3,83.7,81.1,78.6,76.2,73.9,71.6,69.4,67.4],
+    "8.5": [93.9,90.7,87.8,85.0,82.5,80.0,77.5,75.2,72.9,70.7,68.6,66.7],
+    "8":   [92.2,89.2,86.3,83.7,81.1,78.6,76.2,73.9,71.6,69.4,67.4,65.6],
+    "7.5": [90.7,87.8,85.0,82.5,80.0,77.5,75.2,72.9,70.7,68.6,66.7,65.0],
+    "7":   [89.2,86.3,83.7,81.1,78.6,76.2,73.9,71.6,69.4,67.4,65.6,64.0],
+    "6.5": [87.8,85.0,82.5,80.0,77.5,75.2,72.9,70.7,68.6,66.7,65.0,63.4],
+    "6":   [86.3,83.7,81.1,78.6,76.2,73.9,71.6,69.4,67.4,65.6,64.0,62.6]
+  };
+  var RPE_KEYS = ["10","9.5","9","8.5","8","7.5","7","6.5","6"];
+
+  function rpeRound1(n) { return Math.round(n*10)/10; }
+  function rpeFmt(n) { return (Math.round(n*100)/100).toString().replace(/\.00$/,'').replace(/(\.\d)0$/,'$1'); }
+  function rpeNearestLoadable(target, base, smallest, mult) {
+    mult = mult || 2; if (target <= base) return base;
+    return rpeRound1(base + Math.round((target-base)/(smallest*mult)) * smallest * mult);
+  }
+
+  function buildInlineRpePanel(ex) {
+    var panel = document.createElement('div'); panel.className = 'inline-rpe-panel';
+    var title = document.createElement('div'); title.className = 'irpe-title'; title.textContent = 'Calculadora RPE';
+    panel.appendChild(title);
+    var row = document.createElement('div'); row.className = 'irpe-row';
+    var f1 = document.createElement('div'); f1.className = 'irpe-field';
+    var l1 = document.createElement('label'); l1.textContent = '1RM (kg)';
+    var inp1 = document.createElement('input'); inp1.type = 'number'; inp1.inputMode = 'decimal';
+    inp1.min = '0'; inp1.step = '0.5'; inp1.placeholder = '100'; inp1.setAttribute('data-irpe', 'orm');
+    f1.appendChild(l1); f1.appendChild(inp1); row.appendChild(f1);
+    var f2 = document.createElement('div'); f2.className = 'irpe-field';
+    var l2 = document.createElement('label'); l2.textContent = 'Reps';
+    var sel2 = document.createElement('select'); sel2.setAttribute('data-irpe', 'reps');
+    for (var r = 1; r <= 12; r++) {
+      var o = document.createElement('option'); o.value = r; o.textContent = r;
+      if (ex.reps && parseInt(ex.reps) === r) o.selected = true; else if (!ex.reps && r === 4) o.selected = true;
+      sel2.appendChild(o);
+    }
+    f2.appendChild(l2); f2.appendChild(sel2); row.appendChild(f2);
+    var f3 = document.createElement('div'); f3.className = 'irpe-field';
+    var l3 = document.createElement('label'); l3.textContent = 'RPE';
+    var sel3 = document.createElement('select'); sel3.setAttribute('data-irpe', 'rpe');
+    RPE_KEYS.forEach(function(k) {
+      var o = document.createElement('option'); o.value = k; o.textContent = k;
+      if ((ex.rpe && ex.rpe === k) || (!ex.rpe && k === '7')) o.selected = true;
+      sel3.appendChild(o);
+    });
+    f3.appendChild(l3); f3.appendChild(sel3); row.appendChild(f3);
+    panel.appendChild(row);
+    var result = document.createElement('div'); result.className = 'irpe-result';
+    var left = document.createElement('div');
+    var lbl = document.createElement('div'); lbl.className = 'irpe-result-label'; lbl.textContent = 'Peso de trabajo';
+    var pct = document.createElement('div'); pct.className = 'irpe-result-pct'; pct.setAttribute('data-irpe', 'pct'); pct.textContent = '--%';
+    left.appendChild(lbl); left.appendChild(pct);
+    var right = document.createElement('div'); right.className = 'irpe-result-right';
+    var wSpan = document.createElement('span'); wSpan.className = 'irpe-result-weight'; wSpan.setAttribute('data-irpe','weight'); wSpan.textContent = '--';
+    var uSpan = document.createElement('span'); uSpan.className = 'irpe-result-unit'; uSpan.textContent = 'kg';
+    right.appendChild(wSpan); right.appendChild(uSpan);
+    result.appendChild(left); result.appendChild(right);
+    panel.appendChild(result);
+    function update() { iRpeUpdate(panel); }
+    inp1.addEventListener('input', update); sel2.addEventListener('change', update); sel3.addEventListener('change', update);
+    return panel;
+  }
+
+  function iRpeUpdate(panel) {
+    var orm = parseFloat(panel.querySelector('[data-irpe="orm"]').value);
+    var reps = parseInt(panel.querySelector('[data-irpe="reps"]').value, 10);
+    var rpe = panel.querySelector('[data-irpe="rpe"]').value;
+    var weightEl = panel.querySelector('[data-irpe="weight"]');
+    var pctEl = panel.querySelector('[data-irpe="pct"]');
+    if (!orm || orm <= 0 || !RPE_TABLE[rpe]) { weightEl.textContent = '--'; pctEl.textContent = '--%'; return; }
+    var pct = RPE_TABLE[rpe][reps - 1];
+    var target = orm * pct / 100;
+    var loadable = rpeNearestLoadable(target, 20, 1.25, 2);
+    weightEl.textContent = rpeFmt(loadable);
+    pctEl.textContent = rpeFmt(pct) + '% del 1RM';
+  }
+
+  /* ══════════════════════════════════════
+     HELPERS DE CAMPOS
+  ══════════════════════════════════════ */
   function makeNoteField(ex) {
     var wrap = document.createElement('div'); wrap.className = 'note-field';
     var label = document.createElement('label'); label.textContent = 'Nota / feedback';
     var textarea = document.createElement('textarea');
-    textarea.placeholder = 'Cómo se sintió, técnica, dolores, ajustes para la próxima...';
+    textarea.placeholder = 'Cómo se sintió, técnica, molestias, ajustes para la próxima...';
     textarea.value = ex.nota || ''; textarea.setAttribute('aria-label', 'Nota del ejercicio');
     textarea.oninput = function() { ex.nota = this.value; scheduleSave(); };
     wrap.appendChild(label); wrap.appendChild(textarea); return wrap;
   }
   function makeRPEField(labelText, ex, key, extraClass) {
-    var wrap = document.createElement('div');
-    wrap.className = 'field' + (extraClass ? ' ' + extraClass : '');
+    var wrap = document.createElement('div'); wrap.className = 'field' + (extraClass ? ' ' + extraClass : '');
     var label = document.createElement('label'); label.textContent = labelText;
     var select = document.createElement('select'); select.setAttribute('aria-label', labelText);
-    var blankOpt = document.createElement('option'); blankOpt.value = ''; blankOpt.textContent = '—';
-    select.appendChild(blankOpt);
+    var blankOpt = document.createElement('option'); blankOpt.value = ''; blankOpt.textContent = '—'; select.appendChild(blankOpt);
     for (var v = 5; v <= 10; v += 0.5) {
       var val = (Math.round(v*10)/10).toString();
-      var opt = document.createElement('option'); opt.value = val; opt.textContent = val;
-      select.appendChild(opt);
+      var opt = document.createElement('option'); opt.value = val; opt.textContent = val; select.appendChild(opt);
     }
     select.value = ex[key] || '';
     select.onchange = function() { ex[key] = this.value; scheduleSave(); };
     wrap.appendChild(label); wrap.appendChild(select); return wrap;
   }
-  function makeField(labelText, ex, key, type) {
+  function makeField(labelText, ex, key, type, inputmode) {
     var wrap = document.createElement('div'); wrap.className = 'field';
     var label = document.createElement('label'); label.textContent = labelText;
     var input = document.createElement('input'); input.type = type;
-    if (type === 'number') { input.inputMode = 'decimal'; input.min = '0'; }
+    if (inputmode) input.setAttribute('inputmode', inputmode);
+    else if (type === 'number') input.setAttribute('inputmode', 'decimal');
+    if (type === 'number') input.min = '0';
     input.value = ex[key]; input.setAttribute('aria-label', labelText);
     input.oninput = function() { ex[key] = this.value; scheduleSave(); };
     wrap.appendChild(label); wrap.appendChild(input); return wrap;
@@ -855,8 +1533,7 @@
   function renderMonthPillsProgress() {
     var el = document.getElementById('monthPillsProgress'); el.innerHTML = '';
     for (var m = 1; m <= 3; m++) {
-      var btn = document.createElement('button');
-      btn.textContent = 'Mes ' + m;
+      var btn = document.createElement('button'); btn.textContent = 'Mes ' + m;
       if (m === STATE.progressMonth) btn.classList.add('active');
       btn.onclick = (function(mm) { return function() { STATE.progressMonth = mm; renderProgress(); }; })(m);
       el.appendChild(btn);
@@ -864,6 +1541,7 @@
   }
   function renderProgress() {
     renderMonthPillsProgress();
+    renderStartDateConfig();
     var month = STATE.progressMonth;
     var summaryEl = document.getElementById('weekSummary'); summaryEl.innerHTML = '';
     for (var w = 1; w <= 4; w++) {
@@ -883,15 +1561,13 @@
     }
     var contentEl = document.getElementById('progressContent'); contentEl.innerHTML = '';
     var sessionRecords = [];
-    for (var ws = 1; ws <= 4; ws++)
-      for (var ds = 1; ds <= 5; ds++) {
-        var sess = STATE.data[sessionKey(month, ws, ds)];
-        if (sess && sess.rpeSesion !== '') sessionRecords.push({ week: ws, day: ds, rpe: sess.rpeSesion });
-      }
+    for (var ws = 1; ws <= 4; ws++) for (var ds = 1; ds <= 5; ds++) {
+      var sess = STATE.data[sessionKey(month, ws, ds)];
+      if (sess && sess.rpeSesion !== '') sessionRecords.push({ week: ws, day: ds, rpe: sess.rpeSesion });
+    }
     if (sessionRecords.length > 0) {
       var sessCard = document.createElement('div'); sessCard.className = 'progress-card';
-      var sessH3 = document.createElement('h3'); sessH3.textContent = 'RPE entrenamiento por sesión';
-      sessCard.appendChild(sessH3);
+      var sessH3 = document.createElement('h3'); sessH3.textContent = 'RPE entrenamiento por sesión'; sessCard.appendChild(sessH3);
       var sessTable = document.createElement('table'); sessTable.className = 'history';
       var sessThead = document.createElement('tr');
       ['Sem/Día','RPE entrenamiento'].forEach(function(h) { var th = document.createElement('th'); th.textContent = h; sessThead.appendChild(th); });
@@ -905,16 +1581,15 @@
       sessCard.appendChild(sessTable); contentEl.appendChild(sessCard);
     }
     var exerciseMap = {};
-    for (var w2 = 1; w2 <= 4; w2++)
-      for (var d2 = 1; d2 <= 5; d2++) {
-        var arr2 = STATE.data[dayKey(month, w2, d2)] || [];
-        arr2.forEach(function(ex) {
-          var name = ex.nombre.trim(); if (!name) return;
-          if (!exerciseMap[name]) exerciseMap[name] = [];
-          if (ex.peso !== '' || ex.rpeReal !== '')
-            exerciseMap[name].push({ week: w2, day: d2, sets: ex.sets, reps: ex.reps, rpe: ex.rpe, rpeReal: ex.rpeReal, peso: ex.peso });
-        });
-      }
+    for (var w2 = 1; w2 <= 4; w2++) for (var d2 = 1; d2 <= 5; d2++) {
+      var arr2 = STATE.data[dayKey(month, w2, d2)] || [];
+      arr2.forEach(function(ex) {
+        var name = ex.nombre.trim(); if (!name) return;
+        if (!exerciseMap[name]) exerciseMap[name] = [];
+        if (ex.peso !== '' || ex.rpeReal !== '')
+          exerciseMap[name].push({ week: w2, day: d2, sets: ex.sets, reps: ex.reps, rpe: ex.rpe, rpeReal: ex.rpeReal, peso: ex.peso });
+      });
+    }
     var names = Object.keys(exerciseMap);
     if (names.length === 0) {
       if (sessionRecords.length === 0) contentEl.innerHTML = '<div class="empty-state">Aún no hay registros en este mes.</div>';
@@ -943,47 +1618,104 @@
 
   /* ══════════════════════════════════════
      RENDER - RÉCORDS
+     (con 1RM estimado desde reps máximas)
   ══════════════════════════════════════ */
   function renderRecords() {
     var records = ensureRecords();
     var el = document.getElementById('recordsList'); el.innerHTML = '';
     if (records.length === 0) {
-      el.innerHTML = '<div class="records-empty">Aún no tenés récords guardados.<br>Tocá "+ Añadir ejercicio" para registrar tu primer 1RM.</div>';
+      el.innerHTML = '<div class="records-empty">Aún no tienes récords guardados.<br>Toca "+ Añadir ejercicio" para registrar tu primer 1RM.</div>';
       return;
     }
     records.forEach(function(rec) {
       var card = document.createElement('div'); card.className = 'record-card';
+
+      // ── HEAD ──
       var head = document.createElement('div'); head.className = 'record-head';
       var nameInput = document.createElement('input');
       nameInput.className = 'record-name-input'; nameInput.type = 'text';
       nameInput.placeholder = 'Nombre del ejercicio'; nameInput.value = rec.nombre;
       nameInput.setAttribute('aria-label', 'Nombre del ejercicio en récords');
+      nameInput.setAttribute('autocomplete', 'off');
       nameInput.oninput = function() { rec.nombre = this.value; scheduleSave(); };
       var delBtn = document.createElement('button');
       delBtn.className = 'record-delete-btn'; delBtn.textContent = '✕';
-      delBtn.setAttribute('aria-label', 'Eliminar récord');
+      delBtn.setAttribute('aria-label', 'Eliminar récord'); delBtn.setAttribute('type', 'button');
       delBtn.onclick = function() {
         var label = rec.nombre.trim() || 'este récord';
-        if (!confirm('¿Eliminar "' + label + '"? Esta acción no se puede deshacer.')) return;
+        if (!confirm('¿Eliminar "' + label + '"?')) return;
         var idx = records.indexOf(rec); if (idx > -1) records.splice(idx, 1);
         scheduleSave(); renderRecords();
       };
       head.appendChild(nameInput); head.appendChild(delBtn); card.appendChild(head);
+
+      // ── BLOQUE 1RM DIRECTO ──
       var block1 = document.createElement('div'); block1.className = 'record-block';
       var label1 = document.createElement('span'); label1.className = 'record-block-label'; label1.textContent = 'Récord a 1 repetición';
       block1.appendChild(label1);
       var row1 = document.createElement('div'); row1.className = 'record-row';
-      row1.appendChild(makeField('Peso (kg)', rec, 'oneRm', 'number')); block1.appendChild(row1); card.appendChild(block1);
+      row1.appendChild(makeField('Peso (kg)', rec, 'oneRm', 'number', 'decimal'));
+      block1.appendChild(row1); card.appendChild(block1);
+
+      // ── BLOQUE REPETICIONES MÁXIMAS + 1RM ESTIMADO ──
       var block2 = document.createElement('div'); block2.className = 'record-block';
       var label2 = document.createElement('span'); label2.className = 'record-block-label'; label2.textContent = 'Récord a repeticiones máximas';
       block2.appendChild(label2);
+
       var row2 = document.createElement('div'); row2.className = 'record-row';
-      row2.appendChild(makeField('Peso (kg)', rec, 'repMaxPeso', 'number'));
-      row2.appendChild(makeField('Reps logradas', rec, 'repMaxReps', 'number'));
-      block2.appendChild(row2); card.appendChild(block2);
+
+      // Campo peso
+      var pesoWrap = document.createElement('div'); pesoWrap.className = 'field';
+      var pesoLabel = document.createElement('label'); pesoLabel.textContent = 'Peso (kg)';
+      var pesoInput = document.createElement('input'); pesoInput.type = 'number'; pesoInput.inputMode = 'decimal';
+      pesoInput.min = '0'; pesoInput.value = rec.repMaxPeso;
+      pesoInput.setAttribute('aria-label', 'Peso récord a repeticiones máximas');
+
+      // Campo reps
+      var repsWrap = document.createElement('div'); repsWrap.className = 'field';
+      var repsLabel = document.createElement('label'); repsLabel.textContent = 'Reps logradas';
+      var repsInput = document.createElement('input'); repsInput.type = 'number'; repsInput.inputMode = 'numeric';
+      repsInput.min = '1'; repsInput.value = rec.repMaxReps;
+      repsInput.setAttribute('aria-label', 'Repeticiones máximas logradas');
+
+      pesoWrap.appendChild(pesoLabel); pesoWrap.appendChild(pesoInput);
+      repsWrap.appendChild(repsLabel); repsWrap.appendChild(repsInput);
+      row2.appendChild(pesoWrap); row2.appendChild(repsWrap);
+      block2.appendChild(row2);
+
+      // ── 1RM ESTIMADO (Epley) ──
+      var ormWrap = document.createElement('div'); ormWrap.className = 'orm-estimate-wrap';
+      var ormLeft = document.createElement('div'); ormLeft.className = 'orm-estimate-left';
+      var ormTag = document.createElement('div'); ormTag.className = 'orm-estimate-tag'; ormTag.textContent = '1RM estimado';
+      var ormDesc = document.createElement('div'); ormDesc.className = 'orm-estimate-desc'; ormDesc.textContent = 'Fórmula Epley · peso × (1 + reps/30)';
+      ormLeft.appendChild(ormTag); ormLeft.appendChild(ormDesc);
+      var ormRight = document.createElement('div'); ormRight.className = 'orm-estimate-right';
+      var ormNum = document.createElement('span'); ormNum.className = 'orm-estimate-num empty-val'; ormNum.textContent = '--';
+      var ormUnit = document.createElement('span'); ormUnit.className = 'orm-estimate-unit'; ormUnit.textContent = 'kg';
+      ormRight.appendChild(ormNum); ormRight.appendChild(ormUnit);
+      ormWrap.appendChild(ormLeft); ormWrap.appendChild(ormRight);
+      block2.appendChild(ormWrap);
+
+      // Inicializar estado visual
+      updateOrmEstimate(ormWrap, ormNum, rec);
+
+      // Listeners reactivos
+      pesoInput.oninput = function() {
+        rec.repMaxPeso = this.value;
+        updateOrmEstimate(ormWrap, ormNum, rec);
+        scheduleSave();
+      };
+      repsInput.oninput = function() {
+        rec.repMaxReps = this.value;
+        updateOrmEstimate(ormWrap, ormNum, rec);
+        scheduleSave();
+      };
+
+      card.appendChild(block2);
       el.appendChild(card);
     });
   }
+
   document.getElementById('addRecordBtn').onclick = function() {
     ensureRecords().push(emptyRecord()); scheduleSave(); renderRecords();
   };
@@ -992,7 +1724,7 @@
      PDF REPORT
   ══════════════════════════════════════ */
   function generatePDFReport(filterMonth, filterWeek) {
-    if (typeof window.jspdf === 'undefined') { alert('No se pudo cargar la librería de PDF. Verificá tu conexión.'); return; }
+    if (typeof window.jspdf === 'undefined') { showToast('No se pudo cargar la librería de PDF. Verifica tu conexión.', 'error', 4000); return; }
     var jsPDFLib = window.jspdf.jsPDF;
     var doc = new jsPDFLib({ unit: 'pt', format: 'a4' });
     var pageW = doc.internal.pageSize.getWidth(), pageH = doc.internal.pageSize.getHeight();
@@ -1007,7 +1739,7 @@
     var reportTitle = (filterMonth && filterWeek) ? ('Reporte semanal — Mes ' + filterMonth + ' · Semana ' + filterWeek) : 'Reporte de entrenamiento';
     doc.text(reportTitle, margin, y); y += 14;
     doc.setFontSize(9); doc.setTextColor(grey[0],grey[1],grey[2]);
-    doc.text('Generado el ' + new Date().toLocaleDateString('es-AR', {year:'numeric',month:'long',day:'numeric'}), margin, y); y += 8;
+    doc.text('Generado el ' + new Date().toLocaleDateString('es-MX', {year:'numeric',month:'long',day:'numeric'}), margin, y); y += 8;
     doc.setDrawColor(gold[0],gold[1],gold[2]); doc.setLineWidth(1.2);
     doc.line(margin, y, pageW - margin, y); y += 22;
     var hasAnyContent = false;
@@ -1048,29 +1780,40 @@
         hasAnyContent = true; ensureSpace(30);
         doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(dark[0],dark[1],dark[2]);
         doc.text('Récords personales', margin, y); y += 10;
-        var recBody = records.map(function(r) { return [r.nombre, r.oneRm ? r.oneRm + ' kg' : '-', (r.repMaxPeso||r.repMaxReps) ? (r.repMaxPeso||'-') + ' kg x ' + (r.repMaxReps||'-') + ' reps' : '-']; });
-        doc.autoTable({ startY: y+6, margin:{left:margin,right:margin}, head:[['Ejercicio','1RM','Récord a reps máximas']], body: recBody, theme:'grid', styles:{fontSize:9,cellPadding:5,textColor:[40,40,36],lineColor:lineGrey,lineWidth:0.5}, headStyles:{fillColor:dark,textColor:gold,fontStyle:'bold'} });
+        var recBody = records.map(function(r) {
+          var ormEst = calcOrm1RM(r.repMaxPeso, r.repMaxReps);
+          var repMaxStr = (r.repMaxPeso||r.repMaxReps) ? (r.repMaxPeso||'-') + ' kg x ' + (r.repMaxReps||'-') + ' reps' : '-';
+          if (ormEst) repMaxStr += ' → 1RM est. ' + ormEst + ' kg';
+          return [r.nombre, r.oneRm ? r.oneRm + ' kg' : '-', repMaxStr];
+        });
+        doc.autoTable({ startY: y+6, margin:{left:margin,right:margin}, head:[['Ejercicio','1RM directo','Récord a reps (1RM estimado)']], body: recBody, theme:'grid', styles:{fontSize:9,cellPadding:5,textColor:[40,40,36],lineColor:lineGrey,lineWidth:0.5}, headStyles:{fillColor:dark,textColor:gold,fontStyle:'bold'} });
         y = doc.lastAutoTable.finalY + 10;
       }
     }
-    if (!hasAnyContent) { alert(filterWeek ? 'No hay registros cargados para esa semana.' : 'Todavía no hay registros para generar un reporte.'); return; }
+    if (!hasAnyContent) { showToast(filterWeek ? 'No hay registros para esa semana' : 'No hay registros para generar el reporte', 'warn', 3000); return; }
     var todayStr = new Date().toISOString().slice(0,10);
     doc.save((filterMonth && filterWeek) ? ('reporte-slab-mes' + filterMonth + '-semana' + filterWeek + '-' + todayStr + '.pdf') : ('reporte-slab-' + todayStr + '.pdf'));
   }
   document.getElementById('pdfReportBtn').onclick = function() { generatePDFReport(); };
   document.getElementById('exportBtn').onclick = function() {
-    var blob = new Blob([JSON.stringify(STATE.data, null, 2)], {type:'application/json'});
-    var url = URL.createObjectURL(blob), a = document.createElement('a');
-    a.href = url; a.download = 'respaldo-slab-' + new Date().toISOString().slice(0,10) + '.json';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    try {
+      var blob = new Blob([JSON.stringify(STATE.data, null, 2)], {type:'application/json'});
+      var url = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = url; a.download = 'respaldo-slab-' + new Date().toISOString().slice(0,10) + '.json';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+      showToast('Respaldo descargado', 'ok');
+    } catch(e) { showToast('Error al exportar', 'error'); }
   };
   document.getElementById('importInput').onchange = function(e) {
     var file = e.target.files[0]; if (!file) return;
-    if (!confirm('Esto va a reemplazar TODOS los datos actuales. Esta acción no se puede deshacer. ¿Querés continuar?')) { e.target.value = ''; return; }
+    if (!confirm('Esto reemplazará TODOS los datos actuales. ¿Deseas continuar?')) { e.target.value = ''; return; }
     var reader = new FileReader();
     reader.onload = function(ev) {
-      try { STATE.data = JSON.parse(ev.target.result); ensureAllDays(); saveData(); renderAll(); renderProgress(); alert('Respaldo restaurado correctamente.'); }
-      catch(err) { alert('Ese archivo no es un respaldo válido.'); }
+      try {
+        STATE.data = JSON.parse(ev.target.result); ensureRecords();
+        saveData(); renderAll(); renderProgress();
+        showToast('Respaldo restaurado correctamente', 'ok', 3000);
+      } catch(err) { showToast('Ese archivo no es un respaldo válido', 'error', 3000); }
     };
     reader.readAsText(file); e.target.value = '';
   };
@@ -1078,7 +1821,7 @@
   /* ══════════════════════════════════════
      TABS
   ══════════════════════════════════════ */
-  function renderAll() { renderMonthPills(); renderWeekPills(); renderDayPills(); renderExercises(); }
+  function renderAll() { renderMonthPills(); renderWeekPills(); renderDayPills(); renderExercises(); updateBtnHoy(); }
   function switchTab(tab) {
     ['registro','progreso','records','rpe'].forEach(function(t) {
       document.getElementById('tab-' + t).classList.remove('active');
@@ -1096,20 +1839,8 @@
   document.getElementById('tab-rpe').onclick = function() { switchTab('rpe'); };
 
   /* ══════════════════════════════════════
-     CALCULADORA RPE
+     CALCULADORA RPE (tab completa)
   ══════════════════════════════════════ */
-  var RPE_TABLE = {
-    "10":  [100.0,95.5,92.2,89.2,86.3,83.7,81.1,78.6,76.2,73.9,71.6,69.4],
-    "9.5": [97.8,93.9,90.7,87.8,85.0,82.5,80.0,77.5,75.2,72.9,70.7,68.6],
-    "9":   [95.5,92.2,89.2,86.3,83.7,81.1,78.6,76.2,73.9,71.6,69.4,67.4],
-    "8.5": [93.9,90.7,87.8,85.0,82.5,80.0,77.5,75.2,72.9,70.7,68.6,66.7],
-    "8":   [92.2,89.2,86.3,83.7,81.1,78.6,76.2,73.9,71.6,69.4,67.4,65.6],
-    "7.5": [90.7,87.8,85.0,82.5,80.0,77.5,75.2,72.9,70.7,68.6,66.7,65.0],
-    "7":   [89.2,86.3,83.7,81.1,78.6,76.2,73.9,71.6,69.4,67.4,65.6,64.0],
-    "6.5": [87.8,85.0,82.5,80.0,77.5,75.2,72.9,70.7,68.6,66.7,65.0,63.4],
-    "6":   [86.3,83.7,81.1,78.6,76.2,73.9,71.6,69.4,67.4,65.6,64.0,62.6]
-  };
-  var RPE_KEYS = ["10","9.5","9","8.5","8","7.5","7","6.5","6"];
   var PLATE_SETS = {
     kg: { bar: 20, sizes: [25,20,15,10,5,2.5,1.25] },
     lb: { bar: 45, sizes: [45,35,25,10,5,2.5] }
@@ -1121,11 +1852,6 @@
     return ({45:'var(--plate-25)',35:'var(--plate-20)',25:'var(--plate-15)',10:'var(--plate-10)',5:'var(--plate-5)',2.5:'var(--plate-1_25)'})[size];
   }
   function rpePlateOutline(u, size) { return (u==='kg') ? (size===5||size===2.5) : size===5; }
-  function rpeRound1(n) { return Math.round(n*10)/10; }
-  function rpeNearestLoadable(target, base, smallest, mult) {
-    mult = mult || 2; if (target <= base) return base;
-    return rpeRound1(base + Math.round((target-base)/(smallest*mult)) * smallest * mult);
-  }
   function rpeDecompose(weight, sizes) {
     var rem = weight, used = [];
     for (var i = 0; i < sizes.length; i++) while (rem + 1e-6 >= sizes[i]) { used.push(sizes[i]); rem -= sizes[i]; }
@@ -1136,9 +1862,7 @@
     arr.forEach(function(v) { map[v] = (map[v]||0) + 1; });
     return Object.keys(map).map(function(k) { return [parseFloat(k), map[k]]; }).sort(function(a,b) { return b[0]-a[0]; });
   }
-  function rpeFmt(n) { return (Math.round(n*100)/100).toString().replace(/\.00$/,'').replace(/(\.\d)0$/,'$1'); }
 
-  // Populate rpe selects
   var rpeRepsEl = document.getElementById('rpeReps');
   var rpeRpeEl = document.getElementById('rpeRpe');
   for (var r = 1; r <= 12; r++) {
@@ -1152,9 +1876,122 @@
     rpeRpeEl.appendChild(o);
   });
 
+  function rpeUpdate() {
+    var reps = parseInt(rpeRepsEl.value, 10);
+    var rpe = rpeRpeEl.value;
+    var pct = RPE_TABLE[rpe][reps-1];
+    document.getElementById('rpeRepsEcho').textContent = reps;
+    document.getElementById('rpeRpeEcho').textContent = rpe;
+    document.getElementById('rpeChartReps').textContent = reps;
+    document.getElementById('rpeWeightUnit').textContent = rpeUnit;
+    document.querySelectorAll('.unit-lbl').forEach(function(el) { el.textContent = rpeUnit; });
+    document.getElementById('rpePctValue').textContent = rpeFmt(pct) + '%';
+    rpeRenderChart(reps, rpe);
+    if (rpeMode === 'barbell') rpeUpdateBarbell(pct);
+    else rpeUpdateBodyweight(pct);
+  }
+
+  function rpeUpdateBarbell(pct) {
+    var orm = parseFloat(document.getElementById('rpeOrm').value);
+    var bw = parseFloat(document.getElementById('rpeBw').value);
+    document.getElementById('rpeExerciseEcho').textContent = '';
+    document.getElementById('rpeBwWarning').hidden = true;
+    if (!orm || orm <= 0) {
+      document.getElementById('rpeWeightValue').textContent = '--';
+      document.getElementById('rpePlateReadout').textContent = 'Introduce tu 1RM para calcular la carga.';
+      document.getElementById('rpeBwStat').hidden = true; document.getElementById('rpeBarbellSvg').innerHTML = ''; return;
+    }
+    var targetWeight = orm * pct / 100;
+    document.getElementById('rpeWeightValue').textContent = rpeFmt(targetWeight);
+    var set = PLATE_SETS[rpeUnit];
+    var loadable = rpeNearestLoadable(targetWeight, set.bar, Math.min.apply(null, set.sizes), 2);
+    var perSide = rpeRound1((loadable - set.bar) / 2);
+    var used = perSide > 0 ? rpeDecompose(perSide, set.sizes) : [];
+    rpeRenderBarbell(used, set.sizes);
+    if (used.length === 0) {
+      document.getElementById('rpePlateReadout').innerHTML = '<span class="side-lbl">Solo la barra</span> · <strong>' + rpeFmt(set.bar) + ' ' + rpeUnit + '</strong>';
+    } else {
+      var groups = rpeGroupCounts(used);
+      var sideStr = groups.map(function(g) { return g[1] + '×' + rpeFmt(g[0]) + rpeUnit; }).join(' + ');
+      document.getElementById('rpePlateReadout').innerHTML = '<span class="side-lbl">Por lado:</span> <strong>' + sideStr + '</strong> · barra <strong>' + rpeFmt(loadable) + ' ' + rpeUnit + '</strong>' + (Math.abs(loadable-targetWeight) > 0.05 ? ' <span class="side-lbl">(redondeado de ' + rpeFmt(targetWeight) + ' ' + rpeUnit + ')</span>' : '');
+    }
+    if (bw && bw > 0) {
+      document.getElementById('rpeBwStat').hidden = false;
+      document.getElementById('rpeBwStatText').textContent = 'de tu peso corporal';
+      document.getElementById('rpeBwRatio').textContent = rpeFmt(targetWeight/bw) + '×';
+    } else { document.getElementById('rpeBwStat').hidden = true; }
+  }
+
+  function rpeUpdateBodyweight(pct) {
+    var ormAdded = parseFloat(document.getElementById('rpeOrmAdded').value) || 0;
+    var bwReq = parseFloat(document.getElementById('rpeBwReq').value);
+    var exercise = document.getElementById('rpeExercise').value;
+    document.getElementById('rpeExerciseEcho').textContent = ' · ' + exercise;
+    if (!bwReq || bwReq <= 0) {
+      document.getElementById('rpeWeightValue').textContent = '--';
+      document.getElementById('rpePlateReadout').textContent = 'Introduce tu peso corporal para calcular la carga.';
+      document.getElementById('rpeBwStat').hidden = true; document.getElementById('rpeBwWarning').hidden = true;
+      document.getElementById('rpeChainSvg').innerHTML = ''; return;
+    }
+    var total1RM = bwReq + ormAdded;
+    var targetTotal = total1RM * pct / 100;
+    var addedTarget = targetTotal - bwReq;
+    var set = PLATE_SETS[rpeUnit];
+    if (addedTarget <= 0) {
+      document.getElementById('rpeWeightValue').textContent = '0';
+      rpeRenderChain([], set.sizes);
+      document.getElementById('rpePlateReadout').innerHTML = '<span class="side-lbl">Sin lastre</span> · la serie queda por debajo de tu peso corporal';
+      document.getElementById('rpeBwWarning').hidden = false;
+      document.getElementById('rpeBwWarning').textContent = 'Tu peso corporal ya cubre esta intensidad. Para reducirla necesitarías asistencia (banda elástica).';
+    } else {
+      document.getElementById('rpeBwWarning').hidden = true;
+      var loadable = rpeNearestLoadable(addedTarget, 0, Math.min.apply(null, set.sizes), 1);
+      var used = loadable > 0 ? rpeDecompose(loadable, set.sizes) : [];
+      document.getElementById('rpeWeightValue').textContent = rpeFmt(loadable);
+      rpeRenderChain(used, set.sizes);
+      if (used.length === 0) {
+        document.getElementById('rpePlateReadout').innerHTML = '<span class="side-lbl">Sin lastre</span> · solo tu peso corporal';
+      } else {
+        var groups = rpeGroupCounts(used);
+        var str = groups.map(function(g) { return g[1] + '×' + rpeFmt(g[0]) + rpeUnit; }).join(' + ');
+        document.getElementById('rpePlateReadout').innerHTML = '<span class="side-lbl">Lastre:</span> <strong>' + str + '</strong>' + (Math.abs(loadable-addedTarget) > 0.05 ? ' <span class="side-lbl">(redondeado de ' + rpeFmt(addedTarget) + ' ' + rpeUnit + ')</span>' : '');
+      }
+    }
+    document.getElementById('rpeBwStat').hidden = false;
+    document.getElementById('rpeBwStatText').textContent = 'carga total (corporal + lastre)';
+    document.getElementById('rpeBwRatio').textContent = rpeFmt(targetTotal) + ' ' + rpeUnit;
+  }
+
+  function rpeRenderChart(reps, currentRpe) {
+    var tbody = document.getElementById('rpeChartTbody'); tbody.innerHTML = '';
+    if (rpeMode === 'barbell') {
+      var orm = parseFloat(document.getElementById('rpeOrm').value);
+      document.getElementById('rpeChartWeightHeader').textContent = 'Peso';
+      RPE_KEYS.forEach(function(k) {
+        var pct = RPE_TABLE[k][reps-1];
+        var tr = document.createElement('tr'); if (k === currentRpe) tr.className = 'current';
+        var w = orm ? rpeFmt(orm*pct/100) + ' ' + rpeUnit : '—';
+        tr.innerHTML = '<td>' + k + '</td><td class="num">' + rpeFmt(pct) + '%</td><td class="num">' + w + '</td>';
+        tbody.appendChild(tr);
+      });
+    } else {
+      var ormAdded = parseFloat(document.getElementById('rpeOrmAdded').value) || 0;
+      var bwReq = parseFloat(document.getElementById('rpeBwReq').value);
+      var total1RM = bwReq ? bwReq + ormAdded : 0;
+      document.getElementById('rpeChartWeightHeader').textContent = 'Lastre';
+      RPE_KEYS.forEach(function(k) {
+        var pct = RPE_TABLE[k][reps-1];
+        var tr = document.createElement('tr'); if (k === currentRpe) tr.className = 'current';
+        var w = '—';
+        if (total1RM) { var added = total1RM*pct/100 - bwReq; w = added > 0 ? rpeFmt(added) + ' ' + rpeUnit : 'BW'; }
+        tr.innerHTML = '<td>' + k + '</td><td class="num">' + rpeFmt(pct) + '%</td><td class="num">' + w + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+  }
+
   function rpeRenderBarbell(usedPlates, sizes) {
-    var svg = document.getElementById('rpeBarbellSvg');
-    svg.innerHTML = '';
+    var svg = document.getElementById('rpeBarbellSvg'); svg.innerHTML = '';
     var ns = 'http://www.w3.org/2000/svg';
     var cx = 300, barY = 65, barH = 10;
     var line = document.createElementNS(ns,'line');
@@ -1213,122 +2050,6 @@
     });
   }
 
-  function rpeUpdate() {
-    var reps = parseInt(rpeRepsEl.value, 10);
-    var rpe = rpeRpeEl.value;
-    var pct = RPE_TABLE[rpe][reps-1];
-    document.getElementById('rpeRepsEcho').textContent = reps;
-    document.getElementById('rpeRpeEcho').textContent = rpe;
-    document.getElementById('rpeChartReps').textContent = reps;
-    document.getElementById('rpeWeightUnit').textContent = rpeUnit;
-    document.querySelectorAll('.unit-lbl').forEach(function(el) { el.textContent = rpeUnit; });    document.getElementById('rpePctValue').textContent = rpeFmt(pct) + '%';
-    rpeRenderChart(reps, rpe);
-    if (rpeMode === 'barbell') rpeUpdateBarbell(pct);
-    else rpeUpdateBodyweight(pct);
-  }
-
-  function rpeUpdateBarbell(pct) {
-    var orm = parseFloat(document.getElementById('rpeOrm').value);
-    var bw = parseFloat(document.getElementById('rpeBw').value);
-    document.getElementById('rpeExerciseEcho').textContent = '';
-    document.getElementById('rpeBwWarning').hidden = true;
-    if (!orm || orm <= 0) {
-      document.getElementById('rpeWeightValue').textContent = '--';
-      document.getElementById('rpePlateReadout').textContent = 'Introducí tu 1RM para calcular la carga.';
-      document.getElementById('rpeBwStat').hidden = true;
-      document.getElementById('rpeBarbellSvg').innerHTML = '';
-      return;
-    }
-    var targetWeight = orm * pct / 100;
-    document.getElementById('rpeWeightValue').textContent = rpeFmt(targetWeight);
-    var set = PLATE_SETS[rpeUnit];
-    var loadable = rpeNearestLoadable(targetWeight, set.bar, Math.min.apply(null, set.sizes), 2);
-    var perSide = rpeRound1((loadable - set.bar) / 2);
-    var used = perSide > 0 ? rpeDecompose(perSide, set.sizes) : [];
-    rpeRenderBarbell(used, set.sizes);
-    if (used.length === 0) {
-      document.getElementById('rpePlateReadout').innerHTML = '<span class="side-lbl">Solo la barra</span> · <strong>' + rpeFmt(set.bar) + ' ' + rpeUnit + '</strong>';
-    } else {
-      var groups = rpeGroupCounts(used);
-      var sideStr = groups.map(function(g) { return g[1] + '×' + rpeFmt(g[0]) + rpeUnit; }).join(' + ');
-      document.getElementById('rpePlateReadout').innerHTML = '<span class="side-lbl">Por lado:</span> <strong>' + sideStr + '</strong> · barra <strong>' + rpeFmt(loadable) + ' ' + rpeUnit + '</strong>' + (Math.abs(loadable-targetWeight) > 0.05 ? ' <span class="side-lbl">(redondeado de ' + rpeFmt(targetWeight) + ' ' + rpeUnit + ')</span>' : '');
-    }
-    if (bw && bw > 0) {
-      document.getElementById('rpeBwStat').hidden = false;
-      document.getElementById('rpeBwStatText').textContent = 'de tu peso corporal';
-      document.getElementById('rpeBwRatio').textContent = rpeFmt(targetWeight/bw) + '×';
-    } else { document.getElementById('rpeBwStat').hidden = true; }
-  }
-
-  function rpeUpdateBodyweight(pct) {
-    var ormAdded = parseFloat(document.getElementById('rpeOrmAdded').value) || 0;
-    var bwReq = parseFloat(document.getElementById('rpeBwReq').value);
-    var exercise = document.getElementById('rpeExercise').value;
-    document.getElementById('rpeExerciseEcho').textContent = ' · ' + exercise;
-    if (!bwReq || bwReq <= 0) {
-      document.getElementById('rpeWeightValue').textContent = '--';
-      document.getElementById('rpePlateReadout').textContent = 'Introducí tu peso corporal para calcular la carga.';
-      document.getElementById('rpeBwStat').hidden = true; document.getElementById('rpeBwWarning').hidden = true;
-      document.getElementById('rpeChainSvg').innerHTML = ''; return;
-    }
-    var total1RM = bwReq + ormAdded;
-    var targetTotal = total1RM * pct / 100;
-    var addedTarget = targetTotal - bwReq;
-    var set = PLATE_SETS[rpeUnit];
-    if (addedTarget <= 0) {
-      document.getElementById('rpeWeightValue').textContent = '0';
-      rpeRenderChain([], set.sizes);
-      document.getElementById('rpePlateReadout').innerHTML = '<span class="side-lbl">Sin lastre</span> · la serie queda por debajo de tu peso corporal';
-      document.getElementById('rpeBwWarning').hidden = false;
-      document.getElementById('rpeBwWarning').textContent = 'Tu peso corporal ya cubre esta intensidad. Para bajarla más necesitarías asistencia (banda elástica).';
-    } else {
-      document.getElementById('rpeBwWarning').hidden = true;
-      var loadable = rpeNearestLoadable(addedTarget, 0, Math.min.apply(null, set.sizes), 1);
-      var used = loadable > 0 ? rpeDecompose(loadable, set.sizes) : [];
-      document.getElementById('rpeWeightValue').textContent = rpeFmt(loadable);
-      rpeRenderChain(used, set.sizes);
-      if (used.length === 0) {
-        document.getElementById('rpePlateReadout').innerHTML = '<span class="side-lbl">Sin lastre</span> · solo tu peso corporal';
-      } else {
-        var groups = rpeGroupCounts(used);
-        var str = groups.map(function(g) { return g[1] + '×' + rpeFmt(g[0]) + rpeUnit; }).join(' + ');
-        document.getElementById('rpePlateReadout').innerHTML = '<span class="side-lbl">Lastre:</span> <strong>' + str + '</strong>' + (Math.abs(loadable-addedTarget) > 0.05 ? ' <span class="side-lbl">(redondeado de ' + rpeFmt(addedTarget) + ' ' + rpeUnit + ')</span>' : '');
-      }
-    }
-    document.getElementById('rpeBwStat').hidden = false;
-    document.getElementById('rpeBwStatText').textContent = 'carga total (corporal + lastre)';
-    document.getElementById('rpeBwRatio').textContent = rpeFmt(targetTotal) + ' ' + rpeUnit;
-  }
-
-  function rpeRenderChart(reps, currentRpe) {
-    var tbody = document.getElementById('rpeChartTbody'); tbody.innerHTML = '';
-    if (rpeMode === 'barbell') {
-      var orm = parseFloat(document.getElementById('rpeOrm').value);
-      document.getElementById('rpeChartWeightHeader').textContent = 'Peso';
-      RPE_KEYS.forEach(function(k) {
-        var pct = RPE_TABLE[k][reps-1];
-        var tr = document.createElement('tr'); if (k === currentRpe) tr.className = 'current';
-        var w = orm ? rpeFmt(orm*pct/100) + ' ' + rpeUnit : '—';
-        tr.innerHTML = '<td>' + k + '</td><td class="num">' + rpeFmt(pct) + '%</td><td class="num">' + w + '</td>';
-        tbody.appendChild(tr);
-      });
-    } else {
-      var ormAdded = parseFloat(document.getElementById('rpeOrmAdded').value) || 0;
-      var bwReq = parseFloat(document.getElementById('rpeBwReq').value);
-      var total1RM = bwReq ? bwReq + ormAdded : 0;
-      document.getElementById('rpeChartWeightHeader').textContent = 'Lastre';
-      RPE_KEYS.forEach(function(k) {
-        var pct = RPE_TABLE[k][reps-1];
-        var tr = document.createElement('tr'); if (k === currentRpe) tr.className = 'current';
-        var w = '—';
-        if (total1RM) { var added = total1RM*pct/100 - bwReq; w = added > 0 ? rpeFmt(added) + ' ' + rpeUnit : 'BW'; }
-        tr.innerHTML = '<td>' + k + '</td><td class="num">' + rpeFmt(pct) + '%</td><td class="num">' + w + '</td>';
-        tbody.appendChild(tr);
-      });
-    }
-  }
-
-  // Toggles de unidad
   document.querySelectorAll('[data-rpeunit]').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var newUnit = btn.getAttribute('data-rpeunit');
@@ -1345,7 +2066,6 @@
     });
   });
 
-  // Toggles de modo (barbell / bodyweight / zona)
   document.querySelectorAll('[data-rpemode]').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var newMode = btn.getAttribute('data-rpemode');
@@ -1363,20 +2083,16 @@
         document.getElementById('rpeChainWrap').hidden = !isBW;
         document.getElementById('rpeResultLabel').textContent = isBW ? 'Peso a añadir' : 'Peso de la serie';
         rpeUpdate();
-      } else {
-        renderZona();
-      }
+      } else { renderZona(); }
     });
   });
 
-  // Toggle tabla expandible
   document.getElementById('rpeChartToggle').addEventListener('click', function() {
     var body = document.getElementById('rpeChartBody');
     var open = body.hidden; body.hidden = !open;
     document.getElementById('rpeChartToggle').classList.toggle('open', open);
   });
 
-  // Inputs de la calculadora
   ['rpeOrm','rpeBw','rpeReps','rpeRpe','rpeExercise','rpeOrmAdded','rpeBwReq'].forEach(function(id) {
     var el = document.getElementById(id);
     el.addEventListener('input', rpeUpdate);
@@ -1404,11 +2120,10 @@
     var rMax = parseInt(zonaMaxEl.value, 10);
     var rpe = zonaRpeEl.value;
     var orm = parseFloat(zonaOrmEl.value);
-    var rowsEl = document.getElementById('rpeZonaRows');
-    rowsEl.innerHTML = '';
+    var rowsEl = document.getElementById('rpeZonaRows'); rowsEl.innerHTML = '';
     if (!orm || orm <= 0) {
       var emp = document.createElement('div'); emp.className = 'rpe-zona-empty';
-      emp.textContent = 'Introducí tu 1RM para ver el rango de peso.';
+      emp.textContent = 'Introduce tu 1RM para ver el rango de peso.';
       rowsEl.appendChild(emp); return;
     }
     if (rMin > rMax) { var tmp = rMin; rMin = rMax; rMax = tmp; }
@@ -1419,8 +2134,7 @@
       var loadable = rpeNearestLoadable(target, set.bar, Math.min.apply(null, set.sizes), 2);
       return { pct: pct, target: target, loadable: loadable };
     }
-    var resMax = calcW(rMax); // menos peso (más reps)
-    var resMin = calcW(rMin); // más peso (menos reps)
+    var resMax = calcW(rMax); var resMin = calcW(rMin);
     function makeRow(label, res) {
       var div = document.createElement('div'); div.className = 'rpe-zona-row';
       var lbl = document.createElement('div'); lbl.className = 'zr-label'; lbl.textContent = label;
@@ -1432,11 +2146,9 @@
     }
     rowsEl.appendChild(makeRow(rMax + ' reps', resMax));
     rowsEl.appendChild(makeRow(rMin + ' reps', resMin));
-    // barra de rango visual
     var barWrap = document.createElement('div'); barWrap.className = 'rpe-zona-range-bar';
     var fill = document.createElement('div'); fill.className = 'rpe-zona-range-fill';
-    fill.style.left = resMax.pct + '%';
-    fill.style.width = (resMin.pct - resMax.pct) + '%';
+    fill.style.left = resMax.pct + '%'; fill.style.width = (resMin.pct - resMax.pct) + '%';
     barWrap.appendChild(fill); rowsEl.appendChild(barWrap);
     var hint = document.createElement('div'); hint.className = 'rpe-zona-range-hint';
     hint.textContent = rpeFmt(resMax.pct) + '% – ' + rpeFmt(resMin.pct) + '% de tu 1RM';
@@ -1448,15 +2160,15 @@
     el.addEventListener('change', renderZona);
   });
 
-  // actualizar zona cuando cambia la unidad
-  // (ya cubierto por el toggle de unidad abajo)
-
   /* ══════════════════════════════════════
      INIT
   ══════════════════════════════════════ */
   async function init() {
     document.getElementById('exerciseList').innerHTML = '<div class="loading">Cargando tu plan...</div>';
     await loadData();
+    checkStorageQuota();
+    var todayPos = todayPlanPosition();
+    if (todayPos) { STATE.month = todayPos.month; STATE.week = todayPos.week; STATE.day = todayPos.day; }
     renderAll();
   }
   init();
