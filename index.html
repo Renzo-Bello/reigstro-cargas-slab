@@ -1344,7 +1344,7 @@
      1RM ESTIMADO — FÓRMULA EPLEY
   ══════════════════════════════════════ */
   function calcOrm1RM(peso, reps) {
-    peso = parseFloat(peso);
+    peso = parseFloat(String(peso).replace(',', '.'));
     reps = parseInt(reps, 10);
     if (!peso || peso <= 0 || !reps || reps <= 0) return null;
     if (reps === 1) return Math.round(peso * 10) / 10;
@@ -2136,7 +2136,14 @@
           doc.text('Semana ' + w + ' · Día ' + d, margin, y); y += 4;
           var sess = STATE.data[sessionKey(m, w, d)];
           var sessText = (sess && sess.rpeSesion !== '') ? 'RPE de toda la sesión: ' + sess.rpeSesion : '';
-          var body = dayRows.map(function(e) { return [e.nombre, e.sets||'-', e.reps||'-', (e.rpe||'-') + ' -> ' + (e.rpeReal||'-'), e.peso ? e.peso + ' kg' : '-', e.nota||'']; });
+          var body = dayRows.map(function(e) {
+            var pesoStr = '-';
+            if (e.peso !== undefined && e.peso !== null && e.peso !== '') {
+              var pesoNum = parseFloat(String(e.peso).replace(',', '.'));
+              pesoStr = isNaN(pesoNum) ? String(e.peso) + ' kg' : pesoNum + ' kg';
+            }
+            return [e.nombre, e.sets||'-', e.reps||'-', (e.rpe||'-') + ' -> ' + (e.rpeReal||'-'), pesoStr, e.nota||''];
+          });
           doc.autoTable({ startY: y+6, margin:{left:margin,right:margin}, head:[['Ejercicio','Series','Reps','RPE obj->real','Peso','Nota']], body: body, theme:'grid', styles:{fontSize:8.5,cellPadding:4,textColor:[40,40,36],lineColor:lineGrey,lineWidth:0.5}, headStyles:{fillColor:dark,textColor:gold,fontStyle:'bold'}, columnStyles:{0:{cellWidth:80},5:{cellWidth:125}} });
           y = doc.lastAutoTable.finalY + (sessText ? 14 : 8);
           if (sessText) { ensureSpace(14); doc.setFont('helvetica','italic'); doc.setFontSize(8.5); doc.setTextColor(grey[0],grey[1],grey[2]); doc.text(sessText, margin, y); y += 16; }
@@ -2152,7 +2159,9 @@
         doc.text('Récords personales', margin, y); y += 10;
         var recBody = records.map(function(r) {
           var ormEst = calcOrm1RM(r.repMaxPeso, r.repMaxReps);
-          var repMaxStr = (r.repMaxPeso||r.repMaxReps) ? (r.repMaxPeso||'-') + ' kg x ' + (r.repMaxReps||'-') + ' reps' : '-';
+          var pesoNorm = r.repMaxPeso ? parseFloat(String(r.repMaxPeso).replace(',', '.')) : null;
+          var pesoDisp = pesoNorm && !isNaN(pesoNorm) ? pesoNorm : (r.repMaxPeso || null);
+          var repMaxStr = (pesoDisp||r.repMaxReps) ? (pesoDisp||'-') + ' kg x ' + (r.repMaxReps||'-') + ' reps' : '-';
           if (ormEst) repMaxStr += ' → 1RM est. ' + ormEst + ' kg';
           return [r.nombre, repMaxStr];
         });
