@@ -1687,7 +1687,7 @@
 
       var fields2 = document.createElement('div'); fields2.className = 'ex-fields-row2';
       var rpeRealField = makeRPEField('RPE real', ex, 'rpeReal', 'rpe-real'); rpeRealField.classList.add('rpe-real');
-      var pesoField = makeField('Peso usado (kg)', ex, 'peso', 'number', 'decimal'); pesoField.classList.add('peso');
+      var pesoField = makeField('Peso usado (kg)', ex, 'peso', 'text', 'decimal'); pesoField.classList.add('peso');
       fields2.appendChild(rpeRealField); fields2.appendChild(pesoField);
       card.appendChild(fields2);
       card.appendChild(makeNoteField(ex));
@@ -1866,7 +1866,8 @@
     var input = document.createElement('input'); input.type = type;
     if (inputmode) input.setAttribute('inputmode', inputmode);
     else if (type === 'number') input.setAttribute('inputmode', 'decimal');
-    if (type === 'number') { input.min = '0'; if (inputmode === 'decimal') input.step = 'any'; }
+    if (type === 'number') { input.min = '0'; input.step = 'any'; }
+    input.setAttribute('pattern', inputmode === 'decimal' ? '[0-9]*[.,]?[0-9]*' : null);
     input.value = ex[key]; input.setAttribute('aria-label', labelText);
     input.oninput = function() { ex[key] = this.value; scheduleSave(); };
     wrap.appendChild(label); wrap.appendChild(input); return wrap;
