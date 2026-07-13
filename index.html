@@ -135,11 +135,93 @@
   .panel { padding: 14px 16px 0; }
 
   /* ── PILLS ── */
+  /* ── SELECTOR COMPACTO MES/SEMANA/DÍA ── */
+  .nav-selector {
+    display: flex; align-items: center; gap: 0;
+    background: var(--dark-2); border: 1px solid var(--border); border-radius: 8px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .nav-segment {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    padding: 8px 4px; cursor: pointer; position: relative;
+    transition: background 0.12s;
+    border-right: 1px solid var(--border);
+    min-height: var(--touch-min); justify-content: center;
+  }
+  .nav-segment:last-child { border-right: none; }
+  .nav-segment:active { background: var(--card); }
+  .nav-seg-label {
+    font-family: var(--font-mono); font-size: 8px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 3px;
+  }
+  .nav-seg-value {
+    font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--text);
+    line-height: 1;
+  }
+  .nav-seg-sub {
+    font-family: var(--font-mono); font-size: 8px; color: var(--text-dim); margin-top: 2px;
+  }
+  .nav-segment.seg-active .nav-seg-value { color: var(--gold); }
+  .nav-segment.seg-active { background: rgba(201,169,110,0.05); }
+  .nav-chevron {
+    color: var(--text-dim); font-size: 9px; position: absolute; bottom: 4px; right: 4px;
+  }
+
+  /* dropdown overlay */
+  .seg-dropdown {
+    position: fixed; z-index: 50;
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    min-width: 140px; overflow: hidden;
+    display: none;
+  }
+  .seg-dropdown.open { display: block; }
+  .seg-dropdown-item {
+    padding: 13px 16px; font-family: var(--font-mono); font-size: 13px;
+    color: var(--text); cursor: pointer; border-bottom: 1px solid var(--border);
+    transition: background 0.1s; display: flex; align-items: center; justify-content: space-between;
+    min-height: var(--touch-min);
+  }
+  .seg-dropdown-item:last-child { border-bottom: none; }
+  .seg-dropdown-item:active { background: var(--dark-2); }
+  .seg-dropdown-item.item-active { color: var(--gold); }
+  .seg-dropdown-item .item-check { color: var(--gold); font-size: 11px; }
+  .seg-dropdown-backdrop {
+    position: fixed; inset: 0; z-index: 49; display: none;
+  }
+  .seg-dropdown-backdrop.open { display: block; }
+
+  /* day strip */
+  .day-strip {
+    display: flex; gap: 6px; margin-bottom: 16px;
+  }
+  .day-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 8px 2px; min-height: 50px;
+    background: var(--dark-2); border: 1px solid var(--border); border-radius: 7px;
+    cursor: pointer; transition: background 0.12s, border-color 0.12s;
+  }
+  .day-btn .day-n {
+    font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--text); line-height: 1;
+  }
+  .day-btn .day-sub {
+    font-family: var(--font-mono); font-size: 8px; color: var(--text-dim); margin-top: 3px;
+  }
+  .day-btn.day-active {
+    background: var(--day-accent); border-color: var(--day-accent);
+  }
+  .day-btn.day-active .day-n, .day-btn.day-active .day-sub { color: var(--dark); }
+  .day-btn.day-today { border-color: var(--gold-dim); }
+  .day-btn.day-today .day-n { color: var(--gold); }
+  .day-btn.day-done .day-sub { color: var(--gold); }
+  .day-btn.day-active.day-done .day-sub { color: var(--dark); }
+
+  /* ── PILLS PROGRESO (mes, compacto) ── */
   .month-pills {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;
   }
   .month-pills button {
-    padding: 12px 4px; min-height: var(--touch-min);
+    padding: 10px 4px; min-height: var(--touch-min);
     font-size: 12.5px; font-weight: 500;
     font-family: var(--font-mono); letter-spacing: 0.3px;
     background: var(--dark-2); color: var(--text);
@@ -149,41 +231,6 @@
   .month-pills button.active {
     background: var(--month-accent); color: var(--dark); border-color: var(--month-accent);
   }
-  .week-pills {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px;
-  }
-  .week-pills button {
-    padding: 10px 4px; min-height: var(--touch-min);
-    font-size: 11.5px; font-weight: 500;
-    font-family: var(--font-mono); letter-spacing: 0.3px;
-    background: var(--card); color: var(--text);
-    border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
-    transition: background 0.12s, border-color 0.12s;
-  }
-  .week-pills button.active {
-    background: var(--week-accent); color: var(--dark); border-color: var(--week-accent);
-  }
-  .day-pills {
-    display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 20px;
-  }
-  .day-pills button {
-    padding: 9px 2px; min-height: 52px;
-    font-size: 10.5px; font-weight: 500;
-    font-family: var(--font-mono); letter-spacing: 0.2px;
-    background: var(--day-bg); color: var(--text);
-    border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
-    transition: background 0.12s, border-color 0.12s;
-  }
-  .day-pills button.active {
-    background: var(--day-accent); color: var(--dark); border-color: var(--day-accent);
-  }
-  .day-pills button.is-today-pill {
-    border-color: var(--gold-dim);
-  }
-  .day-pills button .check {
-    display: block; font-size: 9px; margin-top: 2px; color: var(--success);
-  }
-  .day-pills button.active .check { color: var(--dark); }
 
   /* ── EXERCISE CARDS ── */
   .exercises-header {
@@ -398,8 +445,9 @@
   /* ── SESSION CARD ── */
   .session-card { border: 1px solid var(--gold-dim); margin-top: 4px; margin-bottom: 20px; }
   .session-label {
-    font-family: var(--font-display); font-style: italic;
-    font-size: 15px; font-weight: 600; color: var(--gold); letter-spacing: 0.2px;
+    font-family: var(--font-mono);
+    font-size: 10px; font-weight: 500; color: var(--gold);
+    text-transform: uppercase; letter-spacing: 1.2px;
   }
   .session-fields { grid-template-columns: 1fr !important; }
   .session-fields .field input,
@@ -418,38 +466,94 @@
 
   /* ── PROGRESS ── */
   .progress-section { padding: 0 16px 24px; }
-  .progress-card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
-    padding: 14px; margin-bottom: 12px;
-  }
-  .progress-card h3 {
-    margin: 0 0 10px; font-family: var(--font-display); font-style: italic;
-    font-size: 15px; color: var(--gold); font-weight: 600;
-  }
-  table.history { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 11px; }
-  table.history th {
-    text-align: left; color: var(--text-dim); font-weight: 500;
-    padding: 6px 4px; border-bottom: 1px solid var(--border); font-size: 9.5px;
-    text-transform: uppercase; letter-spacing: 0.4px;
-  }
-  table.history td { padding: 7px 4px; border-bottom: 1px solid var(--border); }
-  table.history tr:last-child td { border-bottom: none; }
   .empty-state {
     text-align: center; padding: 40px 20px; color: var(--text-dim);
     font-family: var(--font-body); font-size: 13px;
   }
 
+  /* Resumen semanal: 4 cols, más compacto */
   .week-summary {
-    display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; padding: 14px 16px;
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; padding: 0 16px 14px;
   }
   .week-summary .stat {
-    background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
     padding: 10px 4px; text-align: center;
   }
-  .week-summary .stat .n { font-family: var(--font-mono); font-size: 17px; font-weight: 500; color: var(--gold); }
+  .week-summary .stat .n { font-family: var(--font-mono); font-size: 18px; font-weight: 500; color: var(--gold); line-height: 1; }
   .week-summary .stat .l {
-    font-family: var(--font-mono); font-size: 9px; color: var(--text-dim);
-    text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px;
+    font-family: var(--font-mono); font-size: 8.5px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.4px; margin-top: 4px;
+  }
+
+  /* Bloque de semana colapsable */
+  .prog-week-block {
+    margin-bottom: 10px;
+    border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+  }
+  .prog-week-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; background: var(--card);
+    cursor: pointer; min-height: 44px;
+    transition: background 0.12s;
+  }
+  .prog-week-header:active { background: var(--card-alt); }
+  .prog-week-title {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.8px; color: var(--gold);
+  }
+  .prog-week-meta {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .prog-week-badge {
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);
+  }
+  .prog-week-badge.complete { color: var(--gold); }
+  .prog-week-chevron { font-size: 9px; color: var(--text-dim); transition: transform 0.2s; }
+  .prog-week-block.open .prog-week-chevron { transform: rotate(180deg); }
+  .prog-week-body { display: none; border-top: 1px solid var(--border); }
+  .prog-week-block.open .prog-week-body { display: block; }
+
+  /* Fila de día */
+  .prog-day-row {
+    padding: 12px 14px; border-bottom: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .prog-day-row:last-child { border-bottom: none; }
+  .prog-day-row-head {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .prog-day-label {
+    font-family: var(--font-mono); font-size: 9.5px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .prog-day-rpe {
+    font-family: var(--font-mono); font-size: 9.5px; color: var(--gold);
+    background: rgba(201,169,110,0.08); border: 1px solid rgba(201,169,110,0.25);
+    border-radius: 4px; padding: 2px 7px;
+  }
+
+  /* Tabla de ejercicios dentro del día */
+  table.prog-table {
+    width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 11px;
+  }
+  table.prog-table th {
+    text-align: left; color: var(--text-dim); font-weight: 500;
+    padding: 4px 4px 6px; font-size: 9px;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    border-bottom: 1px solid var(--border);
+  }
+  table.prog-table td {
+    padding: 7px 4px; border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text);
+  }
+  table.prog-table td.dim { color: var(--text-dim); }
+  table.prog-table td.gold { color: var(--gold); font-weight: 500; }
+  table.prog-table tr:last-child td { border-bottom: none; }
+  table.prog-table tr.ex-done td.ex-name { text-decoration: none; }
+
+  .prog-day-empty {
+    font-family: var(--font-body); font-size: 12px; color: var(--text-dim);
+    padding: 4px 0; font-style: italic;
   }
   .week-pdf-btn {
     display: block; width: 100%; margin-top: 8px; padding: 6px 2px;
@@ -866,9 +970,26 @@
   </nav>
 
   <div id="view-registro" class="panel">
-    <div class="month-pills" id="monthPills"></div>
-    <div class="week-pills" id="weekPills"></div>
-    <div class="day-pills" id="dayPills"></div>
+    <!-- Selector compacto Mes / Semana -->
+    <div class="nav-selector" id="navSelector">
+      <div class="nav-segment" id="segMes">
+        <div class="nav-seg-label">Mes</div>
+        <div class="nav-seg-value" id="segMesVal">1</div>
+        <span class="nav-chevron">▾</span>
+      </div>
+      <div class="nav-segment" id="segSem">
+        <div class="nav-seg-label">Semana</div>
+        <div class="nav-seg-value" id="segSemVal">1</div>
+        <span class="nav-chevron">▾</span>
+      </div>
+    </div>
+    <!-- Tira de días -->
+    <div class="day-strip" id="dayStrip"></div>
+
+    <!-- Dropdowns -->
+    <div class="seg-dropdown-backdrop" id="segBackdrop"></div>
+    <div class="seg-dropdown" id="dropMes"></div>
+    <div class="seg-dropdown" id="dropSem"></div>
     <div id="storageBanner" class="storage-banner">⚠️ El espacio de almacenamiento está casi lleno. Descarga un respaldo (.json) desde la pestaña Progreso antes de continuar.</div>
     <div id="exerciseList"></div>
   </div>
@@ -1400,26 +1521,71 @@
   /* ══════════════════════════════════════
      RENDER - REGISTRO
   ══════════════════════════════════════ */
-  function renderMonthPills() {
-    var el = document.getElementById('monthPills'); el.innerHTML = '';
+  /* ══════════════════════════════════════
+     NAV SELECTOR COMPACTO (Mes / Semana)
+  ══════════════════════════════════════ */
+  var _dropOpen = null; // 'mes' | 'sem' | null
+
+  function closeDropdowns() {
+    document.getElementById('dropMes').classList.remove('open');
+    document.getElementById('dropSem').classList.remove('open');
+    document.getElementById('segBackdrop').classList.remove('open');
+    document.getElementById('segMes').classList.remove('seg-active');
+    document.getElementById('segSem').classList.remove('seg-active');
+    _dropOpen = null;
+  }
+
+  function openDrop(which) {
+    closeDropdowns();
+    var dropEl = document.getElementById(which === 'mes' ? 'dropMes' : 'dropSem');
+    var segEl  = document.getElementById(which === 'mes' ? 'segMes' : 'segSem');
+    var segRect = segEl.getBoundingClientRect();
+    dropEl.style.top  = (segRect.bottom + 4) + 'px';
+    dropEl.style.left = segRect.left + 'px';
+    dropEl.classList.add('open');
+    document.getElementById('segBackdrop').classList.add('open');
+    segEl.classList.add('seg-active');
+    _dropOpen = which;
+  }
+
+  function buildDropMes() {
+    var el = document.getElementById('dropMes'); el.innerHTML = '';
     for (var m = 1; m <= 3; m++) {
-      var btn = document.createElement('button');
-      btn.textContent = 'Mes ' + m;
-      if (m === STATE.month) btn.classList.add('active');
-      btn.onclick = (function(mm) { return function() { STATE.month = mm; STATE.week = 1; STATE.day = 1; renderAll(); }; })(m);
-      el.appendChild(btn);
+      var item = document.createElement('div'); item.className = 'seg-dropdown-item' + (m === STATE.month ? ' item-active' : '');
+      item.innerHTML = 'Mes ' + m + (m === STATE.month ? ' <span class="item-check">✓</span>' : '');
+      item.onclick = (function(mm) { return function() {
+        STATE.month = mm; STATE.week = 1; STATE.day = 1; closeDropdowns(); renderAll();
+      }; })(m);
+      el.appendChild(item);
     }
   }
-  function renderWeekPills() {
-    var el = document.getElementById('weekPills'); el.innerHTML = '';
+
+  function buildDropSem() {
+    var el = document.getElementById('dropSem'); el.innerHTML = '';
     for (var w = 1; w <= 4; w++) {
-      var btn = document.createElement('button');
-      btn.textContent = 'Semana ' + w;
-      if (w === STATE.week) btn.classList.add('active');
-      btn.onclick = (function(ww) { return function() { STATE.week = ww; renderAll(); }; })(w);
-      el.appendChild(btn);
+      var item = document.createElement('div'); item.className = 'seg-dropdown-item' + (w === STATE.week ? ' item-active' : '');
+      item.innerHTML = 'Semana ' + w + (w === STATE.week ? ' <span class="item-check">✓</span>' : '');
+      item.onclick = (function(ww) { return function() {
+        STATE.week = ww; STATE.day = 1; closeDropdowns(); renderAll();
+      }; })(w);
+      el.appendChild(item);
     }
   }
+
+  function renderNavSelector() {
+    document.getElementById('segMesVal').textContent = STATE.month;
+    document.getElementById('segSemVal').textContent = STATE.week;
+    buildDropMes();
+    buildDropSem();
+  }
+
+  document.getElementById('segMes').onclick = function() { _dropOpen === 'mes' ? closeDropdowns() : openDrop('mes'); };
+  document.getElementById('segSem').onclick = function() { _dropOpen === 'sem' ? closeDropdowns() : openDrop('sem'); };
+  document.getElementById('segBackdrop').onclick = closeDropdowns;
+
+  /* ══════════════════════════════════════
+     TIRA DE DÍAS
+  ══════════════════════════════════════ */
   function dayComplete(m, w, d) {
     var arr = STATE.data[dayKey(m, w, d)];
     if (!arr || arr.length === 0) return false;
@@ -1428,15 +1594,20 @@
     return arr.every(function(e) { return e.nombre.trim() === '' || e.hecho; });
   }
   function renderDayPills() {
-    var el = document.getElementById('dayPills'); el.innerHTML = '';
+    var el = document.getElementById('dayStrip'); el.innerHTML = '';
     var todayPos = todayPlanPosition();
+    var DAY_NAMES = ['Lun','Mar','Mié','Jue','Vie'];
     for (var d = 1; d <= 5; d++) {
-      var btn = document.createElement('button');
+      var btn = document.createElement('div'); btn.className = 'day-btn';
       var complete = dayComplete(STATE.month, STATE.week, d);
       var isToday = todayPos && todayPos.month === STATE.month && todayPos.week === STATE.week && todayPos.day === d;
-      btn.innerHTML = 'Día ' + d + (complete ? '<span class="check">✓ hecho</span>' : (isToday ? '<span class="check" style="color:var(--gold-dim)">hoy</span>' : ''));
-      if (d === STATE.day) btn.classList.add('active');
-      if (isToday && d !== STATE.day) btn.classList.add('is-today-pill');
+      var numEl = document.createElement('div'); numEl.className = 'day-n'; numEl.textContent = d;
+      var subEl = document.createElement('div'); subEl.className = 'day-sub';
+      subEl.textContent = complete ? '\u2713' : (isToday ? 'hoy' : DAY_NAMES[d-1]);
+      btn.appendChild(numEl); btn.appendChild(subEl);
+      if (d === STATE.day) btn.classList.add('day-active');
+      if (isToday && d !== STATE.day) btn.classList.add('day-today');
+      if (complete) btn.classList.add('day-done');
       btn.onclick = (function(dd) { return function() { STATE.day = dd; renderExercises(); renderDayPills(); updateBtnHoy(); }; })(d);
       el.appendChild(btn);
     }
@@ -1721,6 +1892,8 @@
     renderStartDateConfig();
     renderClientName();
     var month = STATE.progressMonth;
+
+    // ── Resumen por semana (4 tarjetas) ──
     var summaryEl = document.getElementById('weekSummary'); summaryEl.innerHTML = '';
     for (var w = 1; w <= 4; w++) {
       var totalDays = 0, doneDays = 0;
@@ -1731,69 +1904,110 @@
       }
       var weekHasContent = totalDays > 0;
       var stat = document.createElement('div'); stat.className = 'stat';
-      stat.innerHTML = '<div class="n">' + doneDays + '/' + (totalDays || 5) + '</div><div class="l">Semana ' + w + '</div>';
+      var prog = weekHasContent ? (doneDays + '/' + totalDays) : '—';
+      stat.innerHTML = '<div class="n">' + prog + '</div><div class="l">Sem ' + w + '</div>';
       var weekBtn = document.createElement('button'); weekBtn.className = 'week-pdf-btn';
-      weekBtn.textContent = 'PDF'; weekBtn.disabled = !weekHasContent;
+      weekBtn.textContent = '↓ PDF'; weekBtn.disabled = !weekHasContent;
       weekBtn.onclick = (function(mm, ww) { return function() { generatePDFReport(mm, ww); }; })(month, w);
       stat.appendChild(weekBtn); summaryEl.appendChild(stat);
     }
-    var contentEl = document.getElementById('progressContent'); contentEl.innerHTML = '';
-    var sessionRecords = [];
-    for (var ws = 1; ws <= 4; ws++) for (var ds = 1; ds <= 5; ds++) {
-      var sess = STATE.data[sessionKey(month, ws, ds)];
-      if (sess && sess.rpeSesion !== '') sessionRecords.push({ week: ws, day: ds, rpe: sess.rpeSesion });
-    }
-    if (sessionRecords.length > 0) {
-      var sessCard = document.createElement('div'); sessCard.className = 'progress-card';
-      var sessH3 = document.createElement('h3'); sessH3.textContent = 'RPE entrenamiento por sesión'; sessCard.appendChild(sessH3);
-      var sessTable = document.createElement('table'); sessTable.className = 'history';
-      var sessThead = document.createElement('tr');
-      ['Sem/Día','RPE entrenamiento'].forEach(function(h) { var th = document.createElement('th'); th.textContent = h; sessThead.appendChild(th); });
-      sessTable.appendChild(sessThead);
-      sessionRecords.forEach(function(r) {
-        var tr = document.createElement('tr');
-        var c1 = document.createElement('td'); c1.textContent = 'S' + r.week + ' D' + r.day;
-        var c2 = document.createElement('td'); c2.textContent = r.rpe;
-        tr.appendChild(c1); tr.appendChild(c2); sessTable.appendChild(tr);
-      });
-      sessCard.appendChild(sessTable); contentEl.appendChild(sessCard);
-    }
-    var exerciseMap = {};
-    for (var w2 = 1; w2 <= 4; w2++) for (var d2 = 1; d2 <= 5; d2++) {
-      var arr2 = STATE.data[dayKey(month, w2, d2)] || [];
-      arr2.forEach(function(ex) {
-        var name = ex.nombre.trim(); if (!name) return;
-        if (!exerciseMap[name]) exerciseMap[name] = [];
-        if (ex.peso !== '' || ex.rpeReal !== '')
-          exerciseMap[name].push({ week: w2, day: d2, sets: ex.sets, reps: ex.reps, rpe: ex.rpe, rpeReal: ex.rpeReal, peso: ex.peso });
-      });
-    }
-    var names = Object.keys(exerciseMap);
-    if (names.length === 0) {
-      if (sessionRecords.length === 0) contentEl.innerHTML = '<div class="empty-state">Aún no hay registros en este mes.</div>';
-      return;
-    }
-    names.sort();
-    names.forEach(function(name) {
-      var records = exerciseMap[name];
-      var card = document.createElement('div'); card.className = 'progress-card';
-      var h3 = document.createElement('h3'); h3.textContent = name; card.appendChild(h3);
-      var table = document.createElement('table'); table.className = 'history';
-      var thead = document.createElement('tr');
-      ['Sem/Día','Series x Reps','RPE obj→real','Peso'].forEach(function(h) { var th = document.createElement('th'); th.textContent = h; thead.appendChild(th); });
-      table.appendChild(thead);
-      records.forEach(function(r) {
-        var tr = document.createElement('tr');
-        var c1 = document.createElement('td'); c1.textContent = 'S' + r.week + ' D' + r.day;
-        var c2 = document.createElement('td'); c2.textContent = (r.sets||'-') + ' x ' + (r.reps||'-');
-        var c3 = document.createElement('td'); c3.textContent = (r.rpe||'-') + ' → ' + (r.rpeReal||'-');
-        var c4 = document.createElement('td'); c4.textContent = r.peso ? r.peso + ' kg' : '-';
-        tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3); tr.appendChild(c4); table.appendChild(tr);
-      });
-      card.appendChild(table); contentEl.appendChild(card);
-    });
-  }
 
+    var contentEl = document.getElementById('progressContent'); contentEl.innerHTML = '';
+    var DAY_NAMES = ['Lunes','Martes','Miércoles','Jueves','Viernes'];
+    var hasAnyContent = false;
+
+    for (var wb = 1; wb <= 4; wb++) {
+      // Ver si la semana tiene algo
+      var weekHas = false;
+      for (var db = 1; db <= 5; db++) {
+        var arrb = STATE.data[dayKey(month, wb, db)] || [];
+        if (arrb.some(function(e) { return e.nombre.trim() !== ''; })) { weekHas = true; break; }
+      }
+
+      var block = document.createElement('div');
+      block.className = 'prog-week-block' + (wb === 1 && weekHas ? ' open' : '');
+
+      // Contar días completados para badge
+      var wDone = 0, wTotal = 0;
+      for (var dc = 1; dc <= 5; dc++) {
+        var arrc = STATE.data[dayKey(month, wb, dc)] || [];
+        if (arrc.some(function(e) { return e.nombre.trim() !== ''; })) {
+          wTotal++;
+          if (dayComplete(month, wb, dc)) wDone++;
+        }
+      }
+
+      var header = document.createElement('div'); header.className = 'prog-week-header';
+      header.onclick = (function(bl) { return function() { bl.classList.toggle('open'); }; })(block);
+
+      var title = document.createElement('div'); title.className = 'prog-week-title';
+      title.textContent = 'Semana ' + wb;
+      var meta = document.createElement('div'); meta.className = 'prog-week-meta';
+      var badge = document.createElement('div');
+      badge.className = 'prog-week-badge' + (wTotal > 0 && wDone === wTotal ? ' complete' : '');
+      badge.textContent = wTotal > 0 ? (wDone + '/' + wTotal + ' días') : 'Sin registros';
+      var chev = document.createElement('div'); chev.className = 'prog-week-chevron'; chev.textContent = '▾';
+      meta.appendChild(badge); meta.appendChild(chev);
+      header.appendChild(title); header.appendChild(meta);
+      block.appendChild(header);
+
+      var body = document.createElement('div'); body.className = 'prog-week-body';
+
+      for (var d2 = 1; d2 <= 5; d2++) {
+        var arr2 = STATE.data[dayKey(month, wb, d2)] || [];
+        var exRows = arr2.filter(function(e) { return e.nombre.trim() !== ''; });
+        var sess = STATE.data[sessionKey(month, wb, d2)];
+        var hasSess = sess && sess.rpeSesion !== '';
+        if (exRows.length === 0 && !hasSess) continue;
+        hasAnyContent = true;
+
+        var dayRow = document.createElement('div'); dayRow.className = 'prog-day-row';
+        var dayHead = document.createElement('div'); dayHead.className = 'prog-day-row-head';
+        var dayLbl = document.createElement('div'); dayLbl.className = 'prog-day-label';
+        var complete = dayComplete(month, wb, d2);
+        dayLbl.textContent = 'Día ' + d2 + ' · ' + DAY_NAMES[d2-1] + (complete ? ' ✓' : '');
+        dayHead.appendChild(dayLbl);
+        if (hasSess) {
+          var rpeChip = document.createElement('div'); rpeChip.className = 'prog-day-rpe';
+          rpeChip.textContent = 'RPE sesión: ' + sess.rpeSesion;
+          dayHead.appendChild(rpeChip);
+        }
+        dayRow.appendChild(dayHead);
+
+        if (exRows.length > 0) {
+          var tbl = document.createElement('table'); tbl.className = 'prog-table';
+          var thead = document.createElement('tr');
+          ['Ejercicio','Sx R','RPE→R','kg'].forEach(function(h) {
+            var th = document.createElement('th'); th.textContent = h; thead.appendChild(th);
+          });
+          tbl.appendChild(thead);
+          exRows.forEach(function(ex) {
+            var tr = document.createElement('tr');
+            var c1 = document.createElement('td'); c1.className = 'ex-name';
+            c1.textContent = ex.nombre;
+            var c2 = document.createElement('td'); c2.className = 'dim';
+            c2.textContent = (ex.sets||'—') + 'x' + (ex.reps||'—');
+            var c3 = document.createElement('td'); c3.className = 'dim';
+            var rpeStr = (ex.rpe||'—') + '→' + (ex.rpeReal||'—');
+            c3.textContent = rpeStr;
+            var c4 = document.createElement('td'); c4.className = ex.peso ? 'gold' : 'dim';
+            c4.textContent = ex.peso ? ex.peso : '—';
+            tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3); tr.appendChild(c4);
+            tbl.appendChild(tr);
+          });
+          dayRow.appendChild(tbl);
+        }
+        body.appendChild(dayRow);
+      }
+
+      block.appendChild(body);
+      contentEl.appendChild(block);
+    }
+
+    if (!hasAnyContent) {
+      contentEl.innerHTML = '<div class="empty-state">Aún no hay registros en este mes.</div>';
+    }
+  }
   /* ══════════════════════════════════════
      RENDER - RÉCORDS
      Solo récord a repeticiones + 1RM estimado (Epley)
@@ -1980,7 +2194,7 @@
   /* ══════════════════════════════════════
      TABS — orden: Registro, Progreso, Calcular RPE, Récords
   ══════════════════════════════════════ */
-  function renderAll() { renderMonthPills(); renderWeekPills(); renderDayPills(); renderExercises(); updateBtnHoy(); }
+  function renderAll() { renderNavSelector(); renderDayPills(); renderExercises(); updateBtnHoy(); }
   function switchTab(tab) {
     ['registro','progreso','rpe','orm','records'].forEach(function(t) {
       document.getElementById('tab-' + t).classList.remove('active');
