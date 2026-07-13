@@ -1462,6 +1462,18 @@
   };
   var RPE_KEYS = ["10","9.5","9","8.5","8","7.5","7","6.5","6"];
 
+  // Tabla RPE ajustada para calistenia (+5% sobre la tabla base de powerlifting,
+  // tope 100%). Se usa en modo "Calistenia" para reflejar mejor la relación
+  // peso corporal / lastre en ejercicios de tracción y empuje, donde el
+  // peso corporal fijo hace que la percepción de esfuerzo suba más rápido
+  // por cada repetición adicional que en un levantamiento con barra.
+  var RPE_TABLE_BW = {};
+  RPE_KEYS.forEach(function(k) {
+    RPE_TABLE_BW[k] = RPE_TABLE[k].map(function(v) {
+      return Math.min(100, Math.round((v + 5) * 10) / 10);
+    });
+  });
+
   function rpeRound1(n) { return Math.round(n*10)/10; }
   function rpeFmt(n) { return (Math.round(n*100)/100).toString().replace(/\.00$/,'').replace(/(\.\d)0$/,'$1'); }
   function rpeNearestLoadable(target, base, smallest, mult) {
@@ -1925,12 +1937,13 @@
     var reps = parseInt(rpeRepsEl.value, 10);
     var rpe = rpeRpeEl.value;
     var pct = RPE_TABLE[rpe][reps-1];
+    var pctDisplay = (rpeMode === 'bodyweight') ? RPE_TABLE_BW[rpe][reps-1] : pct;
     document.getElementById('rpeRepsEcho').textContent = reps;
     document.getElementById('rpeRpeEcho').textContent = rpe;
     document.getElementById('rpeChartReps').textContent = reps;
     document.getElementById('rpeWeightUnit').textContent = rpeUnit;
     document.querySelectorAll('.unit-lbl').forEach(function(el) { el.textContent = rpeUnit; });
-    document.getElementById('rpePctValue').textContent = rpeFmt(pct) + '%';
+    document.getElementById('rpePctValue').textContent = rpeFmt(pctDisplay) + '%';
     rpeRenderChart(reps, rpe);
     if (rpeMode === 'barbell') rpeUpdateBarbell(pct);
     else rpeUpdateBodyweight(pct);
@@ -1979,7 +1992,12 @@
       document.getElementById('rpeChainSvg').innerHTML = ''; return;
     }
     var total1RM = bwReq + ormAdded;
-    var targetTotal = total1RM * pct / 100;
+    // Calistenia usa tabla RPE ajustada (+5% sobre RTS) para reflejar mejor
+    // la realidad de ejercicios de peso corporal
+    var reps = parseInt(rpeRepsEl.value, 10);
+    var rpeKey = rpeRpeEl.value;
+    var pctBw = RPE_TABLE_BW[rpeKey][reps - 1];
+    var targetTotal = total1RM * pctBw / 100;
     var addedTarget = targetTotal - bwReq;
     var set = PLATE_SETS[rpeUnit];
     if (addedTarget <= 0) {
@@ -2025,7 +2043,7 @@
       var total1RM = bwReq ? bwReq + ormAdded : 0;
       document.getElementById('rpeChartWeightHeader').textContent = 'Lastre';
       RPE_KEYS.forEach(function(k) {
-        var pct = RPE_TABLE[k][reps-1];
+        var pct = RPE_TABLE_BW[k][reps-1];
         var tr = document.createElement('tr'); if (k === currentRpe) tr.className = 'current';
         var w = '—';
         if (total1RM) { var added = total1RM*pct/100 - bwReq; w = added > 0 ? rpeFmt(added) + ' ' + rpeUnit : 'BW'; }
