@@ -1124,15 +1124,9 @@
           <label>1RM <span class="unit-lbl">kg</span></label>
           <input id="rpeZonaOrm" type="number" inputmode="decimal" min="0" step="0.5" value="100" placeholder="Ej: 100">
         </div>
-        <div class="rpe-field-row" style="margin-bottom:12px;">
-          <div class="rpe-field">
-            <label>Reps mínimas</label>
-            <select id="rpeZonaMin"></select>
-          </div>
-          <div class="rpe-field">
-            <label>Reps máximas</label>
-            <select id="rpeZonaMax"></select>
-          </div>
+        <div class="rpe-field" style="margin-bottom:12px;">
+          <label>Repeticiones</label>
+          <select id="rpeZonaMin"></select>
         </div>
         <div class="rpe-field" style="margin-bottom:0;">
           <label>RPE objetivo</label>
@@ -2484,59 +2478,40 @@
      ZONA DE TRABAJO
   ══════════════════════════════════════ */
   var zonaMinEl = document.getElementById('rpeZonaMin');
-  var zonaMaxEl = document.getElementById('rpeZonaMax');
   var zonaRpeEl = document.getElementById('rpeZonaRpe');
   var zonaOrmEl = document.getElementById('rpeZonaOrm');
 
   for (var zr = 1; zr <= 12; zr++) {
-    var zo1 = document.createElement('option'); zo1.value = zr; zo1.textContent = zr; if (zr === 6) zo1.selected = true; zonaMinEl.appendChild(zo1);
-    var zo2 = document.createElement('option'); zo2.value = zr; zo2.textContent = zr; if (zr === 8) zo2.selected = true; zonaMaxEl.appendChild(zo2);
+    var zo1 = document.createElement('option'); zo1.value = zr; zo1.textContent = zr; if (zr === 5) zo1.selected = true; zonaMinEl.appendChild(zo1);
   }
   RPE_KEYS.forEach(function(k) {
     var o = document.createElement('option'); o.value = k; o.textContent = k; if (k === '7') o.selected = true; zonaRpeEl.appendChild(o);
   });
 
   function renderZona() {
-    var rMin = parseInt(zonaMinEl.value, 10);
-    var rMax = parseInt(zonaMaxEl.value, 10);
+    var reps = parseInt(zonaMinEl.value, 10);
     var rpe = zonaRpeEl.value;
     var orm = parseFloat(zonaOrmEl.value);
     var rowsEl = document.getElementById('rpeZonaRows'); rowsEl.innerHTML = '';
     if (!orm || orm <= 0) {
       var emp = document.createElement('div'); emp.className = 'rpe-zona-empty';
-      emp.textContent = 'Introduce tu 1RM para ver el rango de peso.';
+      emp.textContent = 'Introduce tu 1RM para ver el peso.';
       rowsEl.appendChild(emp); return;
     }
-    if (rMin > rMax) { var tmp = rMin; rMin = rMax; rMax = tmp; }
-    function calcW(reps) {
-      var pct = RPE_TABLE[rpe][reps - 1];
-      var target = orm * pct / 100;
-      var set = PLATE_SETS[rpeUnit];
-      var loadable = rpeNearestLoadable(target, set.bar, Math.min.apply(null, set.sizes), 2);
-      return { pct: pct, target: target, loadable: loadable };
-    }
-    var resMax = calcW(rMax); var resMin = calcW(rMin);
-    function makeRow(label, res) {
-      var div = document.createElement('div'); div.className = 'rpe-zona-row';
-      var lbl = document.createElement('div'); lbl.className = 'zr-label'; lbl.textContent = label;
-      var right = document.createElement('div'); right.style.display = 'flex'; right.style.alignItems = 'baseline';
-      var w = document.createElement('span'); w.className = 'zr-weight'; w.textContent = rpeFmt(res.loadable);
-      var d = document.createElement('span'); d.className = 'zr-detail'; d.textContent = rpeUnit + ' · ' + rpeFmt(res.pct) + '%';
-      right.appendChild(w); right.appendChild(d); div.appendChild(lbl); div.appendChild(right);
-      return div;
-    }
-    rowsEl.appendChild(makeRow(rMax + ' reps', resMax));
-    rowsEl.appendChild(makeRow(rMin + ' reps', resMin));
-    var barWrap = document.createElement('div'); barWrap.className = 'rpe-zona-range-bar';
-    var fill = document.createElement('div'); fill.className = 'rpe-zona-range-fill';
-    fill.style.left = resMax.pct + '%'; fill.style.width = (resMin.pct - resMax.pct) + '%';
-    barWrap.appendChild(fill); rowsEl.appendChild(barWrap);
-    var hint = document.createElement('div'); hint.className = 'rpe-zona-range-hint';
-    hint.textContent = rpeFmt(resMax.pct) + '% – ' + rpeFmt(resMin.pct) + '% de tu 1RM';
-    rowsEl.appendChild(hint);
+    var pct = RPE_TABLE[rpe][reps - 1];
+    var target = orm * pct / 100;
+    var set = PLATE_SETS[rpeUnit];
+    var loadable = rpeNearestLoadable(target, set.bar, Math.min.apply(null, set.sizes), 2);
+    var row = document.createElement('div'); row.className = 'rpe-zona-row';
+    var lbl = document.createElement('div'); lbl.className = 'zr-label'; lbl.textContent = reps + ' reps @ RPE ' + rpe;
+    var right = document.createElement('div'); right.style.display = 'flex'; right.style.alignItems = 'baseline';
+    var w = document.createElement('span'); w.className = 'zr-weight'; w.textContent = rpeFmt(loadable);
+    var d = document.createElement('span'); d.className = 'zr-detail'; d.textContent = rpeUnit + ' · ' + rpeFmt(pct) + '%';
+    right.appendChild(w); right.appendChild(d); row.appendChild(lbl); row.appendChild(right);
+    rowsEl.appendChild(row);
   }
 
-  [zonaMinEl, zonaMaxEl, zonaRpeEl, zonaOrmEl].forEach(function(el) {
+  [zonaMinEl, zonaRpeEl, zonaOrmEl].forEach(function(el) {
     el.addEventListener('input', renderZona);
     el.addEventListener('change', renderZona);
   });
@@ -2659,12 +2634,25 @@
   /* ══════════════════════════════════════
      INIT
   ══════════════════════════════════════ */
+  function lastRegisteredPosition() {
+    var last = null;
+    for (var m = 1; m <= 3; m++) for (var w = 1; w <= 4; w++) for (var d = 1; d <= 5; d++) {
+      var arr = STATE.data[dayKey(m, w, d)] || [];
+      if (arr.some(function(e) { return e.nombre && e.nombre.trim() !== ''; })) {
+        last = { month: m, week: w, day: d };
+      }
+    }
+    return last;
+  }
+
   async function init() {
     document.getElementById('exerciseList').innerHTML = '<div class="loading">Cargando tu plan...</div>';
     await loadData();
     checkStorageQuota();
-    var todayPos = todayPlanPosition();
-    if (todayPos) { STATE.month = todayPos.month; STATE.week = todayPos.week; STATE.day = todayPos.day; }
+    var lastPos = lastRegisteredPosition();
+    if (lastPos) {
+      STATE.month = lastPos.month; STATE.week = lastPos.week; STATE.day = lastPos.day;
+    }
     renderAll();
   }
   init();
