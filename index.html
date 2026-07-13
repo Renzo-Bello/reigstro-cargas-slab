@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Registro de Entrenamientos </title>
-<title>STRENGHTLAB | 1:1</title>
+<title>Registro de Entrenamientos | SLAB</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
@@ -81,13 +80,16 @@
   }
   .topbar-left { flex: 1; min-width: 0; }
   header.topbar h1 {
-    margin: 0; font-size: 15px; font-weight: 700;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-    color: var(--gold); letter-spacing: 0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin: 0; font-size: 10.5px; font-weight: 500;
+    font-family: var(--font-mono);
+    color: var(--text-dim); letter-spacing: 0.8px; text-transform: uppercase;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   header.topbar p {
-    margin: 4px 0 0; font-size: 9.5px; color: var(--text-dim);
-    font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.6px;
+    margin: 2px 0 0; font-size: 14px; font-weight: 700; color: var(--gold);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
   /* ── BOTÓN HOY ── */
@@ -203,10 +205,11 @@
     cursor: pointer; transition: background 0.12s, border-color 0.12s;
   }
   .day-btn .day-n {
-    font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--text); line-height: 1;
+    font-family: var(--font-mono); font-size: 17px; font-weight: 500; color: var(--text); line-height: 1;
   }
   .day-btn .day-sub {
-    font-family: var(--font-mono); font-size: 8px; color: var(--text-dim); margin-top: 3px;
+    font-family: var(--font-mono); font-size: 8px; color: var(--text-dim); margin-bottom: 2px; order: -1;
+    text-transform: uppercase; letter-spacing: 0.5px;
   }
   .day-btn.day-active {
     background: var(--day-accent); border-color: var(--day-accent);
@@ -952,8 +955,8 @@
 <div id="app">
   <header class="topbar">
     <div class="topbar-left">
-      <h1 id="pageTitle">REGISTRO DE ENTRENAMIENTOS | SLAB</h1>
-      <p> 3 meses · 4 semanas · 5 días</p>
+      <h1 id="pageTitle">REGISTRO DE ENTRENAMIENTO</h1>
+      <p>STRENGTHLAB</p>
     </div>
     <button class="btn-hoy" id="btnHoy" title="Ir al día de hoy">
       <span class="hoy-label">Hoy</span>
@@ -1597,14 +1600,13 @@
   function renderDayPills() {
     var el = document.getElementById('dayStrip'); el.innerHTML = '';
     var todayPos = todayPlanPosition();
-    var DAY_NAMES = ['Lun','Mar','Mié','Jue','Vie'];
     for (var d = 1; d <= 5; d++) {
       var btn = document.createElement('div'); btn.className = 'day-btn';
       var complete = dayComplete(STATE.month, STATE.week, d);
       var isToday = todayPos && todayPos.month === STATE.month && todayPos.week === STATE.week && todayPos.day === d;
       var numEl = document.createElement('div'); numEl.className = 'day-n'; numEl.textContent = d;
       var subEl = document.createElement('div'); subEl.className = 'day-sub';
-      subEl.textContent = complete ? '\u2713' : (isToday ? 'hoy' : DAY_NAMES[d-1]);
+      subEl.textContent = complete ? '\u2713' : (isToday ? 'hoy' : 'D\u00eda');
       btn.appendChild(numEl); btn.appendChild(subEl);
       if (d === STATE.day) btn.classList.add('day-active');
       if (isToday && d !== STATE.day) btn.classList.add('day-today');
