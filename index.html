@@ -488,14 +488,22 @@
     display: flex; align-items: center; gap: 8px;
     padding: 12px 14px; border-bottom: 1px solid var(--border);
   }
+
+  /* ── NOMBRE DE RÉCORD: tipografía amigable ── */
   .record-name-input {
     flex: 1; background: transparent; border: none; color: var(--text);
-    font-family: var(--font-display); font-style: italic;
-    font-size: 16px; font-weight: 600; padding: 4px 0; min-width: 0;
+    font-family: var(--font-body);
+    font-size: 16px; font-weight: 600;
+    letter-spacing: -0.1px;
+    padding: 4px 0; min-width: 0;
     min-height: var(--touch-min);
   }
-  .record-name-input::placeholder { color: var(--text-dim); font-weight: 400; font-style: normal; }
+  .record-name-input::placeholder {
+    color: var(--text-dim);
+    font-weight: 400;
+  }
   .record-name-input:focus { outline: none; }
+
   .record-block { padding: 12px 14px; border-bottom: 1px solid var(--border); }
   .record-block:last-child { border-bottom: none; }
   .record-block-label {
@@ -587,6 +595,35 @@
   .start-date-current {
     font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);
     margin-top: 8px;
+  }
+
+  /* ── MARCOS DORADOS: Récords, Calcular RPE y Calcular 1RM ── */
+  #tab-records, #tab-rpe, #tab-orm {
+    position: relative;
+    color: var(--gold) !important;
+  }
+  #tab-records::after, #tab-rpe::after, #tab-orm::after {
+    content: '';
+    position: absolute;
+    inset: 5px 2px;
+    border: 1.5px solid var(--gold);
+    border-radius: 5px;
+    pointer-events: none;
+    opacity: 0.6;
+    box-shadow: 0 0 6px rgba(201,169,110,0.15);
+    transition: opacity 0.15s, box-shadow 0.15s;
+  }
+  #tab-records.active::after, #tab-rpe.active::after, #tab-orm.active::after {
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(201,169,110,0.30);
+  }
+
+  #view-records, #view-rpe, #view-orm {
+    border: 2px solid var(--gold);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 0 24px rgba(201,169,110,0.13), inset 0 0 0 1px rgba(201,169,110,0.06);
+    margin: 0 2px 16px;
   }
 
   /* ── CALCULADORA RPE ── */
@@ -740,7 +777,7 @@
   }
   .welcome-logo { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 13px; font-weight: 700; color: var(--gold); letter-spacing: 0.5px; margin-bottom: 4px; }
   .welcome-tagline { font-family: var(--font-mono); font-size: 9.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 24px; }
-  .welcome-title { font-family: var(--font-display); font-style: italic; font-size: 22px; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 8px; }
+  .welcome-title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.2px; margin-bottom: 8px; text-transform: uppercase; }
   .welcome-intro { font-family: var(--font-body); font-size: 13.5px; color: var(--text-dim); line-height: 1.65; margin-bottom: 24px; }
   .welcome-section { margin-bottom: 20px; }
   .welcome-section-title { font-family: var(--font-mono); font-size: 9.5px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
@@ -770,14 +807,15 @@
     <div class="welcome-logo">STRENGTHLAB | 1:1 </div>
     <div class="welcome-tagline">by @rennzolifts</div>
     <div class="welcome-title">Tu herramienta de entrenamiento personalizada</div>
-    <p class="welcome-intro">Esta aplicación fue diseñada especialmente para tu proceso de 3 meses. Aquí podrás registrar cada entrenamiento, ver tu progreso y calcular las cargas de trabajo — todo en un solo lugar, guardado en tu teléfono.</p>
+    <p class="welcome-intro">Esta aplicación fue diseñada especialmente para tu proceso de 3 meses. Aquí podrás registrar cada entrenamiento, ver tu progreso y calcular cargas y 1RM — todo en un solo lugar, guardado en tu teléfono.</p>
     <div class="welcome-section">
       <div class="welcome-section-title">Qué puedes hacer</div>
       <div class="welcome-features">
-        <div class="welcome-feature"><div class="welcome-feature-icon">📋</div><div class="welcome-feature-text"><strong>Registro</strong><span>Anota cada ejercicio con series, reps, RPE objetivo y real, peso usado y notas de feedback. Marca el día como completado cuando termines.</span></div></div>
+        <div class="welcome-feature"><div class="welcome-feature-icon">📋</div><div class="welcome-feature-text"><strong>Registro</strong><span>Anota cada ejercicio con series, reps, RPE objetivo y real, peso usado y notas. Marca el día como completado cuando termines. Todo se guarda automáticamente.</span></div></div>
         <div class="welcome-feature"><div class="welcome-feature-icon">📈</div><div class="welcome-feature-text"><strong>Progreso</strong><span>Revisa semana a semana cómo evolucionan tus cargas por ejercicio. Descarga el reporte semanal en PDF para enviárselo a tu entrenador.</span></div></div>
-        <div class="welcome-feature"><div class="welcome-feature-icon">🏆</div><div class="welcome-feature-text"><strong>Récords</strong><span>Guarda tu 1RM y tus mejores marcas por ejercicio. Ingresa peso y reps de tu récord y la app calcula automáticamente tu 1RM estimado (fórmula Epley).</span></div></div>
-        <div class="welcome-feature"><div class="welcome-feature-icon">🧮</div><div class="welcome-feature-text"><strong>Calcular RPE</strong><span>Calcula el peso exacto para una serie según tu 1RM y el RPE objetivo. Incluye visualización de discos, modo calistenia y mini-calculadora integrada en cada ejercicio.</span></div></div>
+        <div class="welcome-feature"><div class="welcome-feature-icon">🧮</div><div class="welcome-feature-text"><strong>Calcular RPE</strong><span>Ingresa tu 1RM, las reps y el RPE objetivo → la app te dice exactamente cuánto peso usar. Incluye visualización de discos, modo calistenia, zona de trabajo y mini-calculadora integrada en cada ejercicio.</span></div></div>
+        <div class="welcome-feature"><div class="welcome-feature-icon">💪</div><div class="welcome-feature-text"><strong>Calcular 1RM</strong><span>Calcula tu repetición máxima estimada en barra libre, calistenia (dominadas, fondos, muscle-up) o cualquier ejercicio general. Usa el resultado para calibrar tus cargas en la calculadora RPE.</span></div></div>
+        <div class="welcome-feature"><div class="welcome-feature-icon">🏆</div><div class="welcome-feature-text"><strong>Récords</strong><span>Guarda tus mejores marcas por ejercicio: peso, reps logradas y una nota opcional. Tu historial de PRs en un solo lugar.</span></div></div>
       </div>
     </div>
     <div class="welcome-section">
@@ -787,7 +825,7 @@
         <div class="welcome-step"><div class="welcome-step-num">2</div><div class="welcome-step-text">Toca <strong>+ Añadir ejercicio</strong> y completa el nombre, series, reps y el RPE objetivo que te indicó tu entrenador.</div></div>
         <div class="welcome-step"><div class="welcome-step-num">3</div><div class="welcome-step-text">Usa el botón <strong>"RPE"</strong> en cada ejercicio para calcular el peso de trabajo sin salir del registro.</div></div>
         <div class="welcome-step"><div class="welcome-step-num">4</div><div class="welcome-step-text">Al terminar, completa el <strong>RPE real</strong>, el <strong>peso usado</strong> y marca <strong>"Serie completada"</strong>.</div></div>
-        <div class="welcome-step"><div class="welcome-step-num">5</div><div class="welcome-step-text">Todo se <strong>guarda automáticamente</strong> en tu teléfono. No necesitas hacer nada más.</div></div>
+        <div class="welcome-step"><div class="welcome-step-num">5</div><div class="welcome-step-text">¿No sabes tu 1RM? Usa la pestaña <strong>"Calcular 1RM"</strong> con el peso y reps que manejas para estimarlo.</div></div>
       </div>
     </div>
     <div class="welcome-section">
@@ -818,11 +856,13 @@
     </button>
   </header>
 
+  <!-- TABS: Registro > Progreso > Calcular RPE > Calcular 1RM > Récords -->
   <nav class="tabs">
     <button id="tab-registro" class="active">Registro</button>
     <button id="tab-progreso">Progreso</button>
-    <button id="tab-records">Récords</button>
     <button id="tab-rpe">Calcular RPE</button>
+    <button id="tab-orm">Calcular 1RM</button>
+    <button id="tab-records">Récords</button>
   </nav>
 
   <div id="view-registro" class="panel">
@@ -853,7 +893,7 @@
       <div class="start-date-title">Nombre del cliente</div>
       <div class="start-date-desc">Se usará en el encabezado y en el nombre del archivo de los reportes PDF.</div>
       <div class="start-date-row">
-        <input type="text" class="start-date-input" id="clientNameInput" placeholder="Ej: Marcelo Olivares" autocomplete="off">
+        <input type="text" class="start-date-input" id="clientNameInput" placeholder="Ej: Inosuke Hashibira" autocomplete="off">
         <button class="start-date-btn" id="clientNameSaveBtn">Guardar</button>
       </div>
       <div class="start-date-current" id="clientNameCurrent"></div>
@@ -871,12 +911,7 @@
     </div>
   </div>
 
-  <div id="view-records" class="panel" style="display:none;">
-    <button id="addRecordBtn" class="add-record-btn">+ Añadir ejercicio</button>
-    <div id="recordsList"></div>
-  </div>
-
-  <!-- CALCULADORA RPE -->
+  <!-- CALCULADORA RPE (ahora 3er tab) -->
   <div id="view-rpe" style="display:none;">
     <div style="padding:16px 16px 0;">
     <div class="rpe-mode-toggle" role="group">
@@ -988,6 +1023,109 @@
     </div>
   </div>
 
+  <!-- CALCULAR 1RM -->
+  <div id="view-orm" style="display:none; padding:16px 16px 0;">
+
+    <div class="rpe-mode-toggle" role="group" id="ormModeToggle">
+      <button type="button" data-ormmode="barbell" class="active">Barra libre</button>
+      <button type="button" data-ormmode="bodyweight">Calistenia</button>
+      <button type="button" data-ormmode="general">Ejercicio general</button>
+    </div>
+
+    <div class="rpe-unit-toggle" role="group" id="ormUnitToggle">
+      <button type="button" data-ormunit="kg" class="active">KG</button>
+      <button type="button" data-ormunit="lb">LB</button>
+    </div>
+
+    <!-- BARRA LIBRE -->
+    <div id="ormViewBarbell">
+      <div class="rpe-card">
+        <div class="rpe-field">
+          <label>Peso usado <span class="unit-lbl" id="ormBarbellUnitLbl">kg</span></label>
+          <input id="ormBarbellPeso" type="number" inputmode="decimal" min="0" step="0.5" placeholder="Ej: 100">
+        </div>
+        <div class="rpe-field">
+          <label>Repeticiones logradas</label>
+          <input id="ormBarbellReps" type="number" inputmode="numeric" min="1" max="30" step="1" placeholder="Ej: 5">
+        </div>
+      </div>
+      <div class="rpe-result" id="ormBarbellResult">
+        <div class="rpe-result-label">1RM estimado (Epley)</div>
+        <div class="rpe-result-value" id="ormBarbellVal">--<span class="rpe-unit" id="ormBarbellUnitRes">kg</span></div>
+        <div class="rpe-result-meta" id="ormBarbellMeta"></div>
+      </div>
+    </div>
+
+    <!-- CALISTENIA -->
+    <div id="ormViewBodyweight" hidden>
+      <div class="rpe-card">
+        <div class="rpe-field">
+          <label>Ejercicio</label>
+          <select id="ormBwExercise">
+            <option value="Dominadas">Dominadas</option>
+            <option value="Fondos">Fondos</option>
+            <option value="Muscle-up">Muscle-up</option>
+          </select>
+        </div>
+        <div class="rpe-field">
+          <label>Peso corporal <span class="unit-lbl" id="ormBwUnitLbl">kg</span></label>
+          <input id="ormBwCuerpo" type="number" inputmode="decimal" min="0" step="0.5" placeholder="Ej: 77">
+        </div>
+        <div class="rpe-field">
+          <label>Lastre añadido <span class="unit-lbl" id="ormBwLastreUnitLbl">kg</span> <span class="opt">(0 si ninguno)</span></label>
+          <input id="ormBwLastre" type="number" inputmode="decimal" min="0" step="0.5" placeholder="0" value="0">
+        </div>
+        <div class="rpe-field">
+          <label>Repeticiones logradas</label>
+          <input id="ormBwReps" type="number" inputmode="numeric" min="1" max="30" step="1" placeholder="Ej: 8">
+        </div>
+      </div>
+      <div class="rpe-result" id="ormBwResult">
+        <div class="rpe-result-label">1RM de lastre estimado (Epley)</div>
+        <div class="rpe-result-value" id="ormBwVal">--<span class="rpe-unit" id="ormBwUnitRes">kg</span></div>
+        <div class="rpe-result-meta" id="ormBwMeta"></div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);margin-top:10px;line-height:1.5;">
+          Lastre máximo que podrías mover 1 rep.<br>
+          Promedio de Epley · Brzycki · Lombardi (modificados para calistenia)
+        </div>
+      </div>
+    </div>
+
+    <!-- EJERCICIO GENERAL -->
+    <div id="ormViewGeneral" hidden>
+      <div class="rpe-card">
+        <div class="rpe-field">
+          <label>Nombre del ejercicio <span class="opt">(opcional)</span></label>
+          <input id="ormGenNombre" type="text" placeholder="Ej: Press banca, Sentadilla...">
+        </div>
+        <div class="rpe-field">
+          <label>Peso usado <span class="unit-lbl" id="ormGenUnitLbl">kg</span></label>
+          <input id="ormGenPeso" type="number" inputmode="decimal" min="0" step="0.5" placeholder="Ej: 80">
+        </div>
+        <div class="rpe-field">
+          <label>Repeticiones logradas</label>
+          <input id="ormGenReps" type="number" inputmode="numeric" min="1" max="30" step="1" placeholder="Ej: 6">
+        </div>
+      </div>
+      <div class="rpe-result" id="ormGenResult">
+        <div class="rpe-result-label">1RM estimado (Epley)</div>
+        <div class="rpe-result-value" id="ormGenVal">--<span class="rpe-unit" id="ormGenUnitRes">kg</span></div>
+        <div class="rpe-result-meta" id="ormGenMeta"></div>
+      </div>
+    </div>
+
+    <div class="rpe-footer">
+      Fórmula Epley: <strong>1RM = peso × (1 + reps / 30)</strong><br>
+      Estimación aproximada. Válida para 1–10 repeticiones.
+    </div>
+  </div>
+
+  <!-- RÉCORDS (ahora último tab) -->
+  <div id="view-records" class="panel" style="display:none;">
+    <button id="addRecordBtn" class="add-record-btn">+ Añadir ejercicio</button>
+    <div id="recordsList"></div>
+  </div>
+
   <div class="save-bar" id="saveBar">Listo para registrar</div>
 </div>
 
@@ -1044,7 +1182,7 @@
     return STATE.data.records;
   }
   function emptyRecord() {
-    return { id: 'r' + Date.now() + Math.random().toString(36).slice(2,7), nombre: '', oneRm: '', repMaxPeso: '', repMaxReps: '' };
+    return { id: 'r' + Date.now() + Math.random().toString(36).slice(2,7), nombre: '', repMaxPeso: '', repMaxReps: '', nota: '' };
   }
 
   function checkStorageQuota() {
@@ -1085,8 +1223,6 @@
 
   /* ══════════════════════════════════════
      1RM ESTIMADO — FÓRMULA EPLEY
-     1RM = peso × (1 + reps / 30)
-     Si reps = 1, es el valor directo.
   ══════════════════════════════════════ */
   function calcOrm1RM(peso, reps) {
     peso = parseFloat(peso);
@@ -1114,12 +1250,8 @@
   ══════════════════════════════════════ */
   var CLIENT_NAME_KEY = 'slab-client-name';
 
-  function getClientName() {
-    return localStorage.getItem(CLIENT_NAME_KEY) || '';
-  }
-  function setClientName(name) {
-    localStorage.setItem(CLIENT_NAME_KEY, name.trim());
-  }
+  function getClientName() { return localStorage.getItem(CLIENT_NAME_KEY) || ''; }
+  function setClientName(name) { localStorage.setItem(CLIENT_NAME_KEY, name.trim()); }
   function renderClientName() {
     var name = getClientName();
     document.getElementById('clientNameInput').value = name;
@@ -1462,11 +1594,6 @@
   };
   var RPE_KEYS = ["10","9.5","9","8.5","8","7.5","7","6.5","6"];
 
-  // Tabla RPE ajustada para calistenia (+5% sobre la tabla base de powerlifting,
-  // tope 100%). Se usa en modo "Calistenia" para reflejar mejor la relación
-  // peso corporal / lastre en ejercicios de tracción y empuje, donde el
-  // peso corporal fijo hace que la percepción de esfuerzo suba más rápido
-  // por cada repetición adicional que en un levantamiento con barra.
   var RPE_TABLE_BW = {};
   RPE_KEYS.forEach(function(k) {
     RPE_TABLE_BW[k] = RPE_TABLE[k].map(function(v) {
@@ -1669,13 +1796,13 @@
 
   /* ══════════════════════════════════════
      RENDER - RÉCORDS
-     (con 1RM estimado desde reps máximas)
+     Solo récord a repeticiones + 1RM estimado (Epley)
   ══════════════════════════════════════ */
   function renderRecords() {
     var records = ensureRecords();
     var el = document.getElementById('recordsList'); el.innerHTML = '';
     if (records.length === 0) {
-      el.innerHTML = '<div class="records-empty">Aún no tienes récords guardados.<br>Toca "+ Añadir ejercicio" para registrar tu primer 1RM.</div>';
+      el.innerHTML = '<div class="records-empty">Aún no tienes récords guardados.<br>Toca "+ Añadir ejercicio" para registrar tu mejor marca.</div>';
       return;
     }
     records.forEach(function(rec) {
@@ -1700,69 +1827,44 @@
       };
       head.appendChild(nameInput); head.appendChild(delBtn); card.appendChild(head);
 
-      // ── BLOQUE 1RM DIRECTO ──
-      var block1 = document.createElement('div'); block1.className = 'record-block';
-      var label1 = document.createElement('span'); label1.className = 'record-block-label'; label1.textContent = 'Récord a 1 repetición';
-      block1.appendChild(label1);
-      var row1 = document.createElement('div'); row1.className = 'record-row';
-      row1.appendChild(makeField('Peso (kg)', rec, 'oneRm', 'number', 'decimal'));
-      block1.appendChild(row1); card.appendChild(block1);
+      // ── BLOQUE MEJOR MARCA ──
+      var block = document.createElement('div'); block.className = 'record-block';
+      var blockLabel = document.createElement('span'); blockLabel.className = 'record-block-label'; blockLabel.textContent = 'Mejor marca';
+      block.appendChild(blockLabel);
 
-      // ── BLOQUE REPETICIONES MÁXIMAS + 1RM ESTIMADO ──
-      var block2 = document.createElement('div'); block2.className = 'record-block';
-      var label2 = document.createElement('span'); label2.className = 'record-block-label'; label2.textContent = 'Récord a repeticiones máximas';
-      block2.appendChild(label2);
+      var row = document.createElement('div'); row.className = 'record-row';
 
-      var row2 = document.createElement('div'); row2.className = 'record-row';
-
-      // Campo peso
       var pesoWrap = document.createElement('div'); pesoWrap.className = 'field';
       var pesoLabel = document.createElement('label'); pesoLabel.textContent = 'Peso (kg)';
       var pesoInput = document.createElement('input'); pesoInput.type = 'number'; pesoInput.inputMode = 'decimal';
-      pesoInput.min = '0'; pesoInput.value = rec.repMaxPeso;
-      pesoInput.setAttribute('aria-label', 'Peso récord a repeticiones máximas');
+      pesoInput.min = '0'; pesoInput.value = rec.repMaxPeso || '';
+      pesoInput.setAttribute('aria-label', 'Peso del récord');
+      pesoInput.oninput = function() { rec.repMaxPeso = this.value; scheduleSave(); };
 
-      // Campo reps
       var repsWrap = document.createElement('div'); repsWrap.className = 'field';
       var repsLabel = document.createElement('label'); repsLabel.textContent = 'Reps logradas';
       var repsInput = document.createElement('input'); repsInput.type = 'number'; repsInput.inputMode = 'numeric';
-      repsInput.min = '1'; repsInput.value = rec.repMaxReps;
-      repsInput.setAttribute('aria-label', 'Repeticiones máximas logradas');
+      repsInput.min = '1'; repsInput.value = rec.repMaxReps || '';
+      repsInput.setAttribute('aria-label', 'Repeticiones logradas');
+      repsInput.oninput = function() { rec.repMaxReps = this.value; scheduleSave(); };
 
       pesoWrap.appendChild(pesoLabel); pesoWrap.appendChild(pesoInput);
       repsWrap.appendChild(repsLabel); repsWrap.appendChild(repsInput);
-      row2.appendChild(pesoWrap); row2.appendChild(repsWrap);
-      block2.appendChild(row2);
+      row.appendChild(pesoWrap); row.appendChild(repsWrap);
+      block.appendChild(row);
 
-      // ── 1RM ESTIMADO (Epley) ──
-      var ormWrap = document.createElement('div'); ormWrap.className = 'orm-estimate-wrap';
-      var ormLeft = document.createElement('div'); ormLeft.className = 'orm-estimate-left';
-      var ormTag = document.createElement('div'); ormTag.className = 'orm-estimate-tag'; ormTag.textContent = '1RM estimado';
-      var ormDesc = document.createElement('div'); ormDesc.className = 'orm-estimate-desc'; ormDesc.textContent = 'Fórmula Epley · peso × (1 + reps/30)';
-      ormLeft.appendChild(ormTag); ormLeft.appendChild(ormDesc);
-      var ormRight = document.createElement('div'); ormRight.className = 'orm-estimate-right';
-      var ormNum = document.createElement('span'); ormNum.className = 'orm-estimate-num empty-val'; ormNum.textContent = '--';
-      var ormUnit = document.createElement('span'); ormUnit.className = 'orm-estimate-unit'; ormUnit.textContent = 'kg';
-      ormRight.appendChild(ormNum); ormRight.appendChild(ormUnit);
-      ormWrap.appendChild(ormLeft); ormWrap.appendChild(ormRight);
-      block2.appendChild(ormWrap);
+      // ── NOTA OPCIONAL ──
+      var notaWrap = document.createElement('div'); notaWrap.className = 'field'; notaWrap.style.marginTop = '8px';
+      var notaLabel = document.createElement('label'); notaLabel.textContent = 'Nota (opcional)';
+      var notaInput = document.createElement('input'); notaInput.type = 'text';
+      notaInput.placeholder = 'Ej: con cinturón, pausa, etc.';
+      notaInput.value = rec.nota || '';
+      notaInput.setAttribute('aria-label', 'Nota del récord');
+      notaInput.oninput = function() { rec.nota = this.value; scheduleSave(); };
+      notaWrap.appendChild(notaLabel); notaWrap.appendChild(notaInput);
+      block.appendChild(notaWrap);
 
-      // Inicializar estado visual
-      updateOrmEstimate(ormWrap, ormNum, rec);
-
-      // Listeners reactivos
-      pesoInput.oninput = function() {
-        rec.repMaxPeso = this.value;
-        updateOrmEstimate(ormWrap, ormNum, rec);
-        scheduleSave();
-      };
-      repsInput.oninput = function() {
-        rec.repMaxReps = this.value;
-        updateOrmEstimate(ormWrap, ormNum, rec);
-        scheduleSave();
-      };
-
-      card.appendChild(block2);
+      card.appendChild(block);
       el.appendChild(card);
     });
   }
@@ -1839,10 +1941,10 @@
         var recBody = records.map(function(r) {
           var ormEst = calcOrm1RM(r.repMaxPeso, r.repMaxReps);
           var repMaxStr = (r.repMaxPeso||r.repMaxReps) ? (r.repMaxPeso||'-') + ' kg x ' + (r.repMaxReps||'-') + ' reps' : '-';
-          if (ormEst) repMaxStr += ' -> 1RM est. ' + ormEst + ' kg';
-          return [r.nombre, r.oneRm ? r.oneRm + ' kg' : '-', repMaxStr];
+          if (ormEst) repMaxStr += ' → 1RM est. ' + ormEst + ' kg';
+          return [r.nombre, repMaxStr];
         });
-        doc.autoTable({ startY: y+6, margin:{left:margin,right:margin}, head:[['Ejercicio','1RM directo','Récord a reps (1RM estimado)']], body: recBody, theme:'grid', styles:{fontSize:9,cellPadding:5,textColor:[40,40,36],lineColor:lineGrey,lineWidth:0.5}, headStyles:{fillColor:dark,textColor:gold,fontStyle:'bold'} });
+        doc.autoTable({ startY: y+6, margin:{left:margin,right:margin}, head:[['Ejercicio','Mejor marca (1RM estimado)']], body: recBody, theme:'grid', styles:{fontSize:9,cellPadding:5,textColor:[40,40,36],lineColor:lineGrey,lineWidth:0.5}, headStyles:{fillColor:dark,textColor:gold,fontStyle:'bold'} });
         y = doc.lastAutoTable.finalY + 10;
       }
     }
@@ -1876,11 +1978,11 @@
   };
 
   /* ══════════════════════════════════════
-     TABS
+     TABS — orden: Registro, Progreso, Calcular RPE, Récords
   ══════════════════════════════════════ */
   function renderAll() { renderMonthPills(); renderWeekPills(); renderDayPills(); renderExercises(); updateBtnHoy(); }
   function switchTab(tab) {
-    ['registro','progreso','records','rpe'].forEach(function(t) {
+    ['registro','progreso','rpe','orm','records'].forEach(function(t) {
       document.getElementById('tab-' + t).classList.remove('active');
       document.getElementById('view-' + t).style.display = 'none';
     });
@@ -1894,6 +1996,7 @@
   document.getElementById('tab-progreso').onclick = function() { switchTab('progreso'); };
   document.getElementById('tab-records').onclick = function() { switchTab('records'); };
   document.getElementById('tab-rpe').onclick = function() { switchTab('rpe'); };
+  document.getElementById('tab-orm').onclick = function() { switchTab('orm'); };
 
   /* ══════════════════════════════════════
      CALCULADORA RPE (tab completa)
@@ -1992,8 +2095,6 @@
       document.getElementById('rpeChainSvg').innerHTML = ''; return;
     }
     var total1RM = bwReq + ormAdded;
-    // Calistenia usa tabla RPE ajustada (+5% sobre RTS) para reflejar mejor
-    // la realidad de ejercicios de peso corporal
     var reps = parseInt(rpeRepsEl.value, 10);
     var rpeKey = rpeRpeEl.value;
     var pctBw = RPE_TABLE_BW[rpeKey][reps - 1];
@@ -2221,6 +2322,121 @@
   [zonaMinEl, zonaMaxEl, zonaRpeEl, zonaOrmEl].forEach(function(el) {
     el.addEventListener('input', renderZona);
     el.addEventListener('change', renderZona);
+  });
+
+  /* ══════════════════════════════════════
+     CALCULADORA 1RM
+  ══════════════════════════════════════ */
+  var ormUnit = 'kg';
+  var ormMode = 'barbell';
+
+  function ormRound(val) { return Math.round(val * 10) / 10; }
+  function ormFmt(val) { return val % 1 === 0 ? val.toString() : val.toFixed(1); }
+
+  function calcEpley(peso, reps) {
+    peso = parseFloat(peso); reps = parseInt(reps, 10);
+    if (!peso || peso <= 0 || !reps || reps <= 0) return null;
+    if (reps === 1) return ormRound(peso);
+    return ormRound(peso * (1 + reps / 30));
+  }
+
+  function ormUpdate() {
+    if (ormMode === 'barbell') {
+      var peso = document.getElementById('ormBarbellPeso').value;
+      var reps = document.getElementById('ormBarbellReps').value;
+      var val = calcEpley(peso, reps);
+      var valEl = document.getElementById('ormBarbellVal');
+      var metaEl = document.getElementById('ormBarbellMeta');
+      if (val === null) {
+        valEl.childNodes[0].textContent = '--';
+        metaEl.innerHTML = '';
+      } else {
+        valEl.childNodes[0].textContent = ormFmt(val);
+        metaEl.innerHTML = parseFloat(peso) + ' ' + ormUnit + ' × (1 + ' + parseInt(reps) + '/30) = <strong>' + ormFmt(val) + ' ' + ormUnit + '</strong>';
+      }
+    } else if (ormMode === 'bodyweight') {
+      var cuerpo = parseFloat(document.getElementById('ormBwCuerpo').value) || 0;
+      var lastre = parseFloat(document.getElementById('ormBwLastre').value) || 0;
+      var reps = document.getElementById('ormBwReps').value;
+      var valEl = document.getElementById('ormBwVal');
+      var metaEl = document.getElementById('ormBwMeta');
+      var repsInt = parseInt(reps, 10);
+      if (!cuerpo || cuerpo <= 0 || !repsInt || repsInt <= 0 || repsInt >= 37) {
+        valEl.childNodes[0].textContent = '--';
+        metaEl.innerHTML = '';
+      } else {
+        var pesoTotal = cuerpo + lastre;
+        var orm1rmLastre;
+        if (repsInt === 1) {
+          orm1rmLastre = lastre;
+        } else {
+          // Promedio de Brzycki y Lombardi modificados para calistenia (Epley sobreestima)
+          var brzycki  = pesoTotal * (36 / (37 - repsInt)) - cuerpo;
+          var lombardi = pesoTotal * Math.pow(repsInt, 0.1) - cuerpo;
+          orm1rmLastre = ormRound((brzycki + lombardi) / 2);
+        }
+        orm1rmLastre = Math.max(0, orm1rmLastre);
+        valEl.childNodes[0].textContent = ormFmt(orm1rmLastre);
+        var desc = lastre > 0
+          ? '(' + cuerpo + ' + ' + lastre + ' lastre) · promedio Epley/Brzycki/Lombardi − corporal = <strong>' + ormFmt(orm1rmLastre) + ' ' + ormUnit + ' de lastre máximo</strong>'
+          : cuerpo + ' corporal · promedio Epley/Brzycki/Lombardi − corporal = <strong>' + ormFmt(orm1rmLastre) + ' ' + ormUnit + ' de lastre máximo</strong>';
+        metaEl.innerHTML = desc;
+      }
+    } else if (ormMode === 'general') {
+      var peso = document.getElementById('ormGenPeso').value;
+      var reps = document.getElementById('ormGenReps').value;
+      var nombre = document.getElementById('ormGenNombre').value.trim();
+      var val = calcEpley(peso, reps);
+      var valEl = document.getElementById('ormGenVal');
+      var metaEl = document.getElementById('ormGenMeta');
+      if (val === null) {
+        valEl.childNodes[0].textContent = '--';
+        metaEl.innerHTML = '';
+      } else {
+        valEl.childNodes[0].textContent = ormFmt(val);
+        var label = nombre ? nombre + ': ' : '';
+        metaEl.innerHTML = label + parseFloat(peso) + ' ' + ormUnit + ' × (1 + ' + parseInt(reps) + '/30) = <strong>' + ormFmt(val) + ' ' + ormUnit + '</strong>';
+      }
+    }
+  }
+
+  // Cambio de modo
+  document.querySelectorAll('[data-ormmode]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var newMode = btn.getAttribute('data-ormmode');
+      if (newMode === ormMode) return;
+      ormMode = newMode;
+      document.querySelectorAll('[data-ormmode]').forEach(function(b) { b.classList.toggle('active', b === btn); });
+      document.getElementById('ormViewBarbell').hidden = ormMode !== 'barbell';
+      document.getElementById('ormViewBodyweight').hidden = ormMode !== 'bodyweight';
+      document.getElementById('ormViewGeneral').hidden = ormMode !== 'general';
+      ormUpdate();
+    });
+  });
+
+  // Cambio de unidad
+  document.querySelectorAll('[data-ormunit]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var newUnit = btn.getAttribute('data-ormunit');
+      if (newUnit === ormUnit) return;
+      var factor = newUnit === 'lb' ? 2.20462 : 1 / 2.20462;
+      ['ormBarbellPeso','ormBwCuerpo','ormBwLastre','ormGenPeso'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el && el.value !== '' && !isNaN(parseFloat(el.value))) el.value = ormRound(parseFloat(el.value) * factor);
+      });
+      ormUnit = newUnit;
+      document.querySelectorAll('[data-ormunit]').forEach(function(b) { b.classList.toggle('active', b === btn); });
+      ['ormBarbellUnitLbl','ormBarbellUnitRes','ormBwUnitLbl','ormBwLastreUnitLbl','ormBwUnitRes','ormGenUnitLbl','ormGenUnitRes'].forEach(function(id) {
+        var el = document.getElementById(id); if (el) el.textContent = ormUnit;
+      });
+      ormUpdate();
+    });
+  });
+
+  // Inputs
+  ['ormBarbellPeso','ormBarbellReps','ormBwCuerpo','ormBwLastre','ormBwReps','ormBwExercise','ormGenPeso','ormGenReps','ormGenNombre'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { el.addEventListener('input', ormUpdate); el.addEventListener('change', ormUpdate); }
   });
 
   /* ══════════════════════════════════════
