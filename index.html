@@ -6,6 +6,7 @@
 <title>Registro de Entrenamientos | SLAB</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -467,6 +468,39 @@
     margin-top: 1px;
   }
   .ex-head-wrap { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
+
+  /* ── SESSION COMPLETE MODAL ── */
+  #sessionCompleteOverlay.open { display: flex !important; }
+  #sessionCompleteOverlay.open #sessionCompleteModal { transform: translateY(0); }
+
+  @keyframes trophyBounce {
+    0%   { transform: scale(0) rotate(-15deg); }
+    50%  { transform: scale(1.2) rotate(5deg); }
+    70%  { transform: scale(0.9) rotate(-2deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  #sessionCompleteTrophy.animate { animation: trophyBounce 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+
+  .sc-stat-card {
+    background: var(--dark-2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 8px; text-align: center;
+  }
+  .sc-stat-val {
+    font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--gold);
+    line-height: 1;
+  }
+  .sc-stat-lbl {
+    font-family: var(--font-mono); font-size: 9px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.6px; margin-top: 4px;
+  }
+  .sc-ex-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 0; border-bottom: 1px solid var(--border);
+    font-family: var(--font-body); font-size: 13px;
+  }
+  .sc-ex-row:last-child { border-bottom: none; }
+  .sc-ex-name { color: var(--text); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sc-ex-detail { font-family: var(--font-mono); font-size: 10px; color: var(--gold); flex-shrink: 0; margin-left: 10px; }
 
   /* ── DONE TOGGLE ── */
   .done-toggle {
@@ -1046,6 +1080,32 @@
   </div>
 </div>
 
+<!-- CONFETTI CANVAS -->
+<canvas id="confettiCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9000;display:none;"></canvas>
+
+<!-- SESSION COMPLETE MODAL -->
+<div id="sessionCompleteOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:9100;align-items:flex-end;justify-content:center;padding-bottom:0;">
+  <div id="sessionCompleteModal" style="
+    background:var(--card);border-top:1px solid var(--gold-dim);
+    border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:28px 24px 40px;
+    transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.34,1.1,0.64,1);
+    max-height:80vh;overflow-y:auto;
+  ">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div id="sessionCompleteTrophy" style="font-size:48px;line-height:1;margin-bottom:8px;">🏆</div>
+      <div style="font-family:var(--font-display);font-size:22px;color:var(--gold);font-weight:700;letter-spacing:0.5px;">Sesión Completada</div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-top:4px;text-transform:uppercase;letter-spacing:1px;" id="sessionCompleteSubtitle"></div>
+    </div>
+    <div id="sessionCompleteStats" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;"></div>
+    <div id="sessionCompleteExList" style="margin-bottom:20px;"></div>
+    <button id="sessionCompleteClose" style="
+      width:100%;padding:14px;background:var(--gold);color:var(--dark);border:none;
+      border-radius:10px;font-family:var(--font-mono);font-size:13px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1px;cursor:pointer;
+    ">Cerrar</button>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -1098,6 +1158,42 @@
   <div id="view-progreso" class="panel" style="display:none;">
     <div class="month-pills" id="monthPillsProgress"></div>
     <div class="week-summary" id="weekSummary"></div>
+
+    <!-- GRÁFICAS -->
+    <div id="chartsSection" style="padding:0 16px 8px;">
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-top:8px;">Análisis del mes</div>
+
+      <!-- Volumen por semana -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;">
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">Volumen semanal (series totales)</div>
+        <div style="position:relative;height:160px;">
+          <canvas id="chartVolumen"></canvas>
+        </div>
+      </div>
+
+      <!-- Carga por ejercicio -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;">Evolución de carga (kg)</div>
+          <select id="chartExSelect" style="background:var(--dark-2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-mono);font-size:10px;padding:4px 8px;outline:none;max-width:140px;">
+            <option value="">— Ejercicio —</option>
+          </select>
+        </div>
+        <div style="position:relative;height:160px;">
+          <canvas id="chartCarga"></canvas>
+        </div>
+        <div id="chartCargaEmpty" style="display:none;text-align:center;padding:40px 0;font-family:var(--font-mono);font-size:10px;color:var(--text-dim);">Selecciona un ejercicio arriba</div>
+      </div>
+
+      <!-- RPE promedio por semana -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;">
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">RPE promedio de sesión por semana</div>
+        <div style="position:relative;height:130px;">
+          <canvas id="chartRpe"></canvas>
+        </div>
+      </div>
+    </div>
+
     <div class="progress-section" id="progressContent"></div>
     <div class="backup-section">
       <button id="pdfReportBtn" class="backup-btn" style="background:var(--gold);color:var(--dark);border-color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Descargar reporte completo (PDF)</button>
@@ -1884,6 +1980,7 @@
         doneWrap.className = 'done-toggle' + (ex.hecho ? ' on' : '');
         doneLabel.textContent = ex.hecho ? '✓ Serie completada' : 'Marcar como completado';
         renderDayPills(); updateExerciseHeader();
+        checkSessionComplete(STATE.month, STATE.week, STATE.day);
       };
       var doneLabel = document.createElement('span');
       doneLabel.textContent = ex.hecho ? '✓ Serie completada' : 'Marcar como completado';
@@ -2063,6 +2160,356 @@
   }
 
   /* ══════════════════════════════════════
+     CONFETTI ENGINE
+  ══════════════════════════════════════ */
+  var _confettiAnim = null;
+  function launchConfetti() {
+    var canvas = document.getElementById('confettiCanvas');
+    var ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.display = 'block';
+
+    var colors = ['#C9A96E','#F0BE55','#E3B34C','#F5F0E8','#A8895A','#fff8e7'];
+    var pieces = [];
+    for (var i = 0; i < 120; i++) {
+      pieces.push({
+        x: Math.random() * canvas.width,
+        y: -10 - Math.random() * 120,
+        r: 3 + Math.random() * 5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        vy: 2.5 + Math.random() * 4,
+        vx: (Math.random() - 0.5) * 2.5,
+        rot: Math.random() * Math.PI * 2,
+        rotV: (Math.random() - 0.5) * 0.15,
+        shape: Math.random() > 0.5 ? 'rect' : 'circle',
+        w: 6 + Math.random() * 6,
+        h: 3 + Math.random() * 4,
+        opacity: 1
+      });
+    }
+
+    var startTime = Date.now();
+    function draw() {
+      var elapsed = Date.now() - startTime;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      var alive = false;
+      pieces.forEach(function(p) {
+        p.x += p.vx; p.y += p.vy; p.rot += p.rotV;
+        if (elapsed > 1800) p.opacity = Math.max(0, p.opacity - 0.015);
+        if (p.y < canvas.height + 20 && p.opacity > 0) alive = true;
+        ctx.save();
+        ctx.globalAlpha = p.opacity;
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        if (p.shape === 'rect') {
+          ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+        } else {
+          ctx.beginPath(); ctx.arc(0, 0, p.r, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.restore();
+      });
+      if (alive && elapsed < 3500) {
+        _confettiAnim = requestAnimationFrame(draw);
+      } else {
+        canvas.style.display = 'none';
+        if (_confettiAnim) cancelAnimationFrame(_confettiAnim);
+      }
+    }
+    if (_confettiAnim) cancelAnimationFrame(_confettiAnim);
+    _confettiAnim = requestAnimationFrame(draw);
+  }
+
+  /* ══════════════════════════════════════
+     SESSION COMPLETE MODAL
+  ══════════════════════════════════════ */
+  var _lastCompletedDayKey = null;
+
+  function buildSessionSummary(m, w, d) {
+    var arr = STATE.data[dayKey(m, w, d)] || [];
+    var exRows = arr.filter(function(e) { return e.nombre.trim() !== '' && e.hecho; });
+    var sess = STATE.data[sessionKey(m, w, d)];
+
+    var totalSets = 0, totalVol = 0, exWithPeso = 0;
+    exRows.forEach(function(ex) {
+      var sets = parseInt(ex.sets) || 0;
+      var peso = parseFloat(String(ex.peso).replace(',','.')) || 0;
+      var reps = parseFloat(String(ex.reps).replace(',','.')) || 0;
+      totalSets += sets;
+      if (peso && reps) totalVol += peso * reps * sets;
+      if (peso) exWithPeso++;
+    });
+
+    var overlay = document.getElementById('sessionCompleteOverlay');
+    var subtitle = document.getElementById('sessionCompleteSubtitle');
+    var statsEl = document.getElementById('sessionCompleteStats');
+    var exListEl = document.getElementById('sessionCompleteExList');
+    var DAY_NAMES = ['Lunes','Martes','Miércoles','Jueves','Viernes'];
+
+    subtitle.textContent = 'M' + m + ' · S' + w + ' · ' + (DAY_NAMES[d-1] || 'Día ' + d);
+    statsEl.innerHTML = '';
+
+    function statCard(val, lbl) {
+      var card = document.createElement('div'); card.className = 'sc-stat-card';
+      var v = document.createElement('div'); v.className = 'sc-stat-val'; v.textContent = val;
+      var l = document.createElement('div'); l.className = 'sc-stat-lbl'; l.textContent = lbl;
+      card.appendChild(v); card.appendChild(l); return card;
+    }
+    statsEl.appendChild(statCard(exRows.length, 'Ejercicios'));
+    statsEl.appendChild(statCard(totalSets || '—', 'Series'));
+    statsEl.appendChild(statCard(totalVol > 0 ? (Math.round(totalVol/10)*10).toLocaleString('es') + ' kg' : '—', 'Volumen'));
+
+    exListEl.innerHTML = '';
+    if (exRows.length > 0) {
+      var lbl = document.createElement('div');
+      lbl.style.cssText = 'font-family:var(--font-mono);font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;';
+      lbl.textContent = 'Ejercicios completados';
+      exListEl.appendChild(lbl);
+      exRows.forEach(function(ex) {
+        var row = document.createElement('div'); row.className = 'sc-ex-row';
+        var name = document.createElement('div'); name.className = 'sc-ex-name'; name.textContent = ex.nombre;
+        var detail = document.createElement('div'); detail.className = 'sc-ex-detail';
+        var parts = [];
+        if (ex.sets && ex.reps) parts.push(ex.sets + '×' + ex.reps);
+        if (ex.peso) parts.push(ex.peso + ' kg');
+        if (ex.rpeReal) parts.push('RPE ' + ex.rpeReal);
+        detail.textContent = parts.join(' · ');
+        row.appendChild(name); row.appendChild(detail); exListEl.appendChild(row);
+      });
+    }
+
+    // Mostrar modal
+    overlay.classList.add('open');
+    var trophy = document.getElementById('sessionCompleteTrophy');
+    trophy.classList.remove('animate'); void trophy.offsetWidth; trophy.classList.add('animate');
+  }
+
+  document.getElementById('sessionCompleteClose').onclick = function() {
+    document.getElementById('sessionCompleteOverlay').classList.remove('open');
+  };
+  document.getElementById('sessionCompleteOverlay').onclick = function(e) {
+    if (e.target === this) this.classList.remove('open');
+  };
+
+  /* ══════════════════════════════════════
+     CHECK SESIÓN COMPLETADA
+  ══════════════════════════════════════ */
+  var _sessionWasComplete = {};
+
+  function checkSessionComplete(m, w, d) {
+    var key = dayKey(m, w, d);
+    var wasComplete = _sessionWasComplete[key] || false;
+    var isNowComplete = dayComplete(m, w, d);
+    if (!wasComplete && isNowComplete) {
+      _sessionWasComplete[key] = true;
+      setTimeout(function() {
+        launchConfetti();
+        setTimeout(function() { buildSessionSummary(m, w, d); }, 400);
+      }, 200);
+    } else if (!isNowComplete) {
+      _sessionWasComplete[key] = false;
+    }
+  }
+
+  /* ══════════════════════════════════════
+     GRÁFICAS DE PROGRESO (Chart.js)
+  ══════════════════════════════════════ */
+  var _charts = {};
+
+  function destroyChart(id) {
+    if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; }
+  }
+
+  var CHART_DEFAULTS = {
+    color: '#C9A96E',
+    gridColor: 'rgba(42,42,42,0.8)',
+    textColor: '#8C8778',
+    font: 'DM Mono'
+  };
+
+  function chartBaseOptions(yLabel) {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#171717',
+          borderColor: '#C9A96E',
+          borderWidth: 1,
+          titleColor: '#C9A96E',
+          bodyColor: '#F5F0E8',
+          titleFont: { family: 'DM Mono', size: 10 },
+          bodyFont: { family: 'DM Mono', size: 11 }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: CHART_DEFAULTS.gridColor, drawBorder: false },
+          ticks: { color: CHART_DEFAULTS.textColor, font: { family: CHART_DEFAULTS.font, size: 9 } }
+        },
+        y: {
+          grid: { color: CHART_DEFAULTS.gridColor, drawBorder: false },
+          ticks: { color: CHART_DEFAULTS.textColor, font: { family: CHART_DEFAULTS.font, size: 9 } },
+          beginAtZero: true,
+          title: yLabel ? { display: true, text: yLabel, color: CHART_DEFAULTS.textColor, font: { family: CHART_DEFAULTS.font, size: 9 } } : undefined
+        }
+      }
+    };
+  }
+
+  function renderChartVolumen(month) {
+    destroyChart('volumen');
+    var labels = ['Sem 1','Sem 2','Sem 3','Sem 4'];
+    var data = [];
+    for (var w = 1; w <= 4; w++) {
+      var totalSets = 0;
+      for (var d = 1; d <= 5; d++) {
+        var arr = STATE.data[dayKey(month, w, d)] || [];
+        arr.forEach(function(ex) {
+          if (ex.nombre.trim() && ex.hecho) totalSets += (parseInt(ex.sets) || 0);
+        });
+      }
+      data.push(totalSets);
+    }
+    var ctx = document.getElementById('chartVolumen').getContext('2d');
+    var opts = chartBaseOptions('series');
+    opts.plugins.tooltip.callbacks = { label: function(c) { return c.raw + ' series'; } };
+    _charts['volumen'] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: ['rgba(201,169,110,0.25)','rgba(201,169,110,0.4)','rgba(201,169,110,0.6)','rgba(201,169,110,0.85)'],
+          borderColor: '#C9A96E',
+          borderWidth: 1.5,
+          borderRadius: 5
+        }]
+      },
+      options: opts
+    });
+  }
+
+  function buildExerciseSelectForMonth(month) {
+    var names = {};
+    for (var w = 1; w <= 4; w++) for (var d = 1; d <= 5; d++) {
+      var arr = STATE.data[dayKey(month, w, d)] || [];
+      arr.forEach(function(ex) { if (ex.nombre.trim() && ex.peso) names[ex.nombre.trim()] = true; });
+    }
+    var sel = document.getElementById('chartExSelect');
+    var prev = sel.value;
+    sel.innerHTML = '<option value="">— Ejercicio —</option>';
+    Object.keys(names).sort().forEach(function(n) {
+      var opt = document.createElement('option'); opt.value = n; opt.textContent = n;
+      sel.appendChild(opt);
+    });
+    if (prev && names[prev]) sel.value = prev;
+    renderChartCarga(month, sel.value);
+  }
+
+  function renderChartCarga(month, ejercicio) {
+    destroyChart('carga');
+    var emptyEl = document.getElementById('chartCargaEmpty');
+    var canvas = document.getElementById('chartCarga');
+    if (!ejercicio) {
+      canvas.style.display = 'none'; emptyEl.style.display = 'block'; return;
+    }
+    canvas.style.display = 'block'; emptyEl.style.display = 'none';
+
+    var labels = [], data = [];
+    for (var w = 1; w <= 4; w++) {
+      var weekMax = null;
+      for (var d = 1; d <= 5; d++) {
+        var arr = STATE.data[dayKey(month, w, d)] || [];
+        arr.forEach(function(ex) {
+          if (ex.nombre.trim() === ejercicio && ex.peso) {
+            var p = parseFloat(String(ex.peso).replace(',','.'));
+            if (!isNaN(p) && (weekMax === null || p > weekMax)) weekMax = p;
+          }
+        });
+      }
+      if (weekMax !== null) { labels.push('S' + w); data.push(weekMax); }
+    }
+
+    if (data.length === 0) {
+      canvas.style.display = 'none'; emptyEl.style.display = 'block'; return;
+    }
+
+    var ctx = canvas.getContext('2d');
+    var gradient = ctx.createLinearGradient(0, 0, 0, 160);
+    gradient.addColorStop(0, 'rgba(201,169,110,0.3)');
+    gradient.addColorStop(1, 'rgba(201,169,110,0)');
+
+    var opts = chartBaseOptions('kg');
+    opts.plugins.tooltip.callbacks = { label: function(c) { return c.raw + ' kg'; } };
+    opts.elements = { point: { radius: 5, hoverRadius: 7, backgroundColor: '#C9A96E', borderColor: '#0D0D0D', borderWidth: 2 } };
+    _charts['carga'] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          borderColor: '#C9A96E',
+          borderWidth: 2,
+          backgroundColor: gradient,
+          fill: true,
+          tension: 0.35
+        }]
+      },
+      options: opts
+    });
+  }
+
+  function renderChartRpe(month) {
+    destroyChart('rpe');
+    var labels = ['Sem 1','Sem 2','Sem 3','Sem 4'];
+    var data = [];
+    for (var w = 1; w <= 4; w++) {
+      var rpeVals = [];
+      for (var d = 1; d <= 5; d++) {
+        var sess = STATE.data[sessionKey(month, w, d)];
+        if (sess && sess.rpeSesion !== '') rpeVals.push(parseFloat(sess.rpeSesion));
+      }
+      data.push(rpeVals.length > 0 ? Math.round((rpeVals.reduce(function(a,b){return a+b;},0)/rpeVals.length)*10)/10 : null);
+    }
+
+    var ctx = document.getElementById('chartRpe').getContext('2d');
+    var opts = chartBaseOptions('RPE');
+    opts.scales.y.min = 5; opts.scales.y.max = 10;
+    opts.plugins.tooltip.callbacks = { label: function(c) { return 'RPE ' + c.raw; } };
+    opts.elements = { point: { radius: 5, hoverRadius: 7, backgroundColor: '#F0BE55', borderColor: '#0D0D0D', borderWidth: 2 } };
+    _charts['rpe'] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          borderColor: '#F0BE55',
+          borderWidth: 2,
+          backgroundColor: 'rgba(240,190,85,0.1)',
+          fill: true,
+          tension: 0.35,
+          spanGaps: true
+        }]
+      },
+      options: opts
+    });
+  }
+
+  function renderCharts(month) {
+    if (typeof Chart === 'undefined') return;
+    renderChartVolumen(month);
+    buildExerciseSelectForMonth(month);
+    renderChartRpe(month);
+  }
+
+  document.getElementById('chartExSelect').onchange = function() {
+    renderChartCarga(STATE.progressMonth, this.value);
+  };
+
+  /* ══════════════════════════════════════
      RENDER - PROGRESO
   ══════════════════════════════════════ */
   function renderMonthPillsProgress() {
@@ -2079,6 +2526,7 @@
     renderStartDateConfig();
     renderClientName();
     var month = STATE.progressMonth;
+    renderCharts(month);
 
     // ── Resumen por semana (4 tarjetas) ──
     var summaryEl = document.getElementById('weekSummary'); summaryEl.innerHTML = '';
