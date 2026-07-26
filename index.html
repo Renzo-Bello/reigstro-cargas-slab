@@ -266,6 +266,10 @@
     text-transform: uppercase; letter-spacing: 0.6px;
   }
   .exercises-count .count-done { color: var(--gold); font-weight: 500; }
+  .exercises-count .kcal-est {
+    color: var(--text-dim); font-size: 11px;
+    font-family: var(--font-mono);
+  }
 
   .exercise-card {
     background: var(--card);
@@ -468,6 +472,40 @@
     margin-top: 1px;
   }
   .ex-head-wrap { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
+
+  /* ── AUTOCOMPLETE: SECCIÓN BIBLIOTECA ── */
+  .ex-auto-section-label {
+    padding: 6px 14px 4px;
+    font-family: var(--font-mono); font-size: 9px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    background: var(--dark-2); border-bottom: 1px solid var(--border);
+  }
+  .ex-auto-item-lib {
+    padding: 8px 12px; border-bottom: 1px solid var(--border);
+    cursor: pointer; display: flex; align-items: center; gap: 10px;
+    transition: background 0.1s; min-height: 48px;
+  }
+  .ex-auto-item-lib:last-child { border-bottom: none; }
+  .ex-auto-item-lib:active { background: var(--dark-2); }
+  .ex-auto-lib-icon {
+    width: 36px; height: 36px; flex-shrink: 0;
+    background: var(--dark-2); border: 1px solid var(--border);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    padding: 4px; overflow: hidden;
+  }
+  .ex-auto-lib-icon svg { width: 28px; height: 28px; }
+  .ex-auto-lib-info { flex: 1; min-width: 0; }
+  .ex-auto-lib-name {
+    font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .ex-auto-lib-muscle {
+    font-family: var(--font-mono); font-size: 9px; color: var(--gold);
+    text-transform: uppercase; letter-spacing: 0.6px; margin-top: 2px;
+  }
+  .ex-auto-lib-arrow {
+    font-size: 14px; color: var(--text-dim); flex-shrink: 0;
+  }
 
   /* ── SESSION COMPLETE MODAL ── */
   #sessionCompleteOverlay.open { display: flex !important; }
@@ -1227,6 +1265,18 @@
       </div>
       <div class="start-date-current" id="startDateCurrent"></div>
     </div>
+
+    <!-- Peso corporal para estimado kcal -->
+    <div class="start-date-section">
+      <div class="start-date-title">Peso corporal</div>
+      <div class="start-date-desc">Se usa para calcular el estimado de kcal por sesión. Puedes actualizarlo cuando quieras.</div>
+      <div class="start-date-row">
+        <input type="number" class="start-date-input" id="pesoCorporalInput" placeholder="Ej: 75" min="30" max="250" step="0.5" inputmode="decimal" style="max-width:120px;">
+        <span style="font-family:var(--font-mono);font-size:12px;color:var(--text-dim);align-self:center;margin-left:4px;">kg</span>
+        <button class="start-date-btn" id="pesoCorporalSaveBtn" style="margin-left:auto;">Guardar</button>
+      </div>
+      <div class="start-date-current" id="pesoCorporalCurrent"></div>
+    </div>
   </div>
 
   <!-- CALCULADORA RPE (ahora 3er tab) -->
@@ -1470,7 +1520,7 @@
   /* ══════════════════════════════════════
      ESTADO Y STORAGE
   ══════════════════════════════════════ */
-  var STATE = { month: 1, week: 1, day: 1, progressMonth: 1, data: {} };
+  var STATE = { month: 1, week: 1, day: 1, progressMonth: 1, data: {}, pesoCorporal: 75 };
   var STORAGE_KEY = 'slab-registro-plan';
   var saveTimeout = null;
   var STORAGE_WARN_BYTES = 4 * 1024 * 1024;
@@ -1623,6 +1673,27 @@
     if (setStartDate(val)) { renderStartDateConfig(); updateBtnHoy(); renderDayPills(); showToast('Fecha de inicio actualizada', 'ok'); }
   };
 
+  // Peso corporal
+  (function() {
+    var saved = localStorage.getItem('slab_peso_corporal');
+    if (saved) { STATE.pesoCorporal = parseFloat(saved) || 75; }
+    var input = document.getElementById('pesoCorporalInput');
+    var current = document.getElementById('pesoCorporalCurrent');
+    if (STATE.pesoCorporal !== 75 || saved) {
+      input.value = STATE.pesoCorporal;
+      current.textContent = 'Peso actual: ' + STATE.pesoCorporal + ' kg';
+    }
+    document.getElementById('pesoCorporalSaveBtn').onclick = function() {
+      var v = parseFloat(input.value);
+      if (isNaN(v) || v < 30 || v > 250) { showToast('Ingresa un peso válido (30–250 kg)', 'error'); return; }
+      STATE.pesoCorporal = v;
+      localStorage.setItem('slab_peso_corporal', v);
+      current.textContent = 'Peso actual: ' + v + ' kg';
+      updateExerciseHeader();
+      showToast('Peso corporal actualizado', 'ok');
+    };
+  })();
+
   function todayPlanPosition() {
     var start = getStartDate();
     var now = new Date(); now.setHours(0,0,0,0);
@@ -1684,6 +1755,76 @@
     STATE.month = pos.month; STATE.week = pos.week; STATE.day = pos.day;
     renderAll(); switchTab('registro');
   };
+
+  /* ══════════════════════════════════════
+     BIBLIOTECA DE EJERCICIOS
+  ══════════════════════════════════════ */
+  var EXERCISE_DB = [
+    { nombre: 'Sentadilla', musculo: 'Pierna', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="12" x2="30" y2="12" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><line x1="20" y1="18" x2="12" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="28" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="30" x2="10" y2="38" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="30" x2="30" y2="38" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
+    { nombre: 'Sentadilla búlgara', musculo: 'Pierna', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="5" r="3" fill="#C9A96E"/><line x1="18" y1="8" x2="18" y2="17" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="9" y1="11" x2="27" y2="11" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><line x1="18" y1="17" x2="10" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="17" x2="24" y2="26" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="28" x2="9" y2="37" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="28" y="28" width="8" height="4" rx="1" fill="#A8895A"/><line x1="24" y1="26" x2="30" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
+    { nombre: 'Peso muerto', musculo: 'Espalda', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><path d="M12 20 Q20 16 28 20" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="12" y1="20" x2="12" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="20" x2="28" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="4" y="28" width="36" height="4" rx="2" fill="#A8895A"/><rect x="2" y="26" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="34" y="26" width="4" height="8" rx="1.5" fill="#C9A96E"/></svg>' },
+    { nombre: 'Press banca', musculo: 'Pecho', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="30" width="32" height="5" rx="2" fill="#2A2A2A"/><rect x="14" y="20" width="12" height="10" rx="2" fill="#1C1C1C" stroke="#2A2A2A" stroke-width="1"/><circle cx="20" cy="15" r="3" fill="#C9A96E"/><line x1="20" y1="18" x2="20" y2="22" stroke="#C9A96E" stroke-width="2"/><line x1="8" y1="22" x2="32" y2="22" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><rect x="2" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="34" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/></svg>' },
+    { nombre: 'Press banca inclinado', musculo: 'Pecho', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="6" y1="38" x2="22" y2="22" stroke="#2A2A2A" stroke-width="4" stroke-linecap="round"/><circle cx="26" cy="12" r="3" fill="#C9A96E"/><line x1="26" y1="15" x2="24" y2="22" stroke="#C9A96E" stroke-width="2"/><line x1="14" y1="26" x2="34" y2="18" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><rect x="10" y="24" width="4" height="7" rx="1.5" fill="#C9A96E" transform="rotate(-25 12 27)"/><rect x="30" y="16" width="4" height="7" rx="1.5" fill="#C9A96E" transform="rotate(-25 32 19)"/></svg>' },
+    { nombre: 'Press militar', musculo: 'Hombros', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="15" x2="30" y2="15" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><line x1="10" y1="15" x2="8" y2="9" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="15" x2="32" y2="9" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="3" y="6" width="4" height="7" rx="1.5" fill="#C9A96E"/><rect x="33" y="6" width="4" height="7" rx="1.5" fill="#C9A96E"/><line x1="20" y1="18" x2="14" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="26" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="30" x2="14" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="26" y1="30" x2="26" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    { nombre: 'Dominadas', musculo: 'Espalda', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="4" width="36" height="4" rx="2" fill="#A8895A"/><circle cx="20" cy="15" r="3" fill="#C9A96E"/><line x1="13" y1="8" x2="15" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="27" y1="8" x2="25" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="20" y2="26" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="13" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="27" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="13" y1="28" x2="12" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="27" y1="28" x2="28" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    { nombre: 'Dominadas australianas', musculo: 'Espalda', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="20" width="36" height="4" rx="2" fill="#A8895A"/><circle cx="20" cy="33" r="3" fill="#C9A96E"/><path d="M12 24 Q16 28 20 30 Q24 28 28 24" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="12" y1="24" x2="9" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="24" x2="31" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="38" x2="30" y2="38" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="36" x2="10" y2="38" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="36" x2="30" y2="38" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
+    { nombre: 'Fondos', musculo: 'Pecho', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="6" width="5" height="28" rx="2" fill="#A8895A"/><rect x="33" y="6" width="5" height="28" rx="2" fill="#A8895A"/><circle cx="20" cy="14" r="3" fill="#C9A96E"/><line x1="20" y1="17" x2="20" y2="26" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="7" y1="18" x2="13" y2="16" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="33" y1="18" x2="27" y2="16" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="13" y1="16" x2="20" y2="17" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="27" y1="16" x2="20" y2="17" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="26" x2="14" y2="34" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="26" x2="26" y2="34" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
+    { nombre: 'Jalón al pecho', musculo: 'Espalda', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="36" height="3" rx="1.5" fill="#A8895A"/><line x1="20" y1="5" x2="20" y2="10" stroke="#A8895A" stroke-width="1.5"/><line x1="20" y1="10" x2="8" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="10" x2="32" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><circle cx="20" cy="20" r="3" fill="#C9A96E"/><line x1="20" y1="23" x2="20" y2="32" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="14" x2="14" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="32" y1="14" x2="26" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="32" x2="14" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="20" y1="32" x2="26" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    { nombre: 'Remo con barra', musculo: 'Espalda', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="8" r="3" fill="#C9A96E"/><path d="M20 11 Q20 18 12 22" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M20 11 Q20 18 28 22" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="4" y1="22" x2="36" y2="22" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><rect x="1" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="35" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/><line x1="12" y1="22" x2="12" y2="32" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="28" y1="22" x2="28" y2="32" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="32" x2="28" y2="32" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    { nombre: 'Remo con mancuerna', musculo: 'Espalda', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="28" width="14" height="4" rx="1.5" fill="#2A2A2A"/><circle cx="30" cy="14" r="3" fill="#C9A96E"/><path d="M30 17 Q29 22 26 24" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="18" y1="26" x2="34" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="14" y="24" width="4" height="7" rx="1.5" fill="#C9A96E" transform="rotate(-25 16 27)"/><line x1="30" y1="17" x2="32" y2="26" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="32" y1="26" x2="30" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    { nombre: 'Curl bíceps', musculo: 'Bíceps', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="14" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><path d="M14 28 Q10 24 12 18 Q14 14 20 18" stroke="#C9A96E" stroke-width="1.5" fill="none" stroke-linecap="round"/><line x1="14" y1="28" x2="14" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="20" y1="18" x2="26" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="30" x2="26" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><rect x="8" y="26" width="9" height="4" rx="1.5" fill="#A8895A"/></svg>' },
+    { nombre: 'Curl martillo', musculo: 'Bíceps', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="15" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="15" y1="30" x2="15" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="20" y1="18" x2="25" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="25" y1="30" x2="25" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><rect x="10" y="27" width="6" height="10" rx="1.5" fill="#A8895A"/></svg>' },
+    { nombre: 'Extensión tríceps', musculo: 'Tríceps', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="16" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="10" x2="26" y2="10" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="10" x2="12" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="10" x2="28" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="16" x2="20" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="15" y="26" width="10" height="4" rx="1.5" fill="#A8895A"/><line x1="20" y1="30" x2="20" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    { nombre: 'Fondos en paralelas', musculo: 'Tríceps', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="10" width="5" height="24" rx="2" fill="#A8895A"/><rect x="33" y="10" width="5" height="24" rx="2" fill="#A8895A"/><rect x="2" y="6" width="14" height="4" rx="2" fill="#A8895A"/><rect x="24" y="6" width="14" height="4" rx="2" fill="#A8895A"/><circle cx="20" cy="18" r="3" fill="#C9A96E"/><line x1="20" y1="21" x2="20" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="7" y1="12" x2="14" y2="17" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="33" y1="12" x2="26" y2="17" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="17" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="17" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="30" x2="15" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="20" y1="30" x2="25" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    { nombre: 'Hip thrust', musculo: 'Glúteos', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="30" width="14" height="6" rx="2" fill="#2A2A2A"/><circle cx="24" cy="26" r="3" fill="#C9A96E"/><line x1="24" y1="23" x2="24" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="28" x2="32" y2="28" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><rect x="28" y="24" width="9" height="7" rx="2" fill="#C9A96E"/><line x1="24" y1="29" x2="20" y2="36" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="28" x2="12" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
+    { nombre: 'Prensa de piernas', musculo: 'Pierna', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="8" width="36" height="6" rx="2" fill="#2A2A2A" transform="rotate(-20 20 11)"/><circle cx="24" cy="28" r="3" fill="#C9A96E"/><line x1="22" y1="26" x2="16" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="26" x2="32" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="24" y1="31" x2="24" y2="38" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="10" y="34" width="28" height="4" rx="2" fill="#A8895A"/></svg>' },
+    { nombre: 'Extensión de cuádriceps', musculo: 'Pierna', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="16" width="24" height="6" rx="3" fill="#2A2A2A"/><circle cx="20" cy="10" r="3" fill="#C9A96E"/><line x1="20" y1="13" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="22" x2="10" y2="34" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="22" x2="30" y2="34" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="6" y="32" width="8" height="4" rx="1.5" fill="#A8895A"/><rect x="26" y="32" width="8" height="4" rx="1.5" fill="#A8895A"/></svg>' },
+    { nombre: 'Curl femoral', musculo: 'Pierna', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="10" width="24" height="6" rx="3" fill="#2A2A2A"/><circle cx="20" cy="6" r="3" fill="#C9A96E"/><line x1="20" y1="9" x2="20" y2="12" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="16" x2="12" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="16" x2="28" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><path d="M12 28 Q14 36 20 36 Q26 36 28 28" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><rect x="26" y="26" width="8" height="4" rx="1.5" fill="#A8895A"/></svg>' },
+    { nombre: 'Elevación de pantorrillas', musculo: 'Pierna', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="13" x2="28" y2="13" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="20" x2="14" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="20" x2="26" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><path d="M14 28 Q13 34 16 36" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M26 28 Q27 34 24 36" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="12" y1="36" x2="20" y2="36" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="36" x2="28" y2="36" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
+    { nombre: 'Face pull', musculo: 'Hombros', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="34" y="4" width="4" height="32" rx="2" fill="#A8895A"/><circle cx="16" cy="20" r="3" fill="#C9A96E"/><line x1="19" y1="20" x2="34" y2="16" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="19" y1="20" x2="34" y2="24" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="23" x2="16" y2="32" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="9" y1="16" x2="13" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="9" y1="24" x2="13" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="32" x2="10" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="16" y1="32" x2="22" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    { nombre: 'Elevación lateral', musculo: 'Hombros', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="8" r="3" fill="#C9A96E"/><line x1="20" y1="11" x2="20" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="8" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="32" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><circle cx="6" cy="13" r="3" fill="#A8895A"/><circle cx="34" cy="13" r="3" fill="#A8895A"/><line x1="20" y1="22" x2="14" y2="32" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="26" y2="32" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="32" x2="14" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="26" y1="32" x2="26" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    { nombre: 'Remo en polea', musculo: 'Espalda', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="4" width="4" height="32" rx="2" fill="#A8895A"/><circle cx="26" cy="22" r="3" fill="#C9A96E"/><line x1="6" y1="20" x2="23" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="6" y1="24" x2="23" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="25" x2="26" y2="34" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="16" x2="26" y2="19" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="28" x2="26" y2="25" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="22" y="34" width="14" height="4" rx="2" fill="#2A2A2A"/></svg>' },
+    { nombre: 'Aperturas pecho', musculo: 'Pecho', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="22" width="12" height="10" rx="2" fill="#1C1C1C" stroke="#2A2A2A"/><circle cx="20" cy="18" r="3" fill="#C9A96E"/><line x1="20" y1="21" x2="20" y2="24" stroke="#C9A96E" stroke-width="2"/><line x1="20" y1="18" x2="8" y2="12" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="32" y2="12" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><circle cx="6" cy="11" r="3" fill="#A8895A"/><circle cx="34" cy="11" r="3" fill="#A8895A"/><rect x="4" y="30" width="32" height="4" rx="2" fill="#2A2A2A"/></svg>' },
+    { nombre: 'Peso muerto rumano', musculo: 'Pierna', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><path d="M20 8 Q20 16 16 20" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M20 8 Q20 16 24 20" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="8" y1="22" x2="32" y2="22" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><rect x="4" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="32" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/><line x1="16" y1="20" x2="14" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="24" y1="20" x2="26" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="30" x2="14" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="26" y1="30" x2="26" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    { nombre: 'Zancadas', musculo: 'Pierna', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="5" r="3" fill="#C9A96E"/><line x1="22" y1="8" x2="22" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="12" x2="30" y2="12" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="18" x2="14" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="18" x2="30" y2="26" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="28" x2="10" y2="36" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="26" x2="34" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="34" y1="30" x2="32" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    { nombre: 'Plancha', musculo: 'Core', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="14" r="3" fill="#C9A96E"/><line x1="32" y1="17" x2="30" y2="24" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="6" y1="24" x2="34" y2="22" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="24" x2="22" y2="26" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="26" x2="8" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="2" y="26" width="6" height="6" rx="2" fill="#A8895A"/><rect x="6" y="30" width="28" height="3" rx="1.5" fill="#2A2A2A"/></svg>' },
+    { nombre: 'Crunch abdominal', musculo: 'Core', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="30" width="32" height="4" rx="2" fill="#2A2A2A"/><circle cx="20" cy="22" r="3" fill="#C9A96E"/><path d="M12 30 Q16 22 20 19 Q24 22 28 30" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="14" y1="16" x2="18" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="16" x2="22" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="14" x2="14" y2="16" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="14" x2="26" y2="16" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
+    { nombre: 'Press Arnold', musculo: 'Hombros', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="6" r="3" fill="#C9A96E"/><line x1="20" y1="9" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="16" x2="30" y2="16" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="16" x2="8" y2="10" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="16" x2="32" y2="10" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><circle cx="6" cy="9" r="3" fill="#A8895A"/><circle cx="34" cy="9" r="3" fill="#A8895A"/><line x1="20" y1="18" x2="14" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="26" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="30" x2="14" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="26" y1="30" x2="26" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    { nombre: 'Curl bíceps banco inclinado', musculo: 'Bíceps', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="20" width="18" height="12" rx="2" fill="#1C1C1C" stroke="#2A2A2A" transform="rotate(-30 13 26)"/><circle cx="28" cy="8" r="3" fill="#C9A96E"/><line x1="28" y1="11" x2="24" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><path d="M24 20 Q18 18 20 12 Q22 8 28 11" stroke="#C9A96E" stroke-width="1.5" fill="none" stroke-linecap="round"/><rect x="16" y="18" width="9" height="4" rx="1.5" fill="#A8895A"/><line x1="24" y1="20" x2="22" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="11" x2="32" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="32" y1="22" x2="30" y2="32" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    { nombre: 'Sentadilla hack', musculo: 'Pierna', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="4" width="28" height="6" rx="2" fill="#2A2A2A" transform="rotate(10 20 7)"/><circle cx="20" cy="18" r="3" fill="#C9A96E"/><line x1="20" y1="21" x2="20" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="24" x2="12" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="24" x2="28" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="28" x2="14" y2="36" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="28" x2="26" y2="36" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="2" y="34" width="36" height="4" rx="2" fill="#A8895A"/></svg>' },
+    { nombre: 'Sentadilla pendular', musculo: 'Pierna', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6 Q20 2 36 6" stroke="#A8895A" stroke-width="3" stroke-linecap="round" fill="none"/><circle cx="20" cy="16" r="3" fill="#C9A96E"/><line x1="20" y1="6" x2="20" y2="13" stroke="#A8895A" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="19" x2="20" y2="26" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="12" y2="24" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="28" y2="24" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="26" x2="14" y2="34" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="26" x2="26" y2="34" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="36" x2="30" y2="36" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
+    { nombre: 'Sentadilla con barra', musculo: 'Pierna', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="6" r="3" fill="#C9A96E"/><line x1="20" y1="9" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="14" x2="32" y2="14" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><rect x="3" y="11" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="33" y="11" width="4" height="8" rx="1.5" fill="#C9A96E"/><line x1="20" y1="18" x2="12" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="28" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="30" x2="10" y2="38" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="30" x2="30" y2="38" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
+    { nombre: 'Sentadilla belt squat', musculo: 'Pierna', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="13" y="16" width="14" height="5" rx="2.5" fill="#A8895A"/><line x1="20" y1="21" x2="13" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="21" x2="27" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="13" y1="30" x2="11" y2="38" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="27" y1="30" x2="29" y2="38" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="21" x2="20" y2="30" stroke="#A8895A" stroke-width="1.5" stroke-dasharray="2 2"/><circle cx="20" cy="30" r="3" fill="#A8895A"/></svg>' },
+    { nombre: 'Sentadilla en Smith', musculo: 'Pierna', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="6" y1="2" x2="6" y2="38" stroke="#2A2A2A" stroke-width="3" stroke-linecap="round"/><line x1="34" y1="2" x2="34" y2="38" stroke="#2A2A2A" stroke-width="3" stroke-linecap="round"/><circle cx="20" cy="8" r="3" fill="#C9A96E"/><line x1="20" y1="11" x2="20" y2="19" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="15" x2="32" y2="15" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><line x1="20" y1="19" x2="13" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="19" x2="27" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="13" y1="30" x2="12" y2="37" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="27" y1="30" x2="28" y2="37" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
+    { nombre: 'Curl bíceps en barra', musculo: 'Bíceps', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="12" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><path d="M12 30 Q8 25 10 18 Q12 13 20 18" stroke="#C9A96E" stroke-width="1.5" fill="none" stroke-linecap="round"/><line x1="12" y1="30" x2="12" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="20" y1="18" x2="28" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="30" x2="28" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="4" y1="28" x2="36" y2="28" stroke="#A8895A" stroke-width="2.5" stroke-linecap="round"/><rect x="1" y="26" width="4" height="6" rx="1.5" fill="#C9A96E"/><rect x="35" y="26" width="4" height="6" rx="1.5" fill="#C9A96E"/></svg>' },
+    { nombre: 'Remo en máquina', musculo: 'Espalda', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="16" width="10" height="18" rx="2" fill="#1C1C1C" stroke="#2A2A2A"/><rect x="4" y="22" width="6" height="6" rx="1" fill="#2A2A2A"/><circle cx="28" cy="14" r="3" fill="#C9A96E"/><line x1="28" y1="17" x2="28" y2="26" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="24" x2="26" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="28" x2="26" y2="26" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="22" x2="24" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="26" x2="24" y2="26" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="26" x2="24" y2="32" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="26" x2="32" y2="32" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><rect x="18" y="34" width="20" height="4" rx="2" fill="#2A2A2A"/></svg>' },
+    { nombre: 'Pull over', musculo: 'Espalda', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="24" width="24" height="10" rx="2" fill="#1C1C1C" stroke="#2A2A2A"/><circle cx="20" cy="20" r="3" fill="#C9A96E"/><line x1="20" y1="17" x2="20" y2="8" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="22" x2="26" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="22" x2="8" y2="16" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="22" x2="32" y2="16" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="10" x2="32" y2="10" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="4" y="7" width="5" height="8" rx="2" fill="#A8895A"/><rect x="31" y="7" width="5" height="8" rx="2" fill="#A8895A"/></svg>' },
+    { nombre: 'Patada de glúteo', musculo: 'Glúteos', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="14" cy="8" r="3" fill="#C9A96E"/><line x1="14" y1="11" x2="14" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="15" x2="20" y2="15" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="20" x2="10" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="20" x2="18" y2="26" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="28" x2="8" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><path d="M18 26 Q24 22 32 14" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="33" cy="13" r="3" fill="#A8895A"/><rect x="0" y="34" width="16" height="4" rx="2" fill="#2A2A2A"/></svg>' },
+    { nombre: 'Aductor', musculo: 'Pierna', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="12" width="24" height="16" rx="3" fill="#1C1C1C" stroke="#2A2A2A"/><rect x="12" y="18" width="7" height="8" rx="2" fill="#2A2A2A"/><rect x="21" y="18" width="7" height="8" rx="2" fill="#2A2A2A"/><circle cx="14" cy="6" r="2.5" fill="#C9A96E"/><circle cx="26" cy="6" r="2.5" fill="#C9A96E"/><line x1="14" y1="8" x2="15" y2="18" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="26" y1="8" x2="25" y2="18" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="14" y1="28" x2="12" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="26" y1="28" x2="28" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><path d="M15 22 Q20 26 25 22" stroke="#C9A96E" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>' },
+    { nombre: 'Abductor', musculo: 'Pierna', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="12" width="24" height="16" rx="3" fill="#1C1C1C" stroke="#2A2A2A"/><rect x="12" y="18" width="7" height="8" rx="2" fill="#2A2A2A"/><rect x="21" y="18" width="7" height="8" rx="2" fill="#2A2A2A"/><circle cx="14" cy="6" r="2.5" fill="#C9A96E"/><circle cx="26" cy="6" r="2.5" fill="#C9A96E"/><line x1="14" y1="8" x2="15" y2="18" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="26" y1="8" x2="25" y2="18" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="14" y1="28" x2="12" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="26" y1="28" x2="28" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><path d="M15 22 Q20 18 25 22" stroke="#C9A96E" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>' },
+    { nombre: 'Muscle up', musculo: 'Espalda', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="4" width="36" height="4" rx="2" fill="#A8895A"/><circle cx="20" cy="22" r="3" fill="#C9A96E"/><line x1="12" y1="8" x2="16" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="8" x2="24" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="18" x2="20" y2="19" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="24" y1="18" x2="20" y2="19" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="25" x2="20" y2="32" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="20" x2="20" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="20" x2="20" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="32" x2="14" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="20" y1="32" x2="26" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+  ];
+
+  // Índice de búsqueda
+  var EXERCISE_DB_INDEX = {};
+  EXERCISE_DB.forEach(function(ex) {
+    EXERCISE_DB_INDEX[ex.nombre.toLowerCase()] = ex;
+    // aliases parciales para búsqueda
+    ex.nombre.toLowerCase().split(' ').forEach(function(word) {
+      if (!EXERCISE_DB_INDEX[word]) EXERCISE_DB_INDEX[word] = [];
+      if (!Array.isArray(EXERCISE_DB_INDEX[word])) return;
+      EXERCISE_DB_INDEX[word].push(ex);
+    });
+  });
+
+  function searchExerciseDB(query) {
+    if (!query || query.trim() === '') return EXERCISE_DB.slice(0, 8);
+    var q = query.trim().toLowerCase();
+    return EXERCISE_DB.filter(function(ex) {
+      return ex.nombre.toLowerCase().indexOf(q) !== -1 ||
+             ex.musculo.toLowerCase().indexOf(q) !== -1;
+    }).slice(0, 6);
+  }
 
   /* ══════════════════════════════════════
      HISTORIAL EJERCICIOS (AUTOCOMPLETE)
@@ -1854,7 +1995,9 @@
     if (counts.total > 0) {
       var wrap = document.createElement('div'); wrap.className = 'exercises-header';
       var count = document.createElement('div'); count.className = 'exercises-count';
-      count.innerHTML = 'Sesión: <span class="count-done">' + counts.done + '</span> / ' + counts.total + ' ejercicios';
+      var kcal = estimarKcalSesion(arr, STATE.pesoCorporal);
+      count.innerHTML = 'Sesión: <span class="count-done">' + counts.done + '</span> / ' + counts.total + ' ejercicios' +
+        (kcal > 0 ? ' · <span class="kcal-est">~' + kcal + ' kcal</span>' : '');
       wrap.appendChild(count); el.appendChild(wrap);
     }
 
@@ -1883,36 +2026,74 @@
       // Autocomplete dropdown
       var autoEl = document.createElement('div'); autoEl.className = 'ex-autocomplete';
 
-      function renderAutoItems(results) {
+      function renderAutoItems(historyResults, libraryResults) {
         autoEl.innerHTML = '';
-        results.forEach(function(r) {
-          var item = document.createElement('div'); item.className = 'ex-auto-item';
-          var left = document.createElement('div');
-          var nameSpan = document.createElement('div'); nameSpan.className = 'ex-auto-name'; nameSpan.textContent = r.nombre;
-          left.appendChild(nameSpan);
-          if (r.lastPeso || r.lastReps) {
-            var sub = document.createElement('div'); sub.className = 'ex-auto-sub';
-            sub.textContent = 'M' + r.lastM + ' S' + r.lastW + ' D' + r.lastD;
-            left.appendChild(sub);
-          }
-          var meta = document.createElement('div'); meta.className = 'ex-auto-meta';
-          if (r.lastPeso) meta.textContent = r.lastPeso + ' kg' + (r.lastReps ? ' × ' + r.lastReps : '');
-          item.appendChild(left); if (r.lastPeso || r.lastReps) item.appendChild(meta);
-          item.onmousedown = function(e) {
-            e.preventDefault(); // evita blur del input
-            nameInput.value = r.nombre; ex.nombre = r.nombre; scheduleSave();
-            autoEl.classList.remove('open');
-            renderDayPills(); updateExerciseHeader();
-          };
-          autoEl.appendChild(item);
-        });
+        var hasHistory = historyResults.length > 0;
+        var hasLibrary = libraryResults.length > 0;
+        if (!hasHistory && !hasLibrary) { autoEl.classList.remove('open'); return; }
+
+        // ── Sección historial personal ──
+        if (hasHistory) {
+          var secH = document.createElement('div'); secH.className = 'ex-auto-section-label'; secH.textContent = 'Historial';
+          autoEl.appendChild(secH);
+          historyResults.forEach(function(r) {
+            var item = document.createElement('div'); item.className = 'ex-auto-item';
+            var left = document.createElement('div'); left.style.flex = '1';
+            var nameSpan = document.createElement('div'); nameSpan.className = 'ex-auto-name'; nameSpan.textContent = r.nombre;
+            left.appendChild(nameSpan);
+            if (r.lastPeso || r.lastReps) {
+              var sub = document.createElement('div'); sub.className = 'ex-auto-sub';
+              sub.textContent = 'M' + r.lastM + ' S' + r.lastW + ' D' + r.lastD;
+              left.appendChild(sub);
+            }
+            var meta = document.createElement('div'); meta.className = 'ex-auto-meta';
+            if (r.lastPeso) meta.textContent = r.lastPeso + ' kg' + (r.lastReps ? ' × ' + r.lastReps : '');
+            item.appendChild(left); if (r.lastPeso || r.lastReps) item.appendChild(meta);
+            item.onmousedown = function(e) {
+              e.preventDefault();
+              nameInput.value = r.nombre; ex.nombre = r.nombre; scheduleSave();
+              autoEl.classList.remove('open');
+              renderDayPills(); updateExerciseHeader();
+            };
+            autoEl.appendChild(item);
+          });
+        }
+
+        // ── Sección biblioteca ──
+        if (hasLibrary) {
+          var secL = document.createElement('div'); secL.className = 'ex-auto-section-label'; secL.textContent = 'Biblioteca';
+          autoEl.appendChild(secL);
+          libraryResults.forEach(function(r) {
+            var item = document.createElement('div'); item.className = 'ex-auto-item-lib';
+            var icon = document.createElement('div'); icon.className = 'ex-auto-lib-icon'; icon.innerHTML = r.svg;
+            var info = document.createElement('div'); info.className = 'ex-auto-lib-info';
+            var nameLbl = document.createElement('div'); nameLbl.className = 'ex-auto-lib-name'; nameLbl.textContent = r.nombre;
+            var muscleLbl = document.createElement('div'); muscleLbl.className = 'ex-auto-lib-muscle'; muscleLbl.textContent = r.musculo;
+            info.appendChild(nameLbl); info.appendChild(muscleLbl);
+            var arrow = document.createElement('div'); arrow.className = 'ex-auto-lib-arrow'; arrow.textContent = '›';
+            item.appendChild(icon); item.appendChild(info); item.appendChild(arrow);
+            item.onmousedown = function(e) {
+              e.preventDefault();
+              nameInput.value = r.nombre; ex.nombre = r.nombre; scheduleSave();
+              autoEl.classList.remove('open');
+              renderDayPills(); updateExerciseHeader();
+            };
+            autoEl.appendChild(item);
+          });
+        }
+        autoEl.classList.add('open');
       }
 
       function openAuto() {
-        var results = getExerciseHistory(nameInput.value);
-        if (results.length === 0) { autoEl.classList.remove('open'); return; }
-        renderAutoItems(results);
-        autoEl.classList.add('open');
+        var q = nameInput.value;
+        var history = getExerciseHistory(q);
+        var library = searchExerciseDB(q);
+        // Quitar de biblioteca los que ya aparecen en historial
+        var histNames = {};
+        history.forEach(function(h) { histNames[h.nombre.toLowerCase()] = true; });
+        library = library.filter(function(l) { return !histNames[l.nombre.toLowerCase()]; });
+        if (history.length === 0 && library.length === 0) { autoEl.classList.remove('open'); return; }
+        renderAutoItems(history, library);
       }
 
       nameInput.oninput = function() {
@@ -2020,7 +2201,59 @@
     var arr = STATE.data[_lastDayKey] || [];
     var counts = getExercisesHeader(arr);
     var el = document.querySelector('#exerciseList .exercises-count');
-    if (el) el.innerHTML = 'Sesión: <span class="count-done">' + counts.done + '</span> / ' + counts.total + ' ejercicios';
+    if (!el) return;
+    var kcal = estimarKcalSesion(arr, STATE.pesoCorporal);
+    el.innerHTML = 'Sesión: <span class="count-done">' + counts.done + '</span> / ' + counts.total + ' ejercicios' +
+      (kcal > 0 ? ' · <span class="kcal-est">~' + kcal + ' kcal</span>' : '');
+  }
+
+  /* ══════════════════════════════════════
+     ESTIMADO KCAL POR SESIÓN
+  ══════════════════════════════════════ */
+
+  // MET aproximado por tipo de ejercicio (basado en ACSM/Compendium of Physical Activities)
+  // Se usa nombre del ejercicio para detectar el tipo
+  var KCAL_MET_MAP = [
+    { keywords: ['sentadilla','squat','prensa','zancada','búlgara','bulgara','hack','pendular','belt','smith','aductor','abductor'], met: 6.0 },
+    { keywords: ['peso muerto','deadlift','rumano'], met: 6.0 },
+    { keywords: ['hip thrust','glúteo','gluteo','patada de glúteo','patada de gluteo'], met: 5.0 },
+    { keywords: ['extensión','extension','curl femoral','pantorrilla'], met: 4.0 },
+    { keywords: ['press banca','press inclinado','press declinado','apertura','aperturas','pull over'], met: 5.5 },
+    { keywords: ['press militar','arnold','elevación lateral','elevacion lateral','face pull'], met: 4.5 },
+    { keywords: ['dominada','pull up','jalón','jalon','remo','muscle up','pull over'], met: 5.5 },
+    { keywords: ['fondo','dip','australiana'], met: 5.0 },
+    { keywords: ['curl','martillo','hammer','banco inclinado'], met: 3.5 },
+    { keywords: ['tríceps','triceps','extensión tríceps'], met: 3.5 },
+    { keywords: ['plancha','plank','crunch','abdominal','core'], met: 4.0 },
+  ];
+  var KCAL_DEFAULT_MET = 4.5;
+  var KCAL_PESO_CORPORAL = 75; // kg default si no hay dato (podría venir de config)
+  var KCAL_TIEMPO_SET_MIN = 0.5; // ~30s por serie (ejecución)
+  var KCAL_DESCANSO_MIN = 2.0;  // descanso promedio entre series
+
+  function getMET(nombre) {
+    var n = (nombre || '').toLowerCase();
+    for (var i = 0; i < KCAL_MET_MAP.length; i++) {
+      for (var j = 0; j < KCAL_MET_MAP[i].keywords.length; j++) {
+        if (n.indexOf(KCAL_MET_MAP[i].keywords[j]) !== -1) return KCAL_MET_MAP[i].met;
+      }
+    }
+    return KCAL_DEFAULT_MET;
+  }
+
+  function estimarKcalSesion(arr, pesoCorporal) {
+    // Fórmula: kcal = MET × peso(kg) × tiempo(h)
+    // Tiempo = (sets × tiempo_por_set) + (sets-1 × descanso)
+    var pc = pesoCorporal || KCAL_PESO_CORPORAL;
+    var totalKcal = 0;
+    arr.forEach(function(ex) {
+      if (!ex.nombre || !ex.nombre.trim()) return;
+      var sets = parseInt(ex.sets) || 3;
+      var met = getMET(ex.nombre);
+      var tiempoMin = sets * (KCAL_TIEMPO_SET_MIN + KCAL_DESCANSO_MIN);
+      totalKcal += met * pc * (tiempoMin / 60);
+    });
+    return Math.round(totalKcal);
   }
 
   /* ══════════════════════════════════════
@@ -2259,6 +2492,13 @@
     statsEl.appendChild(statCard(exRows.length, 'Ejercicios'));
     statsEl.appendChild(statCard(totalSets || '—', 'Series'));
     statsEl.appendChild(statCard(totalVol > 0 ? (Math.round(totalVol/10)*10).toLocaleString('es') + ' kg' : '—', 'Volumen'));
+
+    // Kcal estimadas
+    var kcalEst = estimarKcalSesion(exRows, STATE.pesoCorporal);
+    if (kcalEst > 0) {
+      statsEl.style.gridTemplateColumns = '1fr 1fr 1fr 1fr';
+      statsEl.appendChild(statCard('~' + kcalEst, 'kcal est.'));
+    }
 
     exListEl.innerHTML = '';
     if (exRows.length > 0) {
@@ -2814,7 +3054,14 @@
   document.getElementById('pdfReportBtn').onclick = function() { generatePDFReport(); };
   document.getElementById('exportBtn').onclick = function() {
     try {
-      var blob = new Blob([JSON.stringify(STATE.data, null, 2)], {type:'application/json'});
+      var exportObj = {
+        data: STATE.data,
+        pesoCorporal: STATE.pesoCorporal,
+        clientName: localStorage.getItem('slab_client_name') || '',
+        startDate: localStorage.getItem('slab_start_date') || '',
+        exportedAt: new Date().toISOString()
+      };
+      var blob = new Blob([JSON.stringify(exportObj, null, 2)], {type:'application/json'});
       var url = URL.createObjectURL(blob), a = document.createElement('a');
       a.href = url; a.download = 'respaldo-slab-' + new Date().toISOString().slice(0,10) + '.json';
       document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
@@ -2827,7 +3074,17 @@
     var reader = new FileReader();
     reader.onload = function(ev) {
       try {
-        STATE.data = JSON.parse(ev.target.result); ensureRecords();
+        var parsed = JSON.parse(ev.target.result);
+        // Soporte para formato nuevo (con metadata) y antiguo (solo data)
+        if (parsed.data) {
+          STATE.data = parsed.data;
+          if (parsed.pesoCorporal) { STATE.pesoCorporal = parsed.pesoCorporal; localStorage.setItem('slab_peso_corporal', parsed.pesoCorporal); document.getElementById('pesoCorporalInput').value = parsed.pesoCorporal; document.getElementById('pesoCorporalCurrent').textContent = 'Peso actual: ' + parsed.pesoCorporal + ' kg'; }
+          if (parsed.clientName) { localStorage.setItem('slab_client_name', parsed.clientName); }
+          if (parsed.startDate) { localStorage.setItem('slab_start_date', parsed.startDate); }
+        } else {
+          STATE.data = parsed; // formato antiguo
+        }
+        ensureRecords();
         saveData(); renderAll(); renderProgress();
         showToast('Respaldo restaurado correctamente', 'ok', 3000);
       } catch(err) { showToast('Ese archivo no es un respaldo válido', 'error', 3000); }
