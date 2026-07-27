@@ -11,9 +11,16 @@
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
 
   :root {
+    /* Dorado — reservado para acciones primarias y logros */
     --gold: #C9A96E;
     --gold-dim: #A8895A;
     --gold-glow: rgba(201,169,110,0.12);
+    /* Ámbar brillante — tabs especiales (Récords, Recursos) */
+    --amber: #E8A020;
+    --amber-dim: #B07818;
+    --amber-glow: rgba(232,160,32,0.14);
+    /* Blanco numérico — valores clave (peso, reps) */
+    --num-white: #F0EDE6;
     --month-accent: #E3B34C;
     --week-accent: #C9A96E;
     --week-accent-dim: #A8895A;
@@ -27,9 +34,10 @@
     --card: #171717;
     --card-alt: #1C1C1C;
     --text: #F5F0E8;
-    --text-dim: #8C8778;
-    --border: #2A2A2A;
-    --border-hover: #3A3A3A;
+    --text-dim: #6E6B63;
+    --text-mid: #9A9488;
+    --border: #242424;
+    --border-hover: #363636;
     --success: #C9A96E;
     --warning: #C9A96E;
     --complete-border: #C9A96E;
@@ -134,6 +142,9 @@
   }
   nav.tabs button.active {
     color: var(--gold); border-bottom-color: var(--gold); font-weight: 500;
+  }
+  nav.tabs #tab-recursos.active {
+    color: var(--amber); border-bottom-color: var(--amber);
   }
 
   .panel { padding: 14px 16px 0; }
@@ -390,7 +401,7 @@
   }
   .field input {
     background: var(--dark-2); border: 1px solid var(--border); border-radius: 6px;
-    color: var(--text); font-family: var(--font-mono); font-size: 15px; padding: 9px 6px;
+    color: var(--num-white); font-family: var(--font-mono); font-size: 15px; padding: 9px 6px;
     text-align: center; width: 100%; font-weight: 500;
     transition: border-color 0.15s;
     min-height: var(--touch-min);
@@ -590,6 +601,34 @@
   .session-fields { grid-template-columns: 1fr !important; }
   .session-fields .field input,
   .session-fields .field select { font-size: 17px; padding: 12px 6px; color: var(--gold); }
+
+  /* ── SELECTOR SUEÑO ── */
+  .sleep-section {
+    padding: 12px 18px 14px;
+    border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .sleep-label {
+    font-family: var(--font-mono); font-size: 9.5px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.6px;
+  }
+  .sleep-btns {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+  }
+  .sleep-btn {
+    padding: 10px 4px; min-height: 44px;
+    background: var(--dark-2); border: 1px solid var(--border); border-radius: 7px;
+    color: var(--text-dim); font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+    cursor: pointer; text-align: center; line-height: 1.25;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+  }
+  .sleep-btn .sleep-h { font-size: 15px; color: var(--text); display: block; }
+  .sleep-btn .sleep-sub { font-size: 9px; color: var(--text-dim); letter-spacing: 0.3px; }
+  .sleep-btn.active {
+    border-color: var(--gold); background: rgba(201,169,110,0.09);
+  }
+  .sleep-btn.active .sleep-h { color: var(--gold); }
+  .sleep-btn.active .sleep-sub { color: var(--gold-dim); }
 
   /* ── SAVE BAR ── */
   .save-bar {
@@ -874,25 +913,73 @@
     margin-top: 8px;
   }
 
-  /* ── MARCOS DORADOS: Récords, Calcular RPE, Calcular 1RM y Recursos ── */
-  #tab-records, #tab-rpe, #tab-orm, #tab-recursos {
+  /* ── MARCOS DORADOS: Calcular RPE y Calcular 1RM ── */
+  #tab-rpe, #tab-orm {
     position: relative;
     color: var(--gold) !important;
   }
-  #tab-records::after, #tab-rpe::after, #tab-orm::after, #tab-recursos::after {
+  #tab-rpe::after, #tab-orm::after {
     content: '';
     position: absolute;
     inset: 5px 2px;
     border: 1.5px solid var(--gold);
     border-radius: 5px;
     pointer-events: none;
-    opacity: 0.6;
-    box-shadow: 0 0 6px rgba(201,169,110,0.15);
+    opacity: 0.55;
+    box-shadow: 0 0 6px rgba(201,169,110,0.12);
     transition: opacity 0.15s, box-shadow 0.15s;
   }
-  #tab-records.active::after, #tab-rpe.active::after, #tab-orm.active::after, #tab-recursos.active::after {
+  #tab-rpe.active::after, #tab-orm.active::after {
     opacity: 1;
-    box-shadow: 0 0 10px rgba(201,169,110,0.30);
+    box-shadow: 0 0 10px rgba(201,169,110,0.28);
+  }
+
+  /* ── MARCOS DORADOS: también Récords ── */
+  #tab-records {
+    position: relative;
+    color: var(--gold) !important;
+  }
+  #tab-records::after {
+    content: '';
+    position: absolute;
+    inset: 5px 2px;
+    border: 1.5px solid var(--gold);
+    border-radius: 5px;
+    pointer-events: none;
+    opacity: 0.55;
+    box-shadow: 0 0 6px rgba(201,169,110,0.12);
+    transition: opacity 0.15s, box-shadow 0.15s;
+  }
+  #tab-records.active::after {
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(201,169,110,0.28);
+  }
+  #tab-records.active {
+    border-bottom-color: var(--gold) !important;
+  }
+
+  /* ── MARCOS ÁMBAR: Recursos ── */
+  #tab-recursos {
+    position: relative;
+    color: var(--amber) !important;
+  }
+  #tab-recursos::after {
+    content: '';
+    position: absolute;
+    inset: 5px 2px;
+    border: 1.5px solid var(--amber);
+    border-radius: 5px;
+    pointer-events: none;
+    opacity: 0.6;
+    box-shadow: 0 0 7px var(--amber-glow);
+    transition: opacity 0.15s, box-shadow 0.15s;
+  }
+  #tab-recursos.active::after {
+    opacity: 1;
+    box-shadow: 0 0 12px var(--amber-glow);
+  }
+  #tab-recursos.active {
+    border-bottom-color: var(--amber) !important;
   }
 
   #view-records, #view-rpe, #view-orm {
@@ -900,6 +987,13 @@
     border-top: none;
     border-radius: 0 0 12px 12px;
     box-shadow: 0 0 24px rgba(201,169,110,0.13), inset 0 0 0 1px rgba(201,169,110,0.06);
+    margin: 0 2px 16px;
+  }
+  #view-recursos {
+    border: 2px solid var(--amber);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 0 24px rgba(232,160,32,0.13), inset 0 0 0 1px rgba(232,160,32,0.06);
     margin: 0 2px 16px;
   }
 
@@ -1154,7 +1248,7 @@
   .recursos-hero-label {
     font-family: var(--font-display);
     font-size: 22px; font-weight: 700;
-    color: var(--gold);
+    color: var(--amber);
     letter-spacing: 0.3px;
     margin-bottom: 6px;
   }
@@ -1799,19 +1893,23 @@
   ══════════════════════════════════════ */
   var WELCOME_KEY = 'slab-welcome-seen';
   function showWelcome() { document.getElementById('welcomeOverlay').style.display = 'flex'; }
-  function hideWelcome() { document.getElementById('welcomeOverlay').style.display = 'none'; localStorage.setItem(WELCOME_KEY, '1'); }
+  function hideWelcome() { document.getElementById('welcomeOverlay').style.display = 'none'; slabSetItem(WELCOME_KEY, '1'); }
   document.getElementById('welcomeCloseBtn').onclick = hideWelcome;
   document.getElementById('welcomeOverlay').onclick = function(e) { if (e.target === this) hideWelcome(); };
   document.getElementById('showWelcomeBtn').onclick = showWelcome;
-  if (!localStorage.getItem(WELCOME_KEY)) { showWelcome(); } else { document.getElementById('welcomeOverlay').style.display = 'none'; }
+  // La visibilidad del welcome se resuelve en init() tras cargar los datos
 
   /* ══════════════════════════════════════
-     ESTADO Y STORAGE
+     ESTADO Y STORAGE — IndexedDB
+     (con migración automática desde localStorage)
   ══════════════════════════════════════ */
   var STATE = { month: 1, week: 1, day: 1, progressMonth: 1, data: {}, pesoCorporal: 75 };
   var STORAGE_KEY = 'slab-registro-plan';
+  var IDB_NAME = 'slab-db';
+  var IDB_STORE = 'kv';
+  var IDB_VERSION = 1;
   var saveTimeout = null;
-  var STORAGE_WARN_BYTES = 4 * 1024 * 1024;
+  var _db = null;
 
   function dayKey(m, w, d) { return 'm' + m + 'w' + w + 'd' + d; }
   function sessionKey(m, w, d) { return dayKey(m, w, d) + '_session'; }
@@ -1824,7 +1922,8 @@
   }
   function ensureSession(m, w, d) {
     var key = sessionKey(m, w, d);
-    if (!STATE.data[key]) STATE.data[key] = { rpeSesion: '' };
+    if (!STATE.data[key]) STATE.data[key] = { rpeSesion: '', sueno: '' };
+    if (!('sueno' in STATE.data[key])) STATE.data[key].sueno = '';
     return STATE.data[key];
   }
   function ensureRecords() {
@@ -1835,19 +1934,91 @@
     return { id: 'r' + Date.now() + Math.random().toString(36).slice(2,7), nombre: '', repMaxPeso: '', repMaxReps: '', nota: '' };
   }
 
-  function checkStorageQuota() {
+  /* ── IndexedDB helpers ── */
+  function openDB() {
+    return new Promise(function(resolve, reject) {
+      if (_db) { resolve(_db); return; }
+      var req = indexedDB.open(IDB_NAME, IDB_VERSION);
+      req.onupgradeneeded = function(e) {
+        var db = e.target.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+      };
+      req.onsuccess = function(e) { _db = e.target.result; resolve(_db); };
+      req.onerror = function() { reject(req.error); };
+    });
+  }
+
+  function idbGet(key) {
+    return openDB().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction(IDB_STORE, 'readonly');
+        var req = tx.objectStore(IDB_STORE).get(key);
+        req.onsuccess = function() { resolve(req.result); };
+        req.onerror = function() { reject(req.error); };
+      });
+    });
+  }
+
+  function idbSet(key, value) {
+    return openDB().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction(IDB_STORE, 'readwrite');
+        var req = tx.objectStore(IDB_STORE).put(value, key);
+        req.onsuccess = function() { resolve(); };
+        req.onerror = function() { reject(req.error); };
+      });
+    });
+  }
+
+  /* ── Migración desde localStorage ── */
+  async function migrateFromLocalStorage() {
+    var MIGRATED_KEY = 'slab-idb-migrated';
+    if (localStorage.getItem(MIGRATED_KEY)) return;
     try {
-      var total = 0;
-      for (var k in localStorage) {
-        if (localStorage.hasOwnProperty(k)) total += (localStorage[k].length + k.length) * 2;
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        await idbSet(STORAGE_KEY, parsed);
+        console.log('[SLAB] Migración localStorage → IndexedDB completada');
       }
-      var banner = document.getElementById('storageBanner');
-      if (total > STORAGE_WARN_BYTES) { banner.classList.add('visible'); } else { banner.classList.remove('visible'); }
-    } catch(e) {}
+      // Migrar claves sueltas de configuración
+      var configKeys = ['slab_peso_corporal', 'slab-client-name', 'slab-start-date', 'slab-welcome-seen'];
+      for (var i = 0; i < configKeys.length; i++) {
+        var v = localStorage.getItem(configKeys[i]);
+        if (v !== null) await idbSet(configKeys[i], v);
+      }
+      localStorage.setItem(MIGRATED_KEY, '1');
+    } catch(e) { console.warn('[SLAB] Migración fallida, continuando con localStorage:', e); }
+  }
+
+  /* ── getItem / setItem universales (IndexedDB primero, localStorage fallback) ── */
+  async function slabGetItem(key) {
+    try { var v = await idbGet(key); if (v !== undefined) return v; } catch(e) {}
+    return localStorage.getItem(key);
+  }
+  async function slabSetItem(key, value) {
+    try { await idbSet(key, value); } catch(e) {}
+    try { localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value)); } catch(e2) {}
+  }
+
+  function checkStorageQuota() {
+    if (navigator.storage && navigator.storage.estimate) {
+      navigator.storage.estimate().then(function(est) {
+        var banner = document.getElementById('storageBanner');
+        var usedMB = (est.usage || 0) / (1024*1024);
+        var quotaMB = (est.quota || 0) / (1024*1024);
+        var pct = quotaMB > 0 ? usedMB / quotaMB : 0;
+        if (pct > 0.75) { banner.classList.add('visible'); } else { banner.classList.remove('visible'); }
+      });
+    }
   }
 
   async function loadData() {
-    try { var raw = localStorage.getItem(STORAGE_KEY); if (raw) STATE.data = JSON.parse(raw); } catch(e) { STATE.data = {}; }
+    try {
+      await migrateFromLocalStorage();
+      var stored = await slabGetItem(STORAGE_KEY);
+      if (stored) STATE.data = (typeof stored === 'string') ? JSON.parse(stored) : stored;
+    } catch(e) { STATE.data = {}; }
     ensureRecords();
   }
 
@@ -1855,18 +2026,13 @@
     var bar = document.getElementById('saveBar');
     bar.textContent = 'Guardando...'; bar.classList.remove('saved');
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE.data));
+      await slabSetItem(STORAGE_KEY, STATE.data);
       bar.textContent = 'Guardado ✓'; bar.classList.add('saved');
       setTimeout(function() { bar.textContent = 'Listo para registrar'; bar.classList.remove('saved'); }, 1500);
       checkStorageQuota();
     } catch(e) {
       bar.textContent = 'Error al guardar';
-      if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
-        showToast('❌ Sin espacio. Descarga un respaldo desde Progreso.', 'error', 5000);
-        document.getElementById('storageBanner').classList.add('visible');
-      } else {
-        showToast('Error al guardar los datos', 'error', 3000);
-      }
+      showToast('Error al guardar los datos', 'error', 3000);
     }
   }
   function scheduleSave() { clearTimeout(saveTimeout); saveTimeout = setTimeout(saveData, 600); }
@@ -1900,8 +2066,16 @@
   ══════════════════════════════════════ */
   var CLIENT_NAME_KEY = 'slab-client-name';
 
-  function getClientName() { return localStorage.getItem(CLIENT_NAME_KEY) || ''; }
-  function setClientName(name) { localStorage.setItem(CLIENT_NAME_KEY, name.trim()); }
+  var _clientName = '';
+  async function loadClientName() {
+    var v = await slabGetItem(CLIENT_NAME_KEY);
+    _clientName = (typeof v === 'string' ? v : '') || '';
+  }
+  function getClientName() { return _clientName; }
+  function setClientName(name) {
+    _clientName = name.trim();
+    slabSetItem(CLIENT_NAME_KEY, _clientName);
+  }
   function renderClientName() {
     var name = getClientName();
     document.getElementById('clientNameInput').value = name;
@@ -1922,17 +2096,32 @@
      FECHA DE INICIO DEL PLAN
   ══════════════════════════════════════ */
   var START_KEY = 'slab-start-date';
+  var _startDateStr = null;
 
-  function getStartDate() {
-    var stored = localStorage.getItem(START_KEY);
-    if (stored) { var d = new Date(stored); if (!isNaN(d.getTime())) return d; }
+  async function loadStartDate() {
+    var stored = await slabGetItem(START_KEY);
+    if (stored && typeof stored === 'string') {
+      var d = new Date(stored);
+      if (!isNaN(d.getTime())) { _startDateStr = stored; return; }
+    }
     var now = new Date();
     var day = now.getDay();
     var diff = day === 0 ? -6 : 1 - day;
     var monday = new Date(now);
     monday.setDate(now.getDate() + diff);
     monday.setHours(0,0,0,0);
-    localStorage.setItem(START_KEY, monday.toISOString().slice(0,10));
+    _startDateStr = monday.toISOString().slice(0,10);
+    slabSetItem(START_KEY, _startDateStr);
+  }
+
+  function getStartDate() {
+    if (_startDateStr) { var d = new Date(_startDateStr); if (!isNaN(d.getTime())) return d; }
+    var now = new Date();
+    var day = now.getDay();
+    var diff = day === 0 ? -6 : 1 - day;
+    var monday = new Date(now);
+    monday.setDate(now.getDate() + diff);
+    monday.setHours(0,0,0,0);
     return monday;
   }
 
@@ -1940,7 +2129,8 @@
     var d = new Date(dateStr + 'T00:00:00');
     if (isNaN(d.getTime())) { showToast('Fecha inválida', 'warn'); return false; }
     if (d.getDay() !== 1) { showToast('El plan debe comenzar un lunes', 'warn', 3000); return false; }
-    localStorage.setItem(START_KEY, dateStr);
+    _startDateStr = dateStr;
+    slabSetItem(START_KEY, dateStr);
     return true;
   }
 
@@ -1961,26 +2151,24 @@
     if (setStartDate(val)) { renderStartDateConfig(); updateBtnHoy(); renderDayPills(); showToast('Fecha de inicio actualizada', 'ok'); }
   };
 
-  // Peso corporal
-  (function() {
-    var saved = localStorage.getItem('slab_peso_corporal');
-    if (saved) { STATE.pesoCorporal = parseFloat(saved) || 75; }
+  // Peso corporal — se carga en init() vía loadPesoCorporal()
+  async function loadPesoCorporal() {
+    var saved = await slabGetItem('slab_peso_corporal');
+    if (saved !== null && saved !== undefined) { STATE.pesoCorporal = parseFloat(saved) || 75; }
     var input = document.getElementById('pesoCorporalInput');
     var current = document.getElementById('pesoCorporalCurrent');
-    if (STATE.pesoCorporal !== 75 || saved) {
-      input.value = STATE.pesoCorporal;
-      current.textContent = 'Peso actual: ' + STATE.pesoCorporal + ' kg';
-    }
+    input.value = STATE.pesoCorporal;
+    current.textContent = 'Peso actual: ' + STATE.pesoCorporal + ' kg';
     document.getElementById('pesoCorporalSaveBtn').onclick = function() {
       var v = parseFloat(input.value);
       if (isNaN(v) || v < 30 || v > 250) { showToast('Ingresa un peso válido (30–250 kg)', 'error'); return; }
       STATE.pesoCorporal = v;
-      localStorage.setItem('slab_peso_corporal', v);
+      slabSetItem('slab_peso_corporal', String(v));
       current.textContent = 'Peso actual: ' + v + ' kg';
       updateExerciseHeader();
       showToast('Peso corporal actualizado', 'ok');
     };
-  })();
+  }
 
   function todayPlanPosition() {
     var start = getStartDate();
@@ -2480,6 +2668,33 @@
     var sessionFields = document.createElement('div'); sessionFields.className = 'ex-fields session-fields';
     sessionFields.appendChild(makeRPEField('RPE de toda la sesión', session, 'rpeSesion', null));
     sessionCard.appendChild(sessionFields);
+
+    // ── Selector de horas de sueño ──
+    var sleepSection = document.createElement('div'); sleepSection.className = 'sleep-section';
+    var sleepLbl = document.createElement('div'); sleepLbl.className = 'sleep-label'; sleepLbl.textContent = 'Horas de sueño (noche anterior)';
+    var sleepBtns = document.createElement('div'); sleepBtns.className = 'sleep-btns';
+    var SLEEP_OPTIONS = [
+      { value: '5-6', label: '5 – 6 h', sub: 'Poco' },
+      { value: '6-7', label: '6 – 7 h', sub: 'Regular' },
+      { value: '8-9', label: '8 – 9 h', sub: 'Óptimo' }
+    ];
+    SLEEP_OPTIONS.forEach(function(opt) {
+      var btn = document.createElement('button');
+      btn.className = 'sleep-btn' + (session.sueno === opt.value ? ' active' : '');
+      btn.setAttribute('type', 'button');
+      btn.innerHTML = '<span class="sleep-h">' + opt.label + '</span><span class="sleep-sub">' + opt.sub + '</span>';
+      btn.onclick = function() {
+        session.sueno = (session.sueno === opt.value) ? '' : opt.value;
+        scheduleSave();
+        sleepBtns.querySelectorAll('.sleep-btn').forEach(function(b) { b.classList.remove('active'); });
+        if (session.sueno) btn.classList.add('active');
+      };
+      sleepBtns.appendChild(btn);
+    });
+    sleepSection.appendChild(sleepLbl);
+    sleepSection.appendChild(sleepBtns);
+    sessionCard.appendChild(sleepSection);
+
     el.appendChild(sessionCard);
 
     updateBtnHoy();
@@ -2786,6 +3001,12 @@
     if (kcalEst > 0) {
       statsEl.style.gridTemplateColumns = '1fr 1fr 1fr 1fr';
       statsEl.appendChild(statCard('~' + kcalEst, 'kcal est.'));
+    }
+    // Sueño
+    var sess2 = STATE.data[sessionKey(m, w, d)];
+    if (sess2 && sess2.sueno) {
+      statsEl.style.gridTemplateColumns = 'repeat(' + (statsEl.children.length + 1) + ', 1fr)';
+      statsEl.appendChild(statCard(sess2.sueno + 'h', 'Sueño'));
     }
 
     exListEl.innerHTML = '';
@@ -3300,7 +3521,10 @@
           ensureSpace(40); doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(gold[0],gold[1],gold[2]);
           doc.text('Semana ' + w + ' · Día ' + d, margin, y); y += 4;
           var sess = STATE.data[sessionKey(m, w, d)];
-          var sessText = (sess && sess.rpeSesion !== '') ? 'RPE de toda la sesión: ' + sess.rpeSesion : '';
+          var sessParts = [];
+          if (sess && sess.rpeSesion !== '') sessParts.push('RPE de toda la sesión: ' + sess.rpeSesion);
+          if (sess && sess.sueno) sessParts.push('Sueño: ' + sess.sueno + 'h');
+          var sessText = sessParts.join(' · ');
           var body = dayRows.map(function(e) {
             var pesoStr = '-';
             if (e.peso !== undefined && e.peso !== null && e.peso !== '') {
@@ -3340,13 +3564,13 @@
     doc.save((filterMonth && filterWeek) ? ('reporte-slab-' + namePart + 'mes' + filterMonth + '-semana' + filterWeek + '-' + todayStr + '.pdf') : ('reporte-slab-' + namePart + todayStr + '.pdf'));
   }
   document.getElementById('pdfReportBtn').onclick = function() { generatePDFReport(); };
-  document.getElementById('exportBtn').onclick = function() {
+  document.getElementById('exportBtn').onclick = async function() {
     try {
       var exportObj = {
         data: STATE.data,
         pesoCorporal: STATE.pesoCorporal,
-        clientName: localStorage.getItem('slab_client_name') || '',
-        startDate: localStorage.getItem('slab_start_date') || '',
+        clientName: getClientName() || '',
+        startDate: _startDateStr || '',
         exportedAt: new Date().toISOString()
       };
       var blob = new Blob([JSON.stringify(exportObj, null, 2)], {type:'application/json'});
@@ -3366,9 +3590,9 @@
         // Soporte para formato nuevo (con metadata) y antiguo (solo data)
         if (parsed.data) {
           STATE.data = parsed.data;
-          if (parsed.pesoCorporal) { STATE.pesoCorporal = parsed.pesoCorporal; localStorage.setItem('slab_peso_corporal', parsed.pesoCorporal); document.getElementById('pesoCorporalInput').value = parsed.pesoCorporal; document.getElementById('pesoCorporalCurrent').textContent = 'Peso actual: ' + parsed.pesoCorporal + ' kg'; }
-          if (parsed.clientName) { localStorage.setItem('slab_client_name', parsed.clientName); }
-          if (parsed.startDate) { localStorage.setItem('slab_start_date', parsed.startDate); }
+          if (parsed.pesoCorporal) { STATE.pesoCorporal = parsed.pesoCorporal; slabSetItem('slab_peso_corporal', String(parsed.pesoCorporal)); document.getElementById('pesoCorporalInput').value = parsed.pesoCorporal; document.getElementById('pesoCorporalCurrent').textContent = 'Peso actual: ' + parsed.pesoCorporal + ' kg'; }
+          if (parsed.clientName) { _clientName = parsed.clientName; slabSetItem(CLIENT_NAME_KEY, parsed.clientName); }
+          if (parsed.startDate) { _startDateStr = parsed.startDate; slabSetItem(START_KEY, parsed.startDate); }
         } else {
           STATE.data = parsed; // formato antiguo
         }
@@ -3879,8 +4103,15 @@
       }
       el.innerHTML = html;
     })();
+    // Cargar todo desde IndexedDB (con migración automática desde localStorage)
     await loadData();
+    await Promise.all([loadClientName(), loadStartDate(), loadPesoCorporal()]);
+    // Welcome modal
+    var seenWelcome = await slabGetItem(WELCOME_KEY);
+    if (!seenWelcome) { showWelcome(); } else { document.getElementById('welcomeOverlay').style.display = 'none'; }
     checkStorageQuota();
+    renderClientName();
+    renderStartDateConfig();
     var lastPos = lastRegisteredPosition();
     if (lastPos) {
       STATE.month = lastPos.month; STATE.week = lastPos.week; STATE.day = lastPos.day;
