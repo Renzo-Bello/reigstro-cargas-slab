@@ -447,10 +447,10 @@
   }
 
   /* ── Header de columnas ── */
-  /* 7 cols: Serie · Anterior · kg · Reps · RPE obj · RPE real · check */
+  /* 8 cols: SETS · Anterior · 🏋️ · Reps · RPE obj · RPE real · ✓ · del */
   .series-hevy-header {
     display: grid;
-    grid-template-columns: 36px 1fr 54px 48px 46px 46px 36px;
+    grid-template-columns: 36px 1fr 54px 48px 46px 46px 34px 28px;
     gap: 0;
     padding: 0 10px 0 10px;
     margin-bottom: 2px;
@@ -469,7 +469,7 @@
   /* ── Fila de serie ── */
   .serie-hevy-row {
     display: grid;
-    grid-template-columns: 36px 1fr 54px 48px 46px 46px 36px;
+    grid-template-columns: 36px 1fr 54px 48px 46px 46px 34px 28px;
     gap: 0;
     align-items: center;
     padding: 3px 10px;
@@ -633,6 +633,23 @@
   }
   .serie-type-btn.active-rpe { border-color: var(--gold); color: var(--gold); background: var(--gold-glow); }
   .serie-type-btn.active-rir { border-color: var(--amber); color: var(--amber); background: rgba(232,160,32,0.08); }
+
+  /* ── Botón eliminar serie (inline, última col) ── */
+  .serie-hevy-del-btn {
+    background: transparent; border: none;
+    color: var(--text-dim); font-size: 15px; line-height: 1;
+    cursor: pointer; opacity: 0.3;
+    width: 100%; min-height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px; padding: 0;
+    transition: opacity 0.15s, color 0.15s, background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .serie-hevy-del-btn:hover,
+  .serie-hevy-del-btn:active {
+    opacity: 1; color: #E05260;
+    background: rgba(224,82,96,0.1);
+  }
 
   /* Legacy / override */
   .serie-hevy-del { display: none; }
@@ -3019,6 +3036,22 @@
         };
         row.appendChild(chk);
 
+        // ── Col 8: botón eliminar ──
+        var delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'serie-hevy-del-btn';
+        delBtn.innerHTML = '×';
+        delBtn.setAttribute('aria-label', 'Eliminar serie');
+        delBtn.onclick = function() {
+          if (ex.series.length <= 1) { showToast('Mínimo 1 serie', 'warn'); return; }
+          row.style.transition = 'opacity 0.18s, transform 0.18s';
+          row.style.opacity = '0'; row.style.transform = 'translateX(8px)';
+          setTimeout(function() {
+            ex.series.splice(sIdx, 1); scheduleSave(); rebuildSeriesRows();
+          }, 170);
+        };
+        row.appendChild(delBtn);
+
         return row;
       }
 
@@ -3029,8 +3062,19 @@
         // ── Header ──
         var hdr = document.createElement('div');
         hdr.className = 'series-hevy-header';
-        ['#', 'Anterior', 'kg', 'Reps', intLbl + ' obj', intLbl + ' real', '✓'].forEach(function(t) {
-          var s = document.createElement('span'); s.textContent = t; hdr.appendChild(s);
+        [
+          {text:'SETS', html:false},
+          {text:'Anterior', html:false},
+          {text:'<img src=\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAb8AAAG/CAMAAAD/zSlAAAAAY1BMVEX///93dX6sqrFXVFw+O0OVk5svLTA7OEDIx8lUUlk5NjwmIyeBgIKvrbSmpKtzcXrf3uFua3VNSVK8u8D29vadm6Lu7u9kYWiOi5SFg4s8Oz7DwsbQz9K3tbuysbTl5eZGQkxcwwRBAAAHu0lEQVR4nO3dbXOqVhuAUTUPfeS04vtbwdj//yurJmnSU417A2ZDzlpfOtPplH1zgegEcTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAX9xmVlXjEFV1XKVebJTVMXiy2Sb1YmvalMV+Op++mP/rHz/9u/l0uCuq/hRcVcVueFn3J0O9/XNflL0sWGXD6TDcdFjMUi850KyInCyrUi85XrmPmfEy564fY1a76Mn2ZepFxyojR3wZsw8Bq+gD86xnAat9jRlPAY+pF37XsVa+YS8OzX9s1rWGHM4nXX8Ts5rMa002XffpTcy41oxnXT8Bj7UnG6deerhVUe/0Ox2mh9Rrv+NQe7Ki6y8t7461rn4X+9Rrv6PBZF1/aXk3q3uQnq6Aqdd+R72r39m0Lx9vT/3qTznv9mV+02Cy/vQbf9spmxyZ/XkDU+l3ZbL+fALUT79u0k+/7tNPv27ST7/u00+/btJPv+7TT79u6n2/TTVeXldWs7e/UOr3Wb/VrCpv7MNx9dA/v6xmh6IY3VQU45fN63e732b8+S48zB72d/pNeXvDby53Uet3q9+qur8LH3W79vFwf9unra/0u9lvFXAGjEaHh9xpsQnKNypK/W72Kz956fwY8BFnYFi+k0q/G/0CXjxfAz5g5aHbHk1W+l3tt5oE78PW90LEtkeVflf7BZ9+53Og7YVH9Du4f+naZOPgK9CpX9u7YRy+7dFh2eD+z2/bb7qM6Ddq+2a1oDe+bwfPRL8r/SYRL2Gjtr9vtozpV/vrD9+6XxHTb9nuulf6XXxdv3bfwOj3Qj/99EtHP/30S0c//fRLRz/99EtHP/30S0c//fRLRz/99EtHP/30S0c//fRLRz/99EtHP/30S0c//fRLRz/99EtHP/30S0c//fRLRz/99EtHP/30S0c//fRLRz/99Eune/3GQcqYbTfpN12GLSiRBk8Gi+s3KcMWNMiDbNdf1G84DVtQIk0Gi+q33oYtaPD/IPmX9duGLSiR7Zf1y8MWNPhfiC/tF7SiNL60X9CK9Iuhn376paOffvqlo59++qWjn376paOffvqlo59++qWjn376paOffvqlo59++qWjn376paOffvqlo59++qWjn376paOffvql08F+P4IsvqxfHragRPIv67cIW9DgtzBZxMYb9fszcEFp/PlF/SZZ4IL0i6Kffvqlo59++qWjn376paOffvqlo59++qWjn376paOffvqlo59++qXTvX6/h3nvV9zSTr8fgQtK40c7/e7uw0kWuKDBH2Fe/8/FOvvEumjeL3A9qTTvF7QLR0XgekIfnH/5/YBPt/y++Ua/H3Cs+WT/r3Fs+vsBn9d72YfnXb1sd92X33+4v+mXrfv9h5v9QnfhI36/I2jb563rd6tf8C58QL/AbWdZod+NfkXoLly33y9421mm341+4buwaL1f+LazQr+r/SJOgaztfoeIba/1u9ov+Ap0cmi533PEtrO1flf6xeTLnlvuN4rJp9/VfjEBRwn7ZVntIb9xv2HUHmy53ybm2vveb74N9XbG6vei2LS67jr9ptunGNs+9ZuHz7ad97PfPKreedBpX/rNn/KIufKn+bR3/abbmBHfCvaiX+Tryrng5dDsVb/oGV8Ddr9ffL6zab/6Rb94vpp3v1/NI3Pap371jtHzmJ3vV/fI3E571K/ukKcxu96v9mTzHvWrPeTTU8f71Xlb9mLbn367+vkWHe9XO9/T064//epPuahaXXfbZn/Vniz/NfqVra67bdXiV+i3b9Cv5RuvWlY26LfXL7mlfvrpl4x++umXjn766ZeOfvrpl45++umXjn766ZeOfvrpl45++umXTl/7xX1/TL/G/dr+/l/Ed++b3f/yfftF3f8yabffIOb771mm35V+UXvw0PLCy4htr4v6U37ffouo5xe0fRveLGLjxbN+VyZ7jngPuG79NuaIC2Cl39V+VfgunLS+8k3wtouBflf7DcJPwHY/PVyEXgHXG/1u9NuEXoQechN62CO0zq/c+l3vF/ou4jH7YDW+v/Vdcb7w6nej32BW3P8UuB63/NnvH7M7b2J2WXl54dbvVr/Bpsw+L7ibPPAbdKvjcp3tbshG1etlV7+b/U4Fq9HtXbheHh918r3bXPXhP9Dvk34Xd3dhUvrd69dt+unXTfrp13366ddN+unXffrp10366dd9+unXTb9GvyZTdvv5dQ2en9WjfrP6U/7V7d/fbPD8wY4fmR816Zd67Xc06NftJ5t+NJvXvQE736Ze+x2183X9ycIfrWrfgL1o/8bHdmV1J8t3nfnz7H1VzcdE59uuD1n70pB3+431T9b1xuz4p4eTVc0TMN93+43ZTzbDOmMussffvNNUvSfQ59tuPxf6P47D6DHzflwi6lwb8qeuX9f/Y7OP+pGu8yG67v7Zd1ZGv7vOt/357P7u+Y+nRR5q8bTvzStMlZ0GC4+X92i0fzmWo91wHmC6z57LPrx2vlqV2TxfhMm3u0OPRvvJ5jgLcezbhJtZNV6GGFezvs0GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAArfsbf+AG+i0xEIgAAAAASUVORK5CYII=\'  style=\'width:11px;height:11px;object-fit:contain;opacity:0.65;vertical-align:middle;margin-right:3px;display:inline-block;\' alt=\'\'>KGS', html:true},
+          {text:'Reps', html:false},
+          {text:intLbl+' obj', html:false},
+          {text:intLbl+' real', html:false},
+          {text:'✓', html:false},
+          {text:'', html:false}
+        ].forEach(function(col) {
+          var s = document.createElement('span');
+          if (col.html) { s.innerHTML = col.text; } else { s.textContent = col.text; }
+          hdr.appendChild(s);
         });
         seriesContainer.appendChild(hdr);
 
