@@ -4172,96 +4172,417 @@
     if (typeof window.jspdf === 'undefined') { showToast('No se pudo cargar la librería de PDF. Verifica tu conexión.', 'error', 4000); return; }
     var jsPDFLib = window.jspdf.jsPDF;
     var doc = new jsPDFLib({ unit: 'pt', format: 'a4' });
-    var pageW = doc.internal.pageSize.getWidth(), pageH = doc.internal.pageSize.getHeight();
-    var margin = 40, y = margin;
-    var gold = [201,169,110], dark = [13,13,13], grey = [140,135,120], lineGrey = [214,210,198];
-    function ensureSpace(n) { if (y + n > pageH - margin) { doc.addPage(); y = margin; } }
-    doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor(gold[0],gold[1],gold[2]);
-    doc.text('STRENGTHLAB', margin, y); y += 16;
-    doc.setFont('helvetica','italic'); doc.setFontSize(10); doc.setTextColor(grey[0],grey[1],grey[2]);
-    doc.text('by @reennzolifts', margin, y); y += 18;
+    var pageW = doc.internal.pageSize.getWidth();
+    var pageH = doc.internal.pageSize.getHeight();
+    var margin = 36;
+    var y = margin;
+    var contentW = pageW - margin * 2;
+
+    // ── Paleta ──
+    var C = {
+      gold:     [201, 169, 110],
+      goldDim:  [168, 137,  90],
+      dark:     [ 20,  20,  20],
+      white:    [245, 240, 232],
+      grey:     [130, 125, 115],
+      greyMid:  [180, 175, 165],
+      border:   [210, 205, 195],
+      rowAlt:   [248, 245, 240],
+      rowDone:  [250, 246, 238],
+      serieHdr: [ 30,  30,  30],
+    };
+
+    // ── Helpers ──
+    function px(n) { return n; } // ya en pt
+    function ensureSpace(n) {
+      if (y + n > pageH - margin - 20) { doc.addPage(); y = margin; }
+    }
+    function hline(col, lw) {
+      doc.setDrawColor(col[0], col[1], col[2]);
+      doc.setLineWidth(lw || 0.5);
+      doc.line(margin, y, pageW - margin, y);
+    }
+    function valStr(v) {
+      if (v === undefined || v === null || v === '') return '—';
+      var n = parseFloat(String(v).replace(',', '.'));
+      return isNaN(n) ? String(v) : String(n);
+    }
+
+    // ════════════════════════════════
+    // CABECERA
+    // ════════════════════════════════
+    // Banda dorada superior
+    doc.setFillColor(C.gold[0], C.gold[1], C.gold[2]);
+    doc.rect(0, 0, pageW, 6, 'F');
+    y = 24;
+
+    // Logo
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.setTextColor(C.dark[0], C.dark[1], C.dark[2]);
+    doc.text('STRENGTHLAB', margin, y);
+
+    // Tag derecha
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(9);
+    doc.setTextColor(C.grey[0], C.grey[1], C.grey[2]);
+    doc.text('by @rennzolift', pageW - margin, y, { align: 'right' });
+    y += 14;
+
+    // Cliente
     var clientName = getClientName();
     if (clientName) {
-      doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(dark[0],dark[1],dark[2]);
-      doc.text('Cliente: ' + clientName, margin, y); y += 16;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(C.grey[0], C.grey[1], C.grey[2]);
+      doc.text('Cliente: ' + clientName, margin, y);
+      y += 13;
     }
-    doc.setFont('helvetica','normal'); doc.setFontSize(12); doc.setTextColor(dark[0],dark[1],dark[2]);
-    var reportTitle = (filterMonth && filterWeek) ? ('Reporte semanal — Mes ' + filterMonth + ' · Semana ' + filterWeek) : 'Reporte de entrenamiento';
-    doc.text(reportTitle, margin, y); y += 14;
-    doc.setFontSize(9); doc.setTextColor(grey[0],grey[1],grey[2]);
-    doc.text('Generado el ' + new Date().toLocaleDateString('es-MX', {year:'numeric',month:'long',day:'numeric'}), margin, y); y += 8;
-    doc.setDrawColor(gold[0],gold[1],gold[2]); doc.setLineWidth(1.2);
-    doc.line(margin, y, pageW - margin, y); y += 22;
+
+    // Título reporte
+    var reportTitle = (filterMonth && filterWeek)
+      ? 'Reporte semanal · Mes ' + filterMonth + '  Semana ' + filterWeek
+      : 'Reporte completo de entrenamiento';
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(C.greyMid[0], C.greyMid[1], C.greyMid[2]);
+    doc.text(reportTitle, margin, y);
+
+    // Fecha derecha
+    var fechaStr = new Date().toLocaleDateString('es', { year: 'numeric', month: 'long', day: 'numeric' });
+    doc.text(fechaStr, pageW - margin, y, { align: 'right' });
+    y += 10;
+
+    // Línea dorada
+    hline(C.gold, 1.2);
+    y += 18;
+
+    // ════════════════════════════════
+    // CUERPO
+    // ════════════════════════════════
+    var DAY_NAMES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
     var hasAnyContent = false;
-    var monthsToRender = filterMonth ? [filterMonth] : [1,2,3];
+    var monthsToRender = filterMonth ? [filterMonth] : [1, 2, 3];
+
+    // Columnas de la tabla de series
+    // Serie | Reps | RPE obj | RPE real | Peso (kg)
+    var COL = {
+      serie: { x: margin,       w: 32 },
+      reps:  { x: margin + 36,  w: 36 },
+      rpeO:  { x: margin + 76,  w: 52 },
+      rpeR:  { x: margin + 132, w: 52 },
+      peso:  { x: margin + 188, w: 60 },
+      nota:  { x: margin + 252, w: contentW - 252 }
+    };
+    var ROW_H = 17;
+    var HDR_H = 16;
+
+    function drawSeriesTableHeader(pfx) {
+      ensureSpace(HDR_H + 4);
+      doc.setFillColor(C.serieHdr[0], C.serieHdr[1], C.serieHdr[2]);
+      doc.rect(margin, y, contentW, HDR_H, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(C.gold[0], C.gold[1], C.gold[2]);
+      var midY = y + HDR_H / 2 + 2.5;
+      doc.text('SERIE',          COL.serie.x + 2,  midY);
+      doc.text('REPS',           COL.reps.x  + 2,  midY);
+      doc.text(pfx + ' OBJ',    COL.rpeO.x  + 2,  midY);
+      doc.text(pfx + ' REAL',   COL.rpeR.x  + 2,  midY);
+      doc.text('PESO (kg)',      COL.peso.x  + 2,  midY);
+      doc.text('NOTA',           COL.nota.x  + 2,  midY);
+      y += HDR_H;
+    }
+
+    function drawSerieRow(serie, idx, isLast, pfx) {
+      ensureSpace(ROW_H + 2);
+      // fondo alternado
+      if (idx % 2 === 1) {
+        doc.setFillColor(C.rowAlt[0], C.rowAlt[1], C.rowAlt[2]);
+        doc.rect(margin, y, contentW, ROW_H, 'F');
+      }
+      // si completada: tinte dorado muy sutil
+      if (serie.done) {
+        doc.setFillColor(252, 248, 238);
+        doc.rect(margin, y, contentW, ROW_H, 'F');
+      }
+
+      var textY = y + ROW_H / 2 + 3;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(C.dark[0], C.dark[1], C.dark[2]);
+
+      // Serie número
+      doc.setFont('helvetica', 'bold');
+      doc.text(String(idx + 1), COL.serie.x + 2, textY);
+
+      // Reps
+      doc.setFont('helvetica', 'normal');
+      doc.text(valStr(serie.reps), COL.reps.x + 2, textY);
+
+      // RPE obj
+      var rpeOStr = serie.rpe ? String(serie.rpe) : '—';
+      if (serie.rpe) {
+        doc.setTextColor(C.goldDim[0], C.goldDim[1], C.goldDim[2]);
+      } else {
+        doc.setTextColor(C.greyMid[0], C.greyMid[1], C.greyMid[2]);
+      }
+      doc.text(rpeOStr, COL.rpeO.x + 2, textY);
+
+      // RPE real
+      var rpeRStr = serie.rpeReal ? String(serie.rpeReal) : '—';
+      if (serie.rpeReal) {
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(C.gold[0], C.gold[1], C.gold[2]);
+      } else {
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(C.greyMid[0], C.greyMid[1], C.greyMid[2]);
+      }
+      doc.text(rpeRStr, COL.rpeR.x + 2, textY);
+
+      // Peso
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(C.dark[0], C.dark[1], C.dark[2]);
+      var pesoV = valStr(serie.peso);
+      doc.text(pesoV !== '—' ? pesoV + ' kg' : '—', COL.peso.x + 2, textY);
+
+      // Nota (de la serie, no hay por ahora — campo reservado)
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(C.grey[0], C.grey[1], C.grey[2]);
+      doc.text('', COL.nota.x + 2, textY);
+
+      // Línea inferior fina
+      doc.setDrawColor(C.border[0], C.border[1], C.border[2]);
+      doc.setLineWidth(0.3);
+      doc.line(margin, y + ROW_H, margin + contentW, y + ROW_H);
+
+      y += ROW_H;
+    }
+
     monthsToRender.forEach(function(m) {
-      var weeksToRender = filterWeek ? [filterWeek] : [1,2,3,4];
+      var weeksToRender = filterWeek ? [filterWeek] : [1, 2, 3, 4];
       var monthHasContent = false;
       weeksToRender.forEach(function(wc) {
         for (var dc = 1; dc <= 5; dc++) {
           var arrc = STATE.data[dayKey(m, wc, dc)] || [];
-          if (arrc.some(function(e) { return e.nombre.trim() !== ''; })) monthHasContent = true;
+          if (arrc.some(function(e) { return e.nombre && e.nombre.trim() !== ''; })) monthHasContent = true;
         }
       });
       if (!monthHasContent) return;
       hasAnyContent = true;
-      ensureSpace(30); doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(dark[0],dark[1],dark[2]);
-      doc.text('Mes ' + m, margin, y); y += 16;
+
+      // ── Título de mes ──
+      ensureSpace(28);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(C.dark[0], C.dark[1], C.dark[2]);
+      doc.text('MES ' + m, margin, y);
+      y += 5;
+      hline(C.border, 0.8);
+      y += 14;
+
       weeksToRender.forEach(function(w) {
+        var weekHasContent = false;
+        for (var dc2 = 1; dc2 <= 5; dc2++) {
+          var ac2 = STATE.data[dayKey(m, w, dc2)] || [];
+          if (ac2.some(function(e) { return e.nombre && e.nombre.trim() !== ''; })) weekHasContent = true;
+        }
+        if (!weekHasContent) return;
+
+        // ── Título de semana ──
+        ensureSpace(22);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor(C.gold[0], C.gold[1], C.gold[2]);
+        doc.text('SEMANA ' + w, margin, y);
+        y += 14;
+
         for (var d = 1; d <= 5; d++) {
           var arrDay = STATE.data[dayKey(m, w, d)] || [];
-          var dayRows = arrDay.filter(function(e) { return e.nombre.trim() !== ''; });
+          var dayRows = arrDay.filter(function(e) { return e.nombre && e.nombre.trim() !== ''; });
           if (dayRows.length === 0) continue;
-          ensureSpace(40); doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(gold[0],gold[1],gold[2]);
-          doc.text('Semana ' + w + ' · Día ' + d, margin, y); y += 4;
+
+          // ── Encabezado de día ──
+          ensureSpace(22);
+          doc.setFillColor(C.rowAlt[0], C.rowAlt[1], C.rowAlt[2]);
+          doc.rect(margin, y - 2, contentW, 16, 'F');
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(8.5);
+          doc.setTextColor(C.dark[0], C.dark[1], C.dark[2]);
+          doc.text('Día ' + d + '  —  ' + (DAY_NAMES[d - 1] || ''), margin + 4, y + 8);
+
+          // Session info
           var sess = STATE.data[sessionKey(m, w, d)];
-          var sessParts = [];
-          if (sess && sess.rpeSesion !== '') sessParts.push('RPE de toda la sesión: ' + sess.rpeSesion);
-          if (sess && sess.sueno) sessParts.push('Sueño: ' + sess.sueno + 'h');
-          var sessText = sessParts.join(' · ');
-          var body = dayRows.map(function(e) {
-            var pesoStr = '-';
-            if (e.peso !== undefined && e.peso !== null && e.peso !== '') {
-              var pesoNum = parseFloat(String(e.peso).replace(',', '.'));
-              pesoStr = isNaN(pesoNum) ? String(e.peso) + ' kg' : pesoNum + ' kg';
+          var sessInfo = [];
+          if (sess && sess.rpeSesion) sessInfo.push('RPE sesión: ' + sess.rpeSesion);
+          if (sess && sess.sueno)    sessInfo.push('Sueño: ' + sess.sueno + 'h');
+          if (sessInfo.length) {
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7.5);
+            doc.setTextColor(C.grey[0], C.grey[1], C.grey[2]);
+            doc.text(sessInfo.join('  ·  '), pageW - margin - 4, y + 8, { align: 'right' });
+          }
+          y += 20;
+
+          // ── Ejercicios del día ──
+          dayRows.forEach(function(ex, exIdx) {
+            var eSeries = ex.series || [];
+            var pfx = ex.rirMode ? 'RIR' : 'RPE';
+
+            ensureSpace(28 + eSeries.length * ROW_H);
+
+            // Nombre del ejercicio
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9.5);
+            doc.setTextColor(C.dark[0], C.dark[1], C.dark[2]);
+            var exNum = String(exIdx + 1) + '. ';
+            doc.text(exNum + ex.nombre, margin + 2, y + 8);
+
+            // Capsule: nº series
+            if (eSeries.length > 0) {
+              doc.setFont('helvetica', 'normal');
+              doc.setFontSize(7.5);
+              doc.setTextColor(C.grey[0], C.grey[1], C.grey[2]);
+              doc.text(eSeries.length + ' ' + (eSeries.length === 1 ? 'serie' : 'series'), pageW - margin - 2, y + 8, { align: 'right' });
             }
-            var pfx2 = e.rirMode ? 'RIR' : 'RPE';
-            var eSeries = e.series || [];
-            var setsStr = eSeries.length.toString();
-            var repsStr = eSeries.map(function(s){return s.reps||'-';}).join('/');
-            var rpeStr2 = eSeries.map(function(s){return (s.rpe?pfx2+' '+s.rpe:'-')+'→'+(s.rpeReal?pfx2+' '+s.rpeReal:'-');}).join(' | ');
-            var pesoStr2 = eSeries.map(function(s){return s.peso?(parseFloat(String(s.peso).replace(',','.'))||s.peso)+' kg':'-';}).join('/');
-            return [e.nombre, setsStr, repsStr, rpeStr2, pesoStr2, e.nota||''];
+            y += 16;
+
+            if (eSeries.length > 0) {
+              // Cabecera de tabla de series
+              drawSeriesTableHeader(pfx);
+
+              // Filas de series
+              eSeries.forEach(function(serie, sIdx) {
+                drawSerieRow(serie, sIdx, sIdx === eSeries.length - 1, pfx);
+              });
+            } else {
+              doc.setFont('helvetica', 'italic');
+              doc.setFontSize(8);
+              doc.setTextColor(C.greyMid[0], C.greyMid[1], C.greyMid[2]);
+              doc.text('Sin series registradas', margin + 4, y + 6);
+              y += 14;
+            }
+
+            // Nota del ejercicio
+            if (ex.nota && ex.nota.trim()) {
+              ensureSpace(18);
+              y += 4;
+              doc.setFillColor(250, 247, 241);
+              doc.rect(margin, y, contentW, 0, 'F'); // placeholder
+              doc.setFont('helvetica', 'italic');
+              doc.setFontSize(7.5);
+              doc.setTextColor(C.grey[0], C.grey[1], C.grey[2]);
+              // Wrap texto largo
+              var notaLines = doc.splitTextToSize('Nota: ' + ex.nota.trim(), contentW - 8);
+              doc.setFillColor(252, 249, 243);
+              doc.rect(margin, y, contentW, notaLines.length * 10 + 6, 'F');
+              doc.setDrawColor(C.gold[0], C.gold[1], C.gold[2]);
+              doc.setLineWidth(1.5);
+              doc.line(margin, y, margin, y + notaLines.length * 10 + 6);
+              doc.setLineWidth(0.3);
+              notaLines.forEach(function(line, li) {
+                doc.setTextColor(C.grey[0], C.grey[1], C.grey[2]);
+                doc.text(line, margin + 6, y + 9 + li * 10);
+              });
+              y += notaLines.length * 10 + 10;
+            } else {
+              y += 6;
+            }
           });
-          doc.autoTable({ startY: y+6, margin:{left:margin,right:margin}, head:[['Ejercicio','Series','Reps','RPE obj->real','Peso','Nota']], body: body, theme:'grid', styles:{fontSize:8.5,cellPadding:4,textColor:[40,40,36],lineColor:lineGrey,lineWidth:0.5}, headStyles:{fillColor:dark,textColor:gold,fontStyle:'bold'}, columnStyles:{0:{cellWidth:80},5:{cellWidth:125}} });
-          y = doc.lastAutoTable.finalY + (sessText ? 14 : 8);
-          if (sessText) { ensureSpace(14); doc.setFont('helvetica','italic'); doc.setFontSize(8.5); doc.setTextColor(grey[0],grey[1],grey[2]); doc.text(sessText, margin, y); y += 16; }
+          y += 8;
         }
+        y += 4;
       });
-      y += 6;
+      y += 8;
     });
+
+    // ════════════════════════════════
+    // RÉCORDS (solo en reporte completo)
+    // ════════════════════════════════
     if (!filterWeek) {
-      var records = ensureRecords().filter(function(r) { return r.nombre.trim() !== ''; });
+      var records = ensureRecords().filter(function(r) { return r.nombre && r.nombre.trim() !== ''; });
       if (records.length > 0) {
-        hasAnyContent = true; ensureSpace(30);
-        doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(dark[0],dark[1],dark[2]);
-        doc.text('Récords personales', margin, y); y += 10;
-        var recBody = records.map(function(r) {
+        hasAnyContent = true;
+        ensureSpace(40);
+        y += 6;
+        hline(C.border, 0.8);
+        y += 14;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(C.dark[0], C.dark[1], C.dark[2]);
+        doc.text('RÉCORDS PERSONALES', margin, y);
+        y += 14;
+
+        var recHead = [['#', 'Ejercicio', 'Peso × Reps', '1RM estimado', 'Nota']];
+        var recBody = records.map(function(r, ri) {
           var ormEst = calcOrm1RM(r.repMaxPeso, r.repMaxReps);
-          var pesoNorm = r.repMaxPeso ? parseFloat(String(r.repMaxPeso).replace(',', '.')) : null;
-          var pesoDisp = pesoNorm && !isNaN(pesoNorm) ? pesoNorm : (r.repMaxPeso || null);
-          var repMaxStr = (pesoDisp||r.repMaxReps) ? (pesoDisp||'-') + ' kg x ' + (r.repMaxReps||'-') + ' reps' : '-';
-          if (ormEst) repMaxStr += ' → 1RM est. ' + ormEst + ' kg';
-          return [r.nombre, repMaxStr];
+          var pesoN = r.repMaxPeso ? parseFloat(String(r.repMaxPeso).replace(',', '.')) : null;
+          var pesoDisp = (pesoN && !isNaN(pesoN)) ? pesoN + ' kg' : (r.repMaxPeso ? r.repMaxPeso + ' kg' : '—');
+          var repsDisp = r.repMaxReps ? r.repMaxReps + ' reps' : '—';
+          var marcaStr = (pesoN || r.repMaxReps) ? pesoDisp + ' × ' + repsDisp : '—';
+          return [
+            String(ri + 1),
+            r.nombre,
+            marcaStr,
+            ormEst ? ormEst + ' kg' : '—',
+            r.nota || ''
+          ];
         });
-        doc.autoTable({ startY: y+6, margin:{left:margin,right:margin}, head:[['Ejercicio','Mejor marca (1RM estimado)']], body: recBody, theme:'grid', styles:{fontSize:9,cellPadding:5,textColor:[40,40,36],lineColor:lineGrey,lineWidth:0.5}, headStyles:{fillColor:dark,textColor:gold,fontStyle:'bold'} });
+        doc.autoTable({
+          startY: y,
+          margin: { left: margin, right: margin },
+          head: recHead,
+          body: recBody,
+          theme: 'grid',
+          styles: {
+            fontSize: 8.5, cellPadding: 5,
+            textColor: C.dark, lineColor: C.border, lineWidth: 0.4,
+            font: 'helvetica'
+          },
+          headStyles: {
+            fillColor: C.dark, textColor: C.gold,
+            fontStyle: 'bold', fontSize: 8.5
+          },
+          columnStyles: {
+            0: { cellWidth: 20, halign: 'center' },
+            1: { cellWidth: 110 },
+            2: { cellWidth: 80, halign: 'center' },
+            3: { cellWidth: 70, halign: 'center' },
+            4: { cellWidth: contentW - 20 - 110 - 80 - 70 }
+          },
+          alternateRowStyles: { fillColor: C.rowAlt }
+        });
         y = doc.lastAutoTable.finalY + 10;
       }
     }
-    if (!hasAnyContent) { showToast(filterWeek ? 'No hay registros para esa semana' : 'No hay registros para generar el reporte', 'warn', 3000); return; }
-    var todayStr = new Date().toISOString().slice(0,10);
+
+    if (!hasAnyContent) {
+      showToast(filterWeek ? 'No hay registros para esa semana' : 'No hay registros para generar el reporte', 'warn', 3000);
+      return;
+    }
+
+    // ── Pie de página en todas las páginas ──
+    var totalPages = doc.internal.getNumberOfPages();
+    for (var pg = 1; pg <= totalPages; pg++) {
+      doc.setPage(pg);
+      // Banda inferior
+      doc.setFillColor(C.gold[0], C.gold[1], C.gold[2]);
+      doc.rect(0, pageH - 4, pageW, 4, 'F');
+      // Texto pie
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(7);
+      doc.setTextColor(C.greyMid[0], C.greyMid[1], C.greyMid[2]);
+      doc.text('STRENGTHLAB · by @rennzolift', margin, pageH - 10);
+      doc.text('Página ' + pg + ' de ' + totalPages, pageW - margin, pageH - 10, { align: 'right' });
+    }
+
+    // ── Guardar ──
+    var todayStr = new Date().toISOString().slice(0, 10);
     var namePart = clientName ? (slugify(clientName) + '-') : '';
-    doc.save((filterMonth && filterWeek) ? ('reporte-slab-' + namePart + 'mes' + filterMonth + '-semana' + filterWeek + '-' + todayStr + '.pdf') : ('reporte-slab-' + namePart + todayStr + '.pdf'));
+    var filename = (filterMonth && filterWeek)
+      ? 'slab-' + namePart + 'mes' + filterMonth + '-sem' + filterWeek + '-' + todayStr + '.pdf'
+      : 'slab-reporte-' + namePart + todayStr + '.pdf';
+    doc.save(filename);
   }
   document.getElementById('pdfReportBtn').onclick = function() { generatePDFReport(); };
   document.getElementById('exportBtn').onclick = async function() {
