@@ -438,6 +438,208 @@
   .ex-fields-row2 {
     display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 14px 12px 18px;
   }
+  /* ══════════════════════════════════════
+     SERIES — HEVY PRO (v2)
+     Grid: Serie · Anterior · kg · Reps · ✓
+  ══════════════════════════════════════ */
+  .series-hevy-wrap {
+    padding: 0 0 6px 0;
+  }
+
+  /* ── Header de columnas ── */
+  /* 7 cols: Serie · Anterior · kg · Reps · RPE obj · RPE real · check */
+  .series-hevy-header {
+    display: grid;
+    grid-template-columns: 36px 1fr 54px 48px 46px 46px 36px;
+    gap: 0;
+    padding: 0 10px 0 10px;
+    margin-bottom: 2px;
+  }
+  .series-hevy-header span {
+    font-family: var(--font-mono);
+    font-size: 8px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    text-align: center; padding: 8px 0 6px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap; overflow: hidden;
+  }
+  .series-hevy-header span:first-child { text-align: left; padding-left: 2px; }
+  .series-hevy-header span:last-child  { text-align: center; }
+
+  /* ── Fila de serie ── */
+  .serie-hevy-row {
+    display: grid;
+    grid-template-columns: 36px 1fr 54px 48px 46px 46px 36px;
+    gap: 0;
+    align-items: center;
+    padding: 3px 10px;
+    min-height: 52px;
+    transition: background 0.18s ease;
+    border-radius: 0;
+    position: relative;
+  }
+  /* Separador entre filas */
+  .serie-hevy-row + .serie-hevy-row::before {
+    content: '';
+    position: absolute; top: 0; left: 14px; right: 14px;
+    height: 1px; background: var(--border);
+  }
+  /* Estado: completada */
+  .serie-hevy-row.serie-done {
+    background: rgba(201,169,110,0.07);
+  }
+  /* Estado: warmup */
+  .serie-hevy-row.serie-warmup {
+    background: rgba(232,160,32,0.05);
+  }
+
+  /* ── Badge número / tipo ── */
+  .serie-hevy-num {
+    display: flex; align-items: center; justify-content: flex-start;
+    font-family: var(--font-mono); font-size: 13px; font-weight: 600;
+    color: var(--text-dim); padding-left: 2px;
+    cursor: default;
+    user-select: none;
+    transition: color 0.15s;
+    min-height: 44px;
+    gap: 0;
+  }
+  .serie-hevy-num .num-inner {
+    width: 26px; height: 26px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+    background: transparent;
+    transition: all 0.18s;
+  }
+  .serie-hevy-row.serie-done .num-inner {
+    background: var(--gold); color: var(--dark);
+  }
+  .serie-hevy-row.serie-warmup .num-inner {
+    color: var(--amber); background: rgba(232,160,32,0.12);
+  }
+
+  /* ── Celda "Anterior" (prev data) ── */
+  .serie-hevy-prev {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-dim); text-align: center;
+    padding: 0 4px;
+    line-height: 1.3; letter-spacing: 0.2px;
+  }
+  .serie-hevy-prev.has-data { color: var(--text-mid); }
+  .serie-hevy-prev .prev-val { display: block; font-size: 12px; }
+  .serie-hevy-prev .prev-sub { display: block; font-size: 9px; color: var(--text-dim); }
+
+  /* ── Inputs (kg / reps) ── */
+  .serie-hevy-input {
+    background: var(--dark-2); border: 1.5px solid transparent;
+    border-radius: 8px;
+    color: var(--num-white); font-family: var(--font-mono);
+    font-size: 17px; font-weight: 700;
+    padding: 7px 4px; text-align: center; width: 100%; min-height: 44px;
+    transition: border-color 0.15s, background 0.15s;
+    -webkit-appearance: none; appearance: none;
+    margin: 0 3px;
+  }
+  .serie-hevy-input.inp-peso { color: var(--gold); }
+  .serie-hevy-input:focus {
+    outline: none;
+    border-color: var(--gold);
+    background: rgba(201,169,110,0.06);
+  }
+  .serie-hevy-row.serie-done .serie-hevy-input {
+    border-color: rgba(201,169,110,0.2);
+    background: rgba(201,169,110,0.05);
+    color: var(--gold);
+  }
+  .serie-hevy-row.serie-done .serie-hevy-input.inp-reps {
+    color: var(--num-white);
+  }
+  .serie-hevy-row.serie-warmup .serie-hevy-input {
+    border-color: rgba(232,160,32,0.2);
+    background: rgba(232,160,32,0.04);
+  }
+
+  /* ── Check de completado ── */
+  .serie-hevy-check {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--dark-2); border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; margin: 0 auto;
+    transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+    color: transparent; font-size: 14px; font-weight: 700;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  @keyframes checkPop2 {
+    0%   { transform: scale(0.7); }
+    55%  { transform: scale(1.2); }
+    80%  { transform: scale(0.93); }
+    100% { transform: scale(1); }
+  }
+  .serie-hevy-check:active { transform: scale(0.85); }
+  .serie-hevy-row.serie-done .serie-hevy-check {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--dark);
+    animation: checkPop2 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    box-shadow: 0 0 0 4px rgba(201,169,110,0.18);
+  }
+
+  /* ── Botón warmup toggle + del (debajo del badge) ── */
+  .serie-hevy-num-wrap {
+    display: flex; flex-direction: column; align-items: flex-start;
+    gap: 0;
+  }
+
+  /* ── Botón añadir serie ── */
+  .serie-hevy-add {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: calc(100% - 28px); margin: 8px 14px 2px;
+    padding: 11px 14px;
+    background: transparent;
+    border: 1.5px dashed rgba(201,169,110,0.3);
+    border-radius: 9px; color: var(--text-dim);
+    font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+    letter-spacing: 0.6px; text-transform: uppercase;
+    cursor: pointer; min-height: 44px;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .serie-hevy-add:hover, .serie-hevy-add:active {
+    border-color: var(--gold); color: var(--gold);
+    background: var(--gold-glow);
+    border-style: solid;
+  }
+
+  /* ── RPE chip (debajo del check cuando hay valor) ── */
+  .serie-rpe-chip {
+    font-family: var(--font-mono); font-size: 8.5px; color: var(--gold-dim);
+    background: rgba(201,169,110,0.1); border-radius: 3px;
+    padding: 1px 5px; display: inline-block; margin-top: 2px;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── Toolbar de tipo de serie (Warmup / Normal) ── */
+  .serie-type-bar {
+    display: flex; gap: 6px;
+    padding: 8px 14px 4px;
+  }
+  .serie-type-btn {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 4px 10px; border-radius: 5px;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--text-dim); cursor: pointer;
+    transition: all 0.15s; min-height: 30px;
+  }
+  .serie-type-btn.active-rpe { border-color: var(--gold); color: var(--gold); background: var(--gold-glow); }
+  .serie-type-btn.active-rir { border-color: var(--amber); color: var(--amber); background: rgba(232,160,32,0.08); }
+
+  /* Legacy / override */
+  .serie-hevy-del { display: none; }
+  .serie-row-num {
+    font-family: var(--font-mono); font-size: 9px; color: var(--text-dim);
+    text-transform: uppercase; padding-bottom: 11px; text-align: right; min-width: 18px;
+  }
   .note-field {
     padding: 0 14px 12px 18px; display: flex; flex-direction: column; gap: 4px;
   }
@@ -1913,11 +2115,26 @@
 
   function dayKey(m, w, d) { return 'm' + m + 'w' + w + 'd' + d; }
   function sessionKey(m, w, d) { return dayKey(m, w, d) + '_session'; }
-  function emptyExercise() { return { nombre: '', sets: '', reps: '', rpe: '', rpeReal: '', peso: '', nota: '', hecho: false }; }
+  function emptySerie() { return { reps: '', peso: '', rpe: '', rpeReal: '', done: false, warmup: false }; }
+  function emptyExercise() { return { nombre: '', series: [emptySerie()], nota: '', hecho: false, rirMode: false }; }
+
+  // Migración: convierte ejercicios viejos (sets/reps/peso/rpe/rpeReal) al nuevo formato con array de series
+  function migrateExercise(ex) {
+    if (ex.series) return ex;
+    var numSets = parseInt(ex.sets) || 1;
+    var series = [];
+    for (var i = 0; i < numSets; i++) {
+      series.push({ reps: ex.reps || '', peso: ex.peso || '', rpe: ex.rpe || '', rpeReal: ex.rpeReal || '' });
+    }
+    ex.series = series;
+    delete ex.sets; delete ex.reps; delete ex.peso; delete ex.rpe; delete ex.rpeReal;
+    return ex;
+  }
 
   function ensureDay(m, w, d) {
     var key = dayKey(m, w, d);
     if (!STATE.data[key]) STATE.data[key] = [];
+    STATE.data[key] = STATE.data[key].map(migrateExercise);
     return STATE.data[key];
   }
   function ensureSession(m, w, d) {
@@ -2320,8 +2537,9 @@
         // Guardar el registro más reciente (orden: m, w, d)
         if (m > map[key].lastM || (m === map[key].lastM && w > map[key].lastW) || (m === map[key].lastM && w === map[key].lastW && d > map[key].lastD)) {
           map[key].lastM = m; map[key].lastW = w; map[key].lastD = d;
-          if (ex.peso) map[key].lastPeso = ex.peso;
-          if (ex.reps) map[key].lastReps = ex.reps;
+          var lastS = ex.series && ex.series.length ? ex.series[ex.series.length-1] : null;
+          if (lastS && lastS.peso) map[key].lastPeso = lastS.peso;
+          if (lastS && lastS.reps) map[key].lastReps = lastS.reps;
         }
       });
     }
@@ -2612,17 +2830,240 @@
 
       var iRpePanel = buildInlineRpePanel(ex); card.appendChild(iRpePanel);
 
-      var fields1 = document.createElement('div'); fields1.className = 'ex-fields';
-      fields1.appendChild(makeField('Series', ex, 'sets', 'number', 'numeric'));
-      fields1.appendChild(makeField('Reps', ex, 'reps', 'text', 'numeric'));
-      fields1.appendChild(makeRPEField('RPE obj.', ex, 'rpe', 'rpe-select'));
-      card.appendChild(fields1);
+      // ── Toggle RPE / RIR ──
+      if (!('rirMode' in ex)) ex.rirMode = false;
+      if (!ex.series || !ex.series.length) ex.series = [emptySerie()];
 
-      var fields2 = document.createElement('div'); fields2.className = 'ex-fields-row2';
-      var rpeRealField = makeRPEField('RPE real', ex, 'rpeReal', 'rpe-real'); rpeRealField.classList.add('rpe-real');
-      var pesoField = makeField('Peso usado (kg)', ex, 'peso', 'text', 'decimal'); pesoField.classList.add('peso');
-      fields2.appendChild(rpeRealField); fields2.appendChild(pesoField);
-      card.appendChild(fields2);
+      // ── Header de modo (RPE/RIR) ──
+      var modeBar = document.createElement('div');
+      modeBar.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 14px 0 18px;';
+      var modeLabel = document.createElement('span');
+      modeLabel.style.cssText = 'font-family:var(--font-mono);font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;';
+      modeLabel.textContent = 'Modo intensidad:';
+      var modeBtns = document.createElement('div');
+      modeBtns.style.cssText = 'display:flex;gap:4px;';
+      var btnRPE = document.createElement('button'); btnRPE.type='button'; btnRPE.textContent='RPE';
+      btnRPE.style.cssText='font-family:var(--font-mono);font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid;cursor:pointer;transition:all 0.15s;';
+      var btnRIR = document.createElement('button'); btnRIR.type='button'; btnRIR.textContent='RIR';
+      btnRIR.style.cssText='font-family:var(--font-mono);font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid;cursor:pointer;transition:all 0.15s;';
+      modeBtns.appendChild(btnRPE); modeBtns.appendChild(btnRIR);
+      modeBar.appendChild(modeLabel); modeBar.appendChild(modeBtns);
+      card.appendChild(modeBar);
+
+      // ── Contenedor de filas de series (Hevy-style) ──
+      var seriesContainer = document.createElement('div');
+      seriesContainer.className = 'series-hevy-wrap';
+      card.appendChild(seriesContainer);
+
+      function applyModeStyle() {
+        if (!ex.rirMode) {
+          btnRPE.style.cssText='font-family:var(--font-mono);font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid var(--gold);cursor:pointer;transition:all 0.15s;background:var(--gold);color:var(--dark);';
+          btnRIR.style.cssText='font-family:var(--font-mono);font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;background:transparent;color:var(--text-dim);';
+        } else {
+          btnRIR.style.cssText='font-family:var(--font-mono);font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid var(--gold);cursor:pointer;transition:all 0.15s;background:var(--gold);color:var(--dark);';
+          btnRPE.style.cssText='font-family:var(--font-mono);font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;background:transparent;color:var(--text-dim);';
+        }
+      }
+      applyModeStyle();
+
+      // ══ SERIES HEVY PRO v2 ══
+      // Busca el dato histórico de este ejercicio en sesiones anteriores (excluyendo día actual)
+      function getPrevSeriesData(exNombre) {
+        var curKey = dayKey(STATE.month, STATE.week, STATE.day);
+        var best = null; // { m, w, d, series }
+        for (var m = 1; m <= 3; m++) for (var w = 1; w <= 4; w++) for (var d = 1; d <= 5; d++) {
+          var k = dayKey(m, w, d);
+          if (k === curKey) continue;
+          var dayArr = STATE.data[k] || [];
+          dayArr.forEach(function(e) {
+            if (!e.nombre || e.nombre.trim().toLowerCase() !== exNombre.trim().toLowerCase()) return;
+            if (!best || m > best.m || (m===best.m && w>best.w) || (m===best.m && w===best.w && d>best.d)) {
+              best = { m:m, w:w, d:d, series: e.series || [] };
+            }
+          });
+        }
+        return best ? best.series : [];
+      }
+
+      function buildSerieRow(serie, sIdx) {
+        var isDone   = !!serie.done;
+        var isWarmup = !!serie.warmup;
+        var prevSeries = getPrevSeriesData(ex.nombre);
+        var prevS = prevSeries[sIdx] || null;
+
+        var row = document.createElement('div');
+        row.className = 'serie-hevy-row' +
+          (isDone   ? ' serie-done'   : '') +
+          (isWarmup ? ' serie-warmup' : '');
+
+        // ── Col 1: badge número/tipo ──
+        var numCell = document.createElement('div');
+        numCell.className = 'serie-hevy-num';
+        var numInner = document.createElement('div');
+        numInner.className = 'num-inner';
+        numInner.textContent = isWarmup ? 'W' : (sIdx + 1);
+        numInner.title = 'Mantén para eliminar · Doble clic para warmup';
+        numCell.appendChild(numInner);
+        row.appendChild(numCell);
+
+        // Long-press → eliminar; doble clic → toggle warmup
+        var _lpTimer = null;
+        numInner.addEventListener('touchstart', function() {
+          _lpTimer = setTimeout(function() {
+            if (ex.series.length <= 1) { showToast('Mínimo 1 serie', 'warn'); return; }
+            ex.series.splice(sIdx, 1); scheduleSave(); rebuildSeriesRows();
+          }, 650);
+        }, { passive:true });
+        numInner.addEventListener('touchend',  function() { clearTimeout(_lpTimer); }, { passive:true });
+        numInner.addEventListener('touchmove', function() { clearTimeout(_lpTimer); }, { passive:true });
+        numInner.addEventListener('dblclick', function() {
+          serie.warmup = !serie.warmup; scheduleSave(); rebuildSeriesRows();
+        });
+
+        // ── Col 2: dato anterior ──
+        var prevCell = document.createElement('div');
+        prevCell.className = 'serie-hevy-prev' + (prevS && prevS.peso ? ' has-data' : '');
+        if (prevS && (prevS.peso || prevS.reps)) {
+          var pVal = document.createElement('span'); pVal.className = 'prev-val';
+          pVal.textContent = (prevS.peso ? prevS.peso + ' kg' : '') + (prevS.peso && prevS.reps ? ' × ' : '') + (prevS.reps || '');
+          prevCell.appendChild(pVal);
+          if (prevS.rpe) {
+            var pSub = document.createElement('span'); pSub.className = 'prev-sub';
+            pSub.textContent = (ex.rirMode ? 'RIR ' : 'RPE ') + prevS.rpe;
+            prevCell.appendChild(pSub);
+          }
+        } else {
+          prevCell.textContent = '—';
+        }
+        row.appendChild(prevCell);
+
+        // ── Col 3 & 4: inputs kg / reps ──
+        function makeInp(key, isPeso) {
+          var inp = document.createElement('input');
+          inp.type = 'text'; inp.inputMode = 'decimal';
+          inp.className = 'serie-hevy-input' + (isPeso ? ' inp-peso' : ' inp-reps');
+          inp.value = serie[key] || '';
+          inp.placeholder = isPeso ? (prevS && prevS.peso ? prevS.peso : '0') :
+                                     (prevS && prevS.reps ? prevS.reps : '0');
+          inp.setAttribute('aria-label', isPeso ? 'Peso kg' : 'Repeticiones');
+          inp.oninput = function() { serie[key] = this.value; scheduleSave(); };
+          inp.onfocus = function() { this.select(); this.style.borderColor='var(--gold)'; };
+          inp.onblur  = function() { this.style.borderColor=''; };
+          return inp;
+        }
+        row.appendChild(makeInp('peso', true));
+        row.appendChild(makeInp('reps', false));
+
+        // ── Col 5 & 6: RPE obj / RPE real (select compacto) ──
+        function makeRpeSelect(key) {
+          var sel = document.createElement('select');
+          sel.style.cssText = [
+            'background:var(--dark-2)',
+            'border:1.5px solid transparent',
+            'border-radius:8px',
+            'color:var(--gold)',
+            'font-family:var(--font-mono)',
+            'font-size:13px',
+            'font-weight:600',
+            'padding:4px 2px',
+            'text-align:center',
+            'text-align-last:center',
+            'width:100%',
+            'min-height:44px',
+            '-webkit-appearance:none',
+            'appearance:none',
+            'cursor:pointer',
+            'transition:border-color 0.15s, background 0.15s',
+            'margin:0 2px'
+          ].join(';');
+          sel.setAttribute('aria-label', ex.rirMode ? 'RIR' : 'RPE');
+          var blank = document.createElement('option');
+          blank.value = ''; blank.textContent = '—'; sel.appendChild(blank);
+          if (ex.rirMode) {
+            for (var v = 4; v >= 0; v--) {
+              var o = document.createElement('option');
+              o.value = v.toString();
+              o.textContent = v === 0 ? 'F' : v;
+              sel.appendChild(o);
+            }
+          } else {
+            for (var v = 5; v <= 10; v += 0.5) {
+              var val2 = (Math.round(v * 10) / 10).toString();
+              var o = document.createElement('option');
+              o.value = val2; o.textContent = val2; sel.appendChild(o);
+            }
+          }
+          sel.value = serie[key] || '';
+          sel.onfocus = function() { this.style.borderColor = 'var(--gold)'; this.style.background = 'rgba(201,169,110,0.06)'; };
+          sel.onblur  = function() { this.style.borderColor = ''; this.style.background = 'var(--dark-2)'; };
+          sel.onchange = function() { serie[key] = this.value; scheduleSave(); };
+          // Estado done
+          if (isDone) {
+            sel.style.borderColor = 'rgba(201,169,110,0.2)';
+            sel.style.background = 'rgba(201,169,110,0.05)';
+          }
+          return sel;
+        }
+        row.appendChild(makeRpeSelect('rpe'));
+        row.appendChild(makeRpeSelect('rpeReal'));
+
+        // ── Col 7: check completado ──
+        var chk = document.createElement('div');
+        chk.className = 'serie-hevy-check';
+        chk.setAttribute('role', 'checkbox');
+        chk.setAttribute('aria-checked', isDone ? 'true' : 'false');
+        chk.innerHTML = isDone ? '✓' : '';
+        chk.onclick = function() {
+          serie.done = !serie.done;
+          scheduleSave(); rebuildSeriesRows();
+        };
+        row.appendChild(chk);
+
+        return row;
+      }
+
+      function rebuildSeriesRows() {
+        seriesContainer.innerHTML = '';
+        var intLbl = ex.rirMode ? 'RIR' : 'RPE';
+
+        // ── Header ──
+        var hdr = document.createElement('div');
+        hdr.className = 'series-hevy-header';
+        ['#', 'Anterior', 'kg', 'Reps', intLbl + ' obj', intLbl + ' real', '✓'].forEach(function(t) {
+          var s = document.createElement('span'); s.textContent = t; hdr.appendChild(s);
+        });
+        seriesContainer.appendChild(hdr);
+
+        // ── Filas ──
+        ex.series.forEach(function(serie, sIdx) {
+          seriesContainer.appendChild(buildSerieRow(serie, sIdx));
+        });
+
+        // ── Botón añadir serie ──
+        var addBtn = document.createElement('button');
+        addBtn.type = 'button'; addBtn.className = 'serie-hevy-add';
+        addBtn.innerHTML = '<span style="font-size:16px;line-height:1;margin-right:2px;">+</span> Añadir serie';
+        addBtn.onclick = function() {
+          var prev = ex.series[ex.series.length - 1];
+          var newSerie = emptySerie();
+          if (prev && prev.peso) newSerie.peso = prev.peso;
+          if (prev && prev.rpe)  newSerie.rpe  = prev.rpe;
+          ex.series.push(newSerie); scheduleSave(); rebuildSeriesRows();
+          // Scroll al botón
+          setTimeout(function() { addBtn.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 60);
+        };
+        seriesContainer.appendChild(addBtn);
+      }
+
+      rebuildSeriesRows();
+
+      btnRPE.onclick = function() {
+        if (ex.rirMode) { ex.rirMode=false; scheduleSave(); applyModeStyle(); rebuildSeriesRows(); }
+      };
+      btnRIR.onclick = function() {
+        if (!ex.rirMode) { ex.rirMode=true; scheduleSave(); applyModeStyle(); rebuildSeriesRows(); }
+      };
+
       card.appendChild(makeNoteField(ex));
 
       var doneWrap = document.createElement('label');
@@ -2751,7 +3192,7 @@
     var totalKcal = 0;
     arr.forEach(function(ex) {
       if (!ex.nombre || !ex.nombre.trim()) return;
-      var sets = parseInt(ex.sets) || 3;
+      var sets = (ex.series && ex.series.length) || 3;
       var met = getMET(ex.nombre);
       var tiempoMin = sets * (KCAL_TIEMPO_SET_MIN + KCAL_DESCANSO_MIN);
       totalKcal += met * pc * (tiempoMin / 60);
@@ -2804,7 +3245,8 @@
     var sel2 = document.createElement('select'); sel2.setAttribute('data-irpe', 'reps');
     for (var r = 1; r <= 12; r++) {
       var o = document.createElement('option'); o.value = r; o.textContent = r;
-      if (ex.reps && parseInt(ex.reps) === r) o.selected = true; else if (!ex.reps && r === 4) o.selected = true;
+      var firstSerieReps = ex.series && ex.series[0] && ex.series[0].reps;
+      if (firstSerieReps && parseInt(firstSerieReps) === r) o.selected = true; else if (!firstSerieReps && r === 4) o.selected = true;
       sel2.appendChild(o);
     }
     f2.appendChild(l2); f2.appendChild(sel2); row.appendChild(f2);
@@ -2813,7 +3255,8 @@
     var sel3 = document.createElement('select'); sel3.setAttribute('data-irpe', 'rpe');
     RPE_KEYS.forEach(function(k) {
       var o = document.createElement('option'); o.value = k; o.textContent = k;
-      if ((ex.rpe && ex.rpe === k) || (!ex.rpe && k === '7')) o.selected = true;
+      var firstSerieRpe = ex.series && ex.series[0] && ex.series[0].rpe;
+      if ((firstSerieRpe && firstSerieRpe === k) || (!firstSerieRpe && k === '7')) o.selected = true;
       sel3.appendChild(o);
     });
     f3.appendChild(l3); f3.appendChild(sel3); row.appendChild(f3);
@@ -2868,6 +3311,30 @@
     for (var v = 5; v <= 10; v += 0.5) {
       var val = (Math.round(v*10)/10).toString();
       var opt = document.createElement('option'); opt.value = val; opt.textContent = val; select.appendChild(opt);
+    }
+    select.value = ex[key] || '';
+    select.onchange = function() { ex[key] = this.value; scheduleSave(); };
+    wrap.appendChild(label); wrap.appendChild(select); return wrap;
+  }
+  // makeIntensityField: RPE (5–10, step 0.5) or RIR (4–0, integers)
+  function makeIntensityField(labelText, ex, key, extraClass, isRIR) {
+    var wrap = document.createElement('div'); wrap.className = 'field' + (extraClass ? ' ' + extraClass : '');
+    var label = document.createElement('label'); label.textContent = labelText;
+    var select = document.createElement('select'); select.setAttribute('aria-label', labelText);
+    var blankOpt = document.createElement('option'); blankOpt.value = ''; blankOpt.textContent = '—'; select.appendChild(blankOpt);
+    if (isRIR) {
+      // RIR 4 → 0 (RIR 0 = al fallo)
+      for (var v = 4; v >= 0; v--) {
+        var opt = document.createElement('option');
+        opt.value = v.toString();
+        opt.textContent = v === 0 ? 'RIR 0 (fallo)' : 'RIR ' + v;
+        select.appendChild(opt);
+      }
+    } else {
+      for (var v = 5; v <= 10; v += 0.5) {
+        var val = (Math.round(v*10)/10).toString();
+        var opt = document.createElement('option'); opt.value = val; opt.textContent = val; select.appendChild(opt);
+      }
     }
     select.value = ex[key] || '';
     select.onchange = function() { ex[key] = this.value; scheduleSave(); };
@@ -2969,12 +3436,14 @@
 
     var totalSets = 0, totalVol = 0, exWithPeso = 0;
     exRows.forEach(function(ex) {
-      var sets = parseInt(ex.sets) || 0;
-      var peso = parseFloat(String(ex.peso).replace(',','.')) || 0;
-      var reps = parseFloat(String(ex.reps).replace(',','.')) || 0;
-      totalSets += sets;
-      if (peso && reps) totalVol += peso * reps * sets;
-      if (peso) exWithPeso++;
+      var series = ex.series || [];
+      totalSets += series.length;
+      series.forEach(function(s) {
+        var peso = parseFloat(String(s.peso||'').replace(',','.')) || 0;
+        var reps = parseFloat(String(s.reps||'').replace(',','.')) || 0;
+        if (peso && reps) totalVol += peso * reps;
+        if (peso) exWithPeso++;
+      });
     });
 
     var overlay = document.getElementById('sessionCompleteOverlay');
@@ -3020,9 +3489,12 @@
         var name = document.createElement('div'); name.className = 'sc-ex-name'; name.textContent = ex.nombre;
         var detail = document.createElement('div'); detail.className = 'sc-ex-detail';
         var parts = [];
-        if (ex.sets && ex.reps) parts.push(ex.sets + '×' + ex.reps);
-        if (ex.peso) parts.push(ex.peso + ' kg');
-        if (ex.rpeReal) parts.push('RPE ' + ex.rpeReal);
+        var series = ex.series || [];
+        if (series.length) parts.push(series.length + (series.length===1?' serie':' series'));
+        var bestPeso = series.reduce(function(m,s){ var p=parseFloat(String(s.peso||'').replace(',','.'))||0; return p>m?p:m; }, 0);
+        if (bestPeso) parts.push(bestPeso + ' kg');
+        var lastRpeReal = series.length ? (series[series.length-1].rpeReal) : '';
+        if (lastRpeReal) parts.push((ex.rirMode ? 'RIR ' : 'RPE ') + lastRpeReal);
         detail.textContent = parts.join(' · ');
         row.appendChild(name); row.appendChild(detail); exListEl.appendChild(row);
       });
@@ -3117,7 +3589,7 @@
       for (var d = 1; d <= 5; d++) {
         var arr = STATE.data[dayKey(month, w, d)] || [];
         arr.forEach(function(ex) {
-          if (ex.nombre.trim() && ex.hecho) totalSets += (parseInt(ex.sets) || 0);
+          if (ex.nombre.trim() && ex.hecho) totalSets += (ex.series && ex.series.length) || 0;
         });
       }
       data.push(totalSets);
@@ -3145,7 +3617,7 @@
     var names = {};
     for (var w = 1; w <= 4; w++) for (var d = 1; d <= 5; d++) {
       var arr = STATE.data[dayKey(month, w, d)] || [];
-      arr.forEach(function(ex) { if (ex.nombre.trim() && ex.peso) names[ex.nombre.trim()] = true; });
+      arr.forEach(function(ex) { if (ex.nombre.trim() && ex.series && ex.series.some(function(s){return s.peso;})) names[ex.nombre.trim()] = true; });
     }
     var sel = document.getElementById('chartExSelect');
     var prev = sel.value;
@@ -3173,9 +3645,10 @@
       for (var d = 1; d <= 5; d++) {
         var arr = STATE.data[dayKey(month, w, d)] || [];
         arr.forEach(function(ex) {
-          if (ex.nombre.trim() === ejercicio && ex.peso) {
-            var p = parseFloat(String(ex.peso).replace(',','.'));
-            if (!isNaN(p) && (weekMax === null || p > weekMax)) weekMax = p;
+          if (ex.nombre.trim() === ejercicio && ex.series) {
+            ex.series.forEach(function(s) {
+              if (s.peso) { var p = parseFloat(String(s.peso).replace(',','.')); if (!isNaN(p) && (weekMax===null||p>weekMax)) weekMax=p; }
+            });
           }
         });
       }
@@ -3361,7 +3834,7 @@
         if (exRows.length > 0) {
           var tbl = document.createElement('table'); tbl.className = 'prog-table';
           var thead = document.createElement('tr');
-          ['Ejercicio','Sx R','RPE→R','kg'].forEach(function(h) {
+          ['Ejercicio','Sx R','Intens.→R','kg'].forEach(function(h) {
             var th = document.createElement('th'); th.textContent = h; thead.appendChild(th);
           });
           tbl.appendChild(thead);
@@ -3370,12 +3843,17 @@
             var c1 = document.createElement('td'); c1.className = 'ex-name';
             c1.textContent = ex.nombre;
             var c2 = document.createElement('td'); c2.className = 'dim';
-            c2.textContent = (ex.sets||'—') + 'x' + (ex.reps||'—');
+            var exSeries = ex.series || [];
+            c2.textContent = exSeries.length + ' serie' + (exSeries.length!==1?'s':'');
             var c3 = document.createElement('td'); c3.className = 'dim';
-            var rpeStr = (ex.rpe||'—') + '→' + (ex.rpeReal||'—');
-            c3.textContent = rpeStr;
-            var c4 = document.createElement('td'); c4.className = ex.peso ? 'gold' : 'dim';
-            c4.textContent = ex.peso ? ex.peso : '—';
+            var intPrefix2 = ex.rirMode ? 'RIR ' : 'RPE ';
+            var firstS = exSeries[0]||{};
+            var intStr = (firstS.rpe ? intPrefix2+firstS.rpe : '—') + '→' + (firstS.rpeReal ? intPrefix2+firstS.rpeReal : '—');
+            if (exSeries.length > 1) intStr += '…';
+            c3.textContent = intStr;
+            var bestPesoP = exSeries.reduce(function(m,s){var p=parseFloat(String(s.peso||'').replace(',','.'))||0;return p>m?p:m;},0);
+            var c4 = document.createElement('td'); c4.className = bestPesoP ? 'gold' : 'dim';
+            c4.textContent = bestPesoP ? bestPesoP + ' kg' : '—';
             tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3); tr.appendChild(c4);
             tbl.appendChild(tr);
           });
@@ -3531,7 +4009,13 @@
               var pesoNum = parseFloat(String(e.peso).replace(',', '.'));
               pesoStr = isNaN(pesoNum) ? String(e.peso) + ' kg' : pesoNum + ' kg';
             }
-            return [e.nombre, e.sets||'-', e.reps||'-', (e.rpe||'-') + ' -> ' + (e.rpeReal||'-'), pesoStr, e.nota||''];
+            var pfx2 = e.rirMode ? 'RIR' : 'RPE';
+            var eSeries = e.series || [];
+            var setsStr = eSeries.length.toString();
+            var repsStr = eSeries.map(function(s){return s.reps||'-';}).join('/');
+            var rpeStr2 = eSeries.map(function(s){return (s.rpe?pfx2+' '+s.rpe:'-')+'→'+(s.rpeReal?pfx2+' '+s.rpeReal:'-');}).join(' | ');
+            var pesoStr2 = eSeries.map(function(s){return s.peso?(parseFloat(String(s.peso).replace(',','.'))||s.peso)+' kg':'-';}).join('/');
+            return [e.nombre, setsStr, repsStr, rpeStr2, pesoStr2, e.nota||''];
           });
           doc.autoTable({ startY: y+6, margin:{left:margin,right:margin}, head:[['Ejercicio','Series','Reps','RPE obj->real','Peso','Nota']], body: body, theme:'grid', styles:{fontSize:8.5,cellPadding:4,textColor:[40,40,36],lineColor:lineGrey,lineWidth:0.5}, headStyles:{fillColor:dark,textColor:gold,fontStyle:'bold'}, columnStyles:{0:{cellWidth:80},5:{cellWidth:125}} });
           y = doc.lastAutoTable.finalY + (sessText ? 14 : 8);
