@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Registro de Entrenamientos | SLAB</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -100,6 +100,7 @@
     border-radius: 8px;
     transition: background 0.15s;
     -webkit-tap-highlight-color: transparent;
+    user-select: none; -webkit-user-select: none;
   }
   .hamburger-btn:hover, .hamburger-btn:active { background: var(--gold-glow); }
   .hamburger-btn span {
@@ -133,6 +134,9 @@
     transform: translateX(-100%);
     transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
     overflow: hidden;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    will-change: transform;
   }
   #drawer.open { transform: translateX(0); }
 
@@ -153,7 +157,7 @@
   }
 
   /* ── Drawer nav items ── */
-  .drawer-nav { flex: 1; padding: 10px 0; overflow-y: auto; }
+  .drawer-nav { flex: 1; padding: 10px 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .drawer-item {
     display: flex; align-items: center; gap: 14px;
     padding: 0 20px; min-height: 52px;
@@ -190,6 +194,7 @@
   .drawer-theme-row {
     display: flex; align-items: center; gap: 14px;
     padding: 0 20px; min-height: 52px;
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
     border-top: 1px solid var(--border);
     flex-shrink: 0;
   }
@@ -224,8 +229,17 @@
     color: var(--text);
     font-family: var(--font-body);
     min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior-y: none;
   }
-  #app { max-width: 480px; margin: 0 auto; padding-bottom: 80px; }
+  button, [role="button"], a, label, select, input {
+    touch-action: manipulation;
+  }
+  * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+  #app { max-width: 480px; margin: 0 auto; padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
 
   /* ── TOAST ── */
   #toast {
@@ -234,7 +248,7 @@
     padding: 10px 18px; font-family: var(--font-mono); font-size: 11px;
     color: var(--text); letter-spacing: 0.4px; white-space: nowrap;
     opacity: 0; transition: opacity 0.2s ease, transform 0.2s ease;
-    z-index: 200; pointer-events: none; max-width: calc(100vw - 32px);
+    z-index: 9500; pointer-events: none; max-width: calc(100vw - 32px);
     text-align: center;
   }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -247,7 +261,8 @@
     background: var(--dark);
     border-bottom: 2px solid var(--gold);
     padding: 14px 16px 12px;
-    position: sticky; top: 0; z-index: 10;
+    position: sticky; top: 0; z-index: 20;
+    padding-top: calc(14px + env(safe-area-inset-top));
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
   }
   .topbar-left { flex: 1; min-width: 0; }
@@ -290,7 +305,13 @@
   nav.tabs {
     display: flex; gap: 0; padding: 0 16px;
     border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    position: sticky; top: 56px; z-index: 15;
+    background: var(--dark);
   }
+  nav.tabs::-webkit-scrollbar { display: none; }
   nav.tabs button {
     flex: 1; min-height: var(--touch-min);
     padding: 10px 10px 12px; font-size: 11px; font-weight: 500;
@@ -348,8 +369,9 @@
     position: fixed; z-index: 50;
     background: var(--card); border: 1px solid var(--border); border-radius: 10px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    min-width: 140px; overflow: hidden;
+    min-width: 140px; max-height: 50vh; overflow-y: auto;
     display: none;
+    -webkit-overflow-scrolling: touch;
   }
   .seg-dropdown.open { display: block; }
   .seg-dropdown-item {
@@ -451,6 +473,7 @@
     overflow: hidden;
     transition: border-color 0.2s ease;
     position: relative;
+    max-width: 100%;
   }
   .exercise-card.complete {
     border-color: var(--complete-border);
@@ -495,7 +518,7 @@
   .ex-name-input {
     flex: 1; background: transparent; border: none; color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-    font-size: 15px; font-weight: 600; padding: 4px 0; min-width: 0;
+    font-size: 16px; font-weight: 600; padding: 4px 0; min-width: 0;
     min-height: var(--touch-min);
   }
   .ex-name-input::placeholder { color: var(--text-dim); font-weight: 400; }
@@ -535,7 +558,7 @@
   }
   .irpe-field input, .irpe-field select {
     background: var(--card); border: 1px solid var(--border); border-radius: 6px;
-    color: var(--text); font-family: var(--font-mono); font-size: 14px; font-weight: 500;
+    color: var(--text); font-family: var(--font-mono); font-size: 16px; font-weight: 500;
     padding: 8px 6px; text-align: center; width: 100%;
     -webkit-appearance: none; appearance: none;
     transition: border-color 0.15s;
@@ -562,7 +585,7 @@
   }
   .field input {
     background: var(--dark-2); border: 1px solid var(--border); border-radius: 6px;
-    color: var(--num-white); font-family: var(--font-mono); font-size: 15px; padding: 9px 6px;
+    color: var(--num-white); font-family: var(--font-mono); font-size: 16px; padding: 9px 6px;
     text-align: center; width: 100%; font-weight: 500;
     transition: border-color 0.15s;
     min-height: var(--touch-min);
@@ -585,7 +608,7 @@
   }
   .field select {
     background: var(--dark-2); border: 1px solid var(--border); border-radius: 6px;
-    color: var(--text); font-family: var(--font-mono); font-size: 15px; padding: 9px 4px;
+    color: var(--text); font-family: var(--font-mono); font-size: 16px; padding: 9px 4px;
     text-align: center; width: 100%; font-weight: 500;
     -webkit-appearance: none; -moz-appearance: none; appearance: none;
     text-align-last: center;
@@ -618,10 +641,18 @@
   .series-hevy-header,
   .serie-hevy-row {
     display: grid;
-    grid-template-columns: 32px 1fr 52px 46px 44px 44px 32px 28px;
-    gap: 4px;
-    padding: 0 12px;
+    grid-template-columns: 28px minmax(0,1fr) 48px 42px 40px 40px 30px 26px;
+    gap: 3px;
+    padding: 0 10px;
     align-items: center;
+  }
+  @media (max-width: 360px) {
+    .series-hevy-header,
+    .serie-hevy-row {
+      grid-template-columns: 24px minmax(0,1fr) 44px 38px 36px 36px 28px 24px;
+      gap: 2px;
+      padding: 0 8px;
+    }
   }
 
   /* ── Header labels ── */
@@ -703,7 +734,7 @@
     width: 100%; height: 40px;
     background: var(--dark-2); border: 1.5px solid transparent;
     border-radius: 8px;
-    font-family: var(--font-mono); font-size: 13px; font-weight: 600;
+    font-family: var(--font-mono); font-size: 14px; font-weight: 600;
     color: var(--gold); text-align: center; text-align-last: center;
     padding: 0; margin: 0;
     -webkit-appearance: none; appearance: none;
@@ -724,6 +755,7 @@
     color: transparent; font-size: 13px; font-weight: 700;
     flex-shrink: 0;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
   @keyframes checkPop2 {
     0%   { transform: scale(0.7); }
@@ -782,9 +814,10 @@
   }
   .note-field textarea {
     background: var(--dark-2); border: 1px solid var(--border); border-radius: 6px;
-    color: var(--text); font-family: var(--font-body); font-size: 13px; padding: 9px 10px;
+    color: var(--text); font-family: var(--font-body); font-size: 16px; padding: 9px 10px;
     width: 100%; resize: vertical; min-height: 50px; line-height: 1.5;
     transition: border-color 0.15s;
+    box-sizing: border-box;
   }
   .note-field textarea::placeholder { color: var(--text-dim); }
   .note-field textarea:focus { outline: none; border-color: var(--gold); }
@@ -793,7 +826,7 @@
   .ex-autocomplete {
     position: absolute; left: 0; right: 0; top: 100%;
     background: var(--card); border: 1px solid var(--gold-dim); border-top: none;
-    border-radius: 0 0 8px 8px; z-index: 30;
+    border-radius: 0 0 8px 8px; z-index: 40;
     box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     overflow: hidden; display: none;
   }
@@ -969,10 +1002,11 @@
   .save-bar {
     position: fixed; bottom: 0; left: 0; right: 0;
     background: var(--dark); border-top: 1px solid var(--border);
-    padding: 10px 16px; text-align: center;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); text-align: center;
     font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim);
     text-transform: uppercase; letter-spacing: 0.5px;
-    max-width: 480px; margin: 0 auto;
+    max-width: 480px; left: 50%; transform: translateX(-50%);
+    z-index: 5;
   }
   .save-bar.saved { color: var(--gold); }
 
@@ -1229,10 +1263,10 @@
   .start-date-row { display: flex; gap: 8px; align-items: center; }
   .start-date-input {
     flex: 1; background: var(--dark-2); border: 1px solid var(--border); border-radius: 6px;
-    color: var(--text); font-family: var(--font-mono); font-size: 13px;
+    color: var(--text); font-family: var(--font-mono); font-size: 16px;
     padding: 9px 10px; outline: none; transition: border-color 0.15s;
     min-height: var(--touch-min);
-    color-scheme: dark;
+    color-scheme: dark light;
   }
   .start-date-input:focus { border-color: var(--gold); }
   .start-date-btn {
@@ -1538,7 +1572,7 @@
 
   /* ── MODAL BIENVENIDA ── */
   .welcome-overlay {
-    position: fixed; inset: 0; z-index: 100;
+    position: fixed; inset: 0; z-index: 200;
     background: rgba(0,0,0,0.85);
     display: flex; align-items: flex-end; justify-content: center;
     padding: 0;
@@ -4813,12 +4847,16 @@
   var themeIcon   = document.getElementById('themeIcon');
 
   // ── Abrir / cerrar drawer ──
+  var _scrollY = 0;
   function openDrawer() {
+    _scrollY = window.scrollY;
     drawer.classList.add('open');
     overlay.classList.add('open');
     hamburger.classList.add('is-open');
     hamburger.setAttribute('aria-expanded', 'true');
-    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = '-' + _scrollY + 'px';
+    document.body.style.width = '100%';
     syncDrawerActive();
   }
   function closeDrawer() {
@@ -4826,7 +4864,10 @@
     overlay.classList.remove('open');
     hamburger.classList.remove('is-open');
     hamburger.setAttribute('aria-expanded', 'false');
-    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    window.scrollTo(0, _scrollY);
   }
   function toggleDrawer() {
     drawer.classList.contains('open') ? closeDrawer() : openDrawer();
@@ -4864,17 +4905,27 @@
   });
 
   // ── Sincronizar ítem activo del drawer con tab actual ──
-  function syncDrawerActive() {
-    var activeTab = document.querySelector('nav.tabs button.active');
-    if (!activeTab) return;
+  var _currentTab = 'registro';
+  function syncDrawerActive(tabName) {
+    if (tabName) _currentTab = tabName;
+    var activeId = 'tab-' + _currentTab;
     drawer.querySelectorAll('[data-drawer-tab]').forEach(function(btn) {
-      btn.classList.toggle('active-nav', btn.getAttribute('data-drawer-tab') === activeTab.id);
+      btn.classList.toggle('active-nav', btn.getAttribute('data-drawer-tab') === activeId);
     });
   }
-  // Observar cambios en el nav.tabs para sincronizar
+  // Parchear switchTab para notificar al drawer
+  var _origSwitchTab = window.switchTab;
+  window.switchTab = function(tab) {
+    _origSwitchTab(tab);
+    syncDrawerActive(tab);
+  };
+  // Observar cambios en el nav.tabs para tabs visibles (Registro, Recursos)
   var tabsNav = document.querySelector('nav.tabs');
   if (tabsNav && window.MutationObserver) {
-    new MutationObserver(syncDrawerActive).observe(tabsNav, { attributes: true, subtree: true, attributeFilter: ['class'] });
+    new MutationObserver(function() {
+      var activeTab = document.querySelector('nav.tabs button.active');
+      if (activeTab) syncDrawerActive(activeTab.id.replace('tab-',''));
+    }).observe(tabsNav, { attributes: true, subtree: true, attributeFilter: ['class'] });
   }
 
   // ── Tema claro / oscuro ──
