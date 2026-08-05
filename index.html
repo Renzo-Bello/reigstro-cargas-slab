@@ -256,6 +256,218 @@
   #toast.toast-error { border-color: #C8313A; color: #ff6b6b; }
   #toast.toast-ok { border-color: var(--gold); color: var(--gold); }
 
+  /* ══════════════════════════════════════
+     CRONÓMETRO DE DESCANSO
+  ══════════════════════════════════════ */
+  #restTimerOverlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 8800;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(3px);
+    align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  #restTimerOverlay.open { display: flex; }
+  #restTimerBox {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 32px 24px;
+    text-align: center;
+    width: 300px; max-width: calc(100vw - 40px);
+    position: relative;
+  }
+  #restTimerLabel {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px;
+  }
+  #restTimerCount {
+    font-family: var(--font-display); font-size: 72px; font-weight: 600;
+    color: var(--gold); line-height: 1; margin-bottom: 6px;
+    transition: color 0.3s;
+  }
+  #restTimerCount.urgent { color: #E06060; }
+  #restTimerExercise {
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-mid);
+    letter-spacing: 0.4px; margin-bottom: 22px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #restTimerProgress {
+    width: 100%; height: 3px; background: var(--border);
+    border-radius: 2px; overflow: hidden; margin-bottom: 20px;
+  }
+  #restTimerBar {
+    height: 100%; background: var(--gold);
+    border-radius: 2px; width: 100%;
+    transition: width 1s linear, background 0.3s;
+  }
+  #restTimerBar.urgent { background: #E06060; }
+  .rest-timer-btns {
+    display: flex; gap: 10px; justify-content: center;
+  }
+  .rest-timer-btn {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.5px;
+    padding: 10px 16px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--text-mid); transition: background 0.15s, border-color 0.15s, color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .rest-timer-btn:active { transform: scale(0.96); }
+  .rest-timer-btn.primary { background: var(--gold); border-color: var(--gold); color: var(--dark); font-weight: 600; }
+  .rest-timer-btn.primary:hover { background: var(--gold-dim); border-color: var(--gold-dim); }
+  .rest-timer-presets {
+    display: flex; gap: 8px; justify-content: center; margin-top: 14px;
+  }
+  .rest-preset-btn {
+    font-family: var(--font-mono); font-size: 10px;
+    padding: 6px 12px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--border); background: transparent; color: var(--text-dim);
+    -webkit-tap-highlight-color: transparent; transition: border-color 0.15s, color 0.15s;
+  }
+  .rest-preset-btn.active { border-color: var(--gold); color: var(--gold); }
+  .rest-preset-btn:active { transform: scale(0.95); }
+
+  /* ══════════════════════════════════════
+     MODO FOCO (PANTALLA COMPLETA POR EJERCICIO)
+  ══════════════════════════════════════ */
+  #focusModeOverlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 8900;
+    background: var(--dark);
+    flex-direction: column;
+    padding: env(safe-area-inset-top, 0) 0 env(safe-area-inset-bottom, 0);
+  }
+  #focusModeOverlay.open { display: flex; }
+  #focusHeader {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  #focusExNum {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--text-dim); letter-spacing: 0.8px; text-transform: uppercase;
+  }
+  #focusCloseBtn {
+    background: transparent; border: none; cursor: pointer;
+    color: var(--text-dim); font-size: 22px; line-height: 1;
+    padding: 4px 8px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #focusBody {
+    flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 24px 24px 0;
+  }
+  #focusExName {
+    font-family: var(--font-display); font-size: 26px; font-weight: 600;
+    color: var(--text); text-align: center; margin-bottom: 6px;
+    letter-spacing: 0.2px; line-height: 1.2;
+  }
+  #focusPrevData {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-dim); text-align: center; margin-bottom: 28px;
+    min-height: 16px;
+  }
+  #focusPrevData span { color: var(--gold); }
+  .focus-series-list {
+    width: 100%; max-width: 360px;
+  }
+  .focus-serie-row {
+    display: grid;
+    grid-template-columns: 36px 1fr 1fr 52px;
+    gap: 10px; align-items: center;
+    padding: 10px 14px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; margin-bottom: 8px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .focus-serie-row.done { border-color: var(--gold); background: rgba(201,169,110,0.06); }
+  .focus-serie-row.warmup { border-color: rgba(232,160,32,0.25); background: rgba(232,160,32,0.04); }
+  .focus-serie-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: transparent; border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 12px; color: var(--gold);
+    flex-shrink: 0;
+  }
+  .focus-serie-row.done .focus-serie-num { background: var(--gold); color: var(--dark); border-color: var(--gold); }
+  .focus-serie-inp-wrap { display: flex; flex-direction: column; gap: 2px; }
+  .focus-inp-label { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); letter-spacing: 0.5px; text-transform: uppercase; }
+  .focus-inp {
+    background: var(--dark-2); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--gold); font-family: var(--font-mono); font-size: 22px; font-weight: 500;
+    text-align: center; padding: 8px 6px; width: 100%;
+    -webkit-appearance: none; appearance: none;
+  }
+  .focus-inp.reps-inp { color: var(--num-white); }
+  .focus-inp:focus { outline: none; border-color: var(--gold); background: rgba(201,169,110,0.06); }
+  .focus-check-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: transparent; border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; cursor: pointer; color: transparent;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+  }
+  .focus-check-btn:active { transform: scale(0.88); }
+  .focus-serie-row.done .focus-check-btn {
+    background: var(--gold); border-color: var(--gold); color: var(--dark);
+  }
+  .focus-check-btn:not(.done-btn) { border-color: rgba(201,169,110,0.3); }
+  #focusAddSerieBtn {
+    width: 100%; max-width: 360px; margin-top: 6px;
+    background: transparent; border: 1px dashed var(--border); border-radius: 10px;
+    color: var(--text-dim); font-family: var(--font-mono); font-size: 12px;
+    padding: 12px; cursor: pointer; letter-spacing: 0.4px;
+    -webkit-tap-highlight-color: transparent;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  #focusAddSerieBtn:active { border-color: var(--gold); color: var(--gold); }
+  #focusFooter {
+    flex-shrink: 0; padding: 16px 24px 20px;
+    border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    background: var(--dark);
+  }
+  #focusDoneToggle {
+    width: 100%; max-width: 360px;
+    padding: 16px; border-radius: 12px;
+    background: var(--card); border: 1px solid var(--border);
+    font-family: var(--font-mono); font-size: 13px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--text-mid); cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #focusDoneToggle.done { background: var(--gold); border-color: var(--gold); color: var(--dark); }
+  #focusDoneToggle:active { transform: scale(0.98); }
+  .focus-nav-row {
+    display: flex; gap: 10px; width: 100%; max-width: 360px;
+  }
+  .focus-nav-btn {
+    flex: 1; padding: 10px; border-radius: 10px;
+    background: transparent; border: 1px solid var(--border);
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-dim);
+    cursor: pointer; letter-spacing: 0.4px;
+    -webkit-tap-highlight-color: transparent;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .focus-nav-btn:active { border-color: var(--gold); color: var(--gold); }
+  .focus-nav-btn:disabled { opacity: 0.3; pointer-events: none; }
+  .focus-mode-trigger {
+    cursor: pointer; flex-shrink: 0;
+    padding: 6px 10px; border-radius: 6px;
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text-dim); font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.4px; text-transform: uppercase;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
+  }
+  .focus-mode-trigger:hover, .focus-mode-trigger:active { border-color: var(--gold); color: var(--gold); background: var(--gold-glow); }
+
   /* ── TOPBAR ── */
   header.topbar {
     background: var(--dark);
@@ -326,7 +538,7 @@
     color: var(--gold); border-bottom-color: var(--gold); font-weight: 500;
   }
   nav.tabs #tab-recursos.active {
-    color: var(--amber); border-bottom-color: var(--amber);
+    color: var(--gold); border-bottom-color: var(--gold);
   }
 
   .panel { padding: 14px 16px 0; }
@@ -1327,28 +1539,28 @@
     border-bottom-color: var(--gold) !important;
   }
 
-  /* ── MARCOS ÁMBAR: Recursos ── */
+  /* ── MARCOS DORADO: Recursos ── */
   #tab-recursos {
     position: relative;
-    color: var(--amber) !important;
+    color: var(--gold) !important;
   }
   #tab-recursos::after {
     content: '';
     position: absolute;
     inset: 5px 2px;
-    border: 1.5px solid var(--amber);
+    border: 1.5px solid var(--gold);
     border-radius: 5px;
     pointer-events: none;
     opacity: 0.6;
-    box-shadow: 0 0 7px var(--amber-glow);
+    box-shadow: 0 0 7px var(--gold-glow);
     transition: opacity 0.15s, box-shadow 0.15s;
   }
   #tab-recursos.active::after {
     opacity: 1;
-    box-shadow: 0 0 12px var(--amber-glow);
+    box-shadow: 0 0 12px var(--gold-glow);
   }
   #tab-recursos.active {
-    border-bottom-color: var(--amber) !important;
+    border-bottom-color: var(--gold) !important;
   }
 
   #view-records, #view-rpe, #view-orm {
@@ -1359,10 +1571,10 @@
     margin: 0 2px 16px;
   }
   #view-recursos {
-    border: 2px solid var(--amber);
+    border: 2px solid var(--gold);
     border-top: none;
     border-radius: 0 0 12px 12px;
-    box-shadow: 0 0 24px rgba(232,160,32,0.13), inset 0 0 0 1px rgba(232,160,32,0.06);
+    box-shadow: 0 0 24px rgba(201,169,110,0.13), inset 0 0 0 1px rgba(201,169,110,0.06);
     margin: 0 2px 16px;
   }
 
@@ -1617,7 +1829,7 @@
   .recursos-hero-label {
     font-family: var(--font-display);
     font-size: 22px; font-weight: 700;
-    color: var(--amber);
+    color: var(--gold);
     letter-spacing: 0.3px;
     margin-bottom: 6px;
   }
@@ -1778,6 +1990,48 @@
 
 <!-- CONFETTI CANVAS -->
 <canvas id="confettiCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9000;display:none;"></canvas>
+
+<!-- CRONÓMETRO DE DESCANSO -->
+<div id="restTimerOverlay" role="dialog" aria-modal="true" aria-label="Cronómetro de descanso">
+  <div id="restTimerBox">
+    <div id="restTimerLabel">Descanso</div>
+    <div id="restTimerCount">120</div>
+    <div id="restTimerExercise"></div>
+    <div id="restTimerProgress"><div id="restTimerBar"></div></div>
+    <div class="rest-timer-btns">
+      <button class="rest-timer-btn" id="restTimerSkipBtn">Saltar</button>
+      <button class="rest-timer-btn" id="restTimerPauseBtn">Pausar</button>
+      <button class="rest-timer-btn primary" id="restTimerDoneBtn">Listo ✓</button>
+    </div>
+    <div class="rest-timer-presets">
+      <button class="rest-preset-btn active" data-secs="120">2 min</button>
+      <button class="rest-preset-btn" data-secs="180">3 min</button>
+      <button class="rest-preset-btn" data-secs="240">4 min</button>
+      <button class="rest-preset-btn" data-secs="300">5 min</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODO FOCO -->
+<div id="focusModeOverlay" role="dialog" aria-modal="true" aria-label="Modo entrenamiento">
+  <div id="focusHeader">
+    <div id="focusExNum">Ejercicio 1 / 1</div>
+    <button id="focusCloseBtn" aria-label="Cerrar modo foco">✕</button>
+  </div>
+  <div id="focusBody">
+    <div id="focusExName">—</div>
+    <div id="focusPrevData"></div>
+    <div class="focus-series-list" id="focusSeriesList"></div>
+    <button id="focusAddSerieBtn">+ Añadir serie</button>
+  </div>
+  <div id="focusFooter">
+    <button id="focusDoneToggle">Marcar ejercicio completado</button>
+    <div class="focus-nav-row">
+      <button class="focus-nav-btn" id="focusPrevExBtn">← Anterior</button>
+      <button class="focus-nav-btn" id="focusNextExBtn">Siguiente →</button>
+    </div>
+  </div>
+</div>
 
 <!-- SESSION COMPLETE MODAL -->
 <div id="sessionCompleteOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:9100;align-items:flex-end;justify-content:center;padding-bottom:0;">
@@ -3040,7 +3294,18 @@
         scheduleSave(); renderExercises(); renderDayPills();
       };
 
-      head.appendChild(num); head.appendChild(nameWrap); head.appendChild(rpeBtn); head.appendChild(delExBtn);
+      var focusBtn = document.createElement('button');
+      focusBtn.type = 'button';
+      focusBtn.className = 'focus-mode-trigger';
+      focusBtn.innerHTML = '&#x26F9;'; // focus icon
+      focusBtn.setAttribute('aria-label', 'Modo entrenamiento');
+      focusBtn.title = 'Modo entrenamiento';
+      focusBtn.onclick = function(e) {
+        e.stopPropagation();
+        openFocusMode(idx);
+      };
+
+      head.appendChild(num); head.appendChild(nameWrap); head.appendChild(rpeBtn); head.appendChild(focusBtn); head.appendChild(delExBtn);
       card.appendChild(head);
 
       var iRpePanel = buildInlineRpePanel(ex); card.appendChild(iRpePanel);
@@ -3203,8 +3468,12 @@
         chk.setAttribute('aria-checked', isDone ? 'true' : 'false');
         chk.innerHTML = isDone ? '✓' : '';
         chk.onclick = function() {
+          var wasDone = serie.done;
           serie.done = !serie.done;
           scheduleSave(); rebuildSeriesRows();
+          if (!wasDone && serie.done) {
+            startRestTimer(ex.nombre);
+          }
         };
         row.appendChild(chk);
 
@@ -5104,6 +5373,279 @@
   ['ormBarbellPeso','ormBarbellReps','ormBwCuerpo','ormBwLastre','ormBwReps','ormBwExercise','ormGenPeso','ormGenReps','ormGenNombre'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) { el.addEventListener('input', ormUpdate); el.addEventListener('change', ormUpdate); }
+  });
+
+  /* ══════════════════════════════════════
+     CRONÓMETRO DE DESCANSO
+  ══════════════════════════════════════ */
+  var _restTimer = {
+    interval: null,
+    total: 120,
+    remaining: 120,
+    paused: false,
+    preset: 120
+  };
+
+  function _restBeep() {
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.4, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.35);
+      setTimeout(function() {
+        var osc2 = ctx.createOscillator();
+        var g2 = ctx.createGain();
+        osc2.connect(g2); g2.connect(ctx.destination);
+        osc2.frequency.value = 1100;
+        g2.gain.setValueAtTime(0.5, ctx.currentTime);
+        g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+        osc2.start(ctx.currentTime);
+        osc2.stop(ctx.currentTime + 0.5);
+      }, 180);
+    } catch(e) {}
+    if (navigator.vibrate) navigator.vibrate([100, 80, 200]);
+  }
+
+  function _restUpdateUI() {
+    var secs = _restTimer.remaining;
+    var countEl = document.getElementById('restTimerCount');
+    var barEl = document.getElementById('restTimerBar');
+    var pct = (_restTimer.total > 0) ? (secs / _restTimer.total * 100) : 0;
+    countEl.textContent = secs;
+    barEl.style.width = pct + '%';
+    var urgent = secs <= 10;
+    countEl.classList.toggle('urgent', urgent);
+    barEl.classList.toggle('urgent', urgent);
+    document.getElementById('restTimerPauseBtn').textContent = _restTimer.paused ? 'Reanudar' : 'Pausar';
+  }
+
+  function stopRestTimer() {
+    clearInterval(_restTimer.interval);
+    _restTimer.interval = null;
+    document.getElementById('restTimerOverlay').classList.remove('open');
+  }
+
+  function startRestTimer(exNombre) {
+    clearInterval(_restTimer.interval);
+    _restTimer.remaining = _restTimer.preset;
+    _restTimer.total = _restTimer.preset;
+    _restTimer.paused = false;
+    var exEl = document.getElementById('restTimerExercise');
+    exEl.textContent = exNombre || '';
+    _restUpdateUI();
+    document.getElementById('restTimerOverlay').classList.add('open');
+    _restTimer.interval = setInterval(function() {
+      if (_restTimer.paused) return;
+      _restTimer.remaining--;
+      _restUpdateUI();
+      if (_restTimer.remaining <= 0) {
+        stopRestTimer();
+        _restBeep();
+        showToast('¡Descanso terminado! A por la siguiente serie 💪', 'ok', 3000);
+      }
+    }, 1000);
+  }
+
+  document.getElementById('restTimerSkipBtn').onclick = stopRestTimer;
+  document.getElementById('restTimerDoneBtn').onclick = stopRestTimer;
+  document.getElementById('restTimerPauseBtn').onclick = function() {
+    _restTimer.paused = !_restTimer.paused;
+    _restUpdateUI();
+  };
+  document.querySelectorAll('.rest-preset-btn').forEach(function(btn) {
+    btn.onclick = function() {
+      document.querySelectorAll('.rest-preset-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var secs = parseInt(btn.getAttribute('data-secs'), 10);
+      _restTimer.preset = secs;
+      _restTimer.remaining = secs;
+      _restTimer.total = secs;
+      _restTimer.paused = false;
+      clearInterval(_restTimer.interval);
+      _restTimer.interval = setInterval(function() {
+        if (_restTimer.paused) return;
+        _restTimer.remaining--;
+        _restUpdateUI();
+        if (_restTimer.remaining <= 0) {
+          stopRestTimer();
+          _restBeep();
+          showToast('¡Descanso terminado! A por la siguiente serie 💪', 'ok', 3000);
+        }
+      }, 1000);
+      _restUpdateUI();
+    };
+  });
+  document.getElementById('restTimerOverlay').onclick = function(e) {
+    if (e.target === this) stopRestTimer();
+  };
+
+  /* ══════════════════════════════════════
+     MODO FOCO
+  ══════════════════════════════════════ */
+  var _focusIdx = 0;
+
+  function openFocusMode(idx) {
+    var arr = ensureDay(STATE.month, STATE.week, STATE.day);
+    var named = arr.filter(function(e) { return e.nombre && e.nombre.trim(); });
+    if (named.length === 0) { showToast('Añade al menos un ejercicio', 'warn'); return; }
+    // Map idx (of full arr) to named idx
+    var ex = arr[idx];
+    var namedIdx = named.indexOf(ex);
+    if (namedIdx < 0) namedIdx = 0;
+    _focusIdx = namedIdx;
+    renderFocusMode();
+    document.getElementById('focusModeOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeFocusMode() {
+    document.getElementById('focusModeOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+    renderExercises();
+    renderDayPills();
+  }
+
+  function renderFocusMode() {
+    var arr = ensureDay(STATE.month, STATE.week, STATE.day);
+    var named = arr.filter(function(e) { return e.nombre && e.nombre.trim(); });
+    if (named.length === 0) { closeFocusMode(); return; }
+    if (_focusIdx >= named.length) _focusIdx = named.length - 1;
+    var ex = named[_focusIdx];
+
+    document.getElementById('focusExNum').textContent = 'Ejercicio ' + (_focusIdx + 1) + ' / ' + named.length;
+    document.getElementById('focusExName').textContent = ex.nombre;
+
+    // Dato anterior
+    var prevSeries = (function() {
+      var best = null; var bestM = 0;
+      for (var m = 1; m <= 3; m++) for (var w = 1; w <= 4; w++) for (var d = 1; d <= 5; d++) {
+        var k = dayKey(m, w, d);
+        if (k === dayKey(STATE.month, STATE.week, STATE.day)) continue;
+        var dayArr = STATE.data[k] || [];
+        dayArr.forEach(function(e) {
+          if (e.nombre && e.nombre.trim().toLowerCase() === ex.nombre.trim().toLowerCase() && e.series && e.series.length) {
+            if (!best || m > bestM) { best = e; bestM = m; }
+          }
+        });
+      }
+      return best ? best.series : [];
+    })();
+    var prevEl = document.getElementById('focusPrevData');
+    if (prevSeries.length) {
+      var ps = prevSeries[0];
+      var parts = [];
+      if (ps.peso) parts.push('<span>' + ps.peso + ' kg</span>');
+      if (ps.reps) parts.push('<span>' + ps.reps + ' reps</span>');
+      prevEl.innerHTML = parts.length ? 'Anterior: ' + parts.join(' × ') : '';
+    } else {
+      prevEl.innerHTML = 'Sin datos previos';
+    }
+
+    // Series list
+    var listEl = document.getElementById('focusSeriesList');
+    listEl.innerHTML = '';
+    (ex.series || []).forEach(function(serie, sIdx) {
+      var row = document.createElement('div');
+      row.className = 'focus-serie-row' + (serie.done ? ' done' : '') + (serie.warmup ? ' warmup' : '');
+
+      var numEl = document.createElement('div');
+      numEl.className = 'focus-serie-num';
+      numEl.textContent = serie.warmup ? 'W' : (sIdx + 1);
+      row.appendChild(numEl);
+
+      // Peso input
+      var pesoWrap = document.createElement('div'); pesoWrap.className = 'focus-serie-inp-wrap';
+      var pesoLbl = document.createElement('div'); pesoLbl.className = 'focus-inp-label'; pesoLbl.textContent = 'KG';
+      var pesoInp = document.createElement('input');
+      pesoInp.type = 'text'; pesoInp.inputMode = 'decimal';
+      pesoInp.className = 'focus-inp';
+      pesoInp.value = serie.peso || '';
+      pesoInp.placeholder = prevSeries[sIdx] ? prevSeries[sIdx].peso || '0' : '0';
+      pesoInp.setAttribute('aria-label', 'Peso kg');
+      pesoInp.oninput = function() { serie.peso = this.value; scheduleSave(); };
+      pesoInp.onfocus = function() { this.select(); };
+      pesoWrap.appendChild(pesoLbl); pesoWrap.appendChild(pesoInp);
+      row.appendChild(pesoWrap);
+
+      // Reps input
+      var repsWrap = document.createElement('div'); repsWrap.className = 'focus-serie-inp-wrap';
+      var repsLbl = document.createElement('div'); repsLbl.className = 'focus-inp-label'; repsLbl.textContent = 'REPS';
+      var repsInp = document.createElement('input');
+      repsInp.type = 'text'; repsInp.inputMode = 'numeric';
+      repsInp.className = 'focus-inp reps-inp';
+      repsInp.value = serie.reps || '';
+      repsInp.placeholder = prevSeries[sIdx] ? prevSeries[sIdx].reps || '0' : '0';
+      repsInp.setAttribute('aria-label', 'Repeticiones');
+      repsInp.oninput = function() { serie.reps = this.value; scheduleSave(); };
+      repsInp.onfocus = function() { this.select(); };
+      // Auto-advance: peso → reps on "Enter" or "Next" key
+      pesoInp.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); repsInp.focus(); } });
+      repsWrap.appendChild(repsLbl); repsWrap.appendChild(repsInp);
+      row.appendChild(repsWrap);
+
+      // Check button
+      var chkBtn = document.createElement('button');
+      chkBtn.type = 'button';
+      chkBtn.className = 'focus-check-btn' + (serie.done ? ' done-btn' : '');
+      chkBtn.setAttribute('aria-label', serie.done ? 'Serie completada' : 'Completar serie');
+      chkBtn.textContent = serie.done ? '✓' : '';
+      chkBtn.onclick = function() {
+        var wasDone = serie.done;
+        serie.done = !serie.done;
+        scheduleSave();
+        renderFocusMode();
+        if (!wasDone && serie.done) {
+          startRestTimer(ex.nombre);
+        }
+      };
+      row.appendChild(chkBtn);
+      listEl.appendChild(row);
+    });
+
+    // Botón añadir serie
+    document.getElementById('focusAddSerieBtn').onclick = function() {
+      var prev = ex.series[ex.series.length - 1];
+      var ns = emptySerie();
+      if (prev && prev.peso) ns.peso = prev.peso;
+      if (prev && prev.rpe)  ns.rpe  = prev.rpe;
+      ex.series.push(ns); scheduleSave(); renderFocusMode();
+    };
+
+    // Done toggle
+    var doneBtn = document.getElementById('focusDoneToggle');
+    doneBtn.textContent = ex.hecho ? '✓ Ejercicio completado' : 'Marcar ejercicio completado';
+    doneBtn.className = ex.hecho ? '' : '';
+    doneBtn.classList.toggle('done', !!ex.hecho);
+    doneBtn.onclick = function() {
+      ex.hecho = !ex.hecho;
+      scheduleSave();
+      renderFocusMode();
+      checkSessionComplete(STATE.month, STATE.week, STATE.day);
+    };
+
+    // Nav buttons
+    document.getElementById('focusPrevExBtn').disabled = (_focusIdx === 0);
+    document.getElementById('focusNextExBtn').disabled = (_focusIdx >= named.length - 1);
+    document.getElementById('focusNextExBtn').textContent = (_focusIdx >= named.length - 1) ? 'Fin de sesión' : 'Siguiente →';
+  }
+
+  document.getElementById('focusCloseBtn').onclick = closeFocusMode;
+  document.getElementById('focusPrevExBtn').onclick = function() {
+    if (_focusIdx > 0) { _focusIdx--; renderFocusMode(); }
+  };
+  document.getElementById('focusNextExBtn').onclick = function() {
+    var arr = ensureDay(STATE.month, STATE.week, STATE.day);
+    var named = arr.filter(function(e) { return e.nombre && e.nombre.trim(); });
+    if (_focusIdx < named.length - 1) { _focusIdx++; renderFocusMode(); }
+    else { closeFocusMode(); }
+  };
+  document.getElementById('focusModeOverlay').addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeFocusMode();
   });
 
   /* ══════════════════════════════════════
