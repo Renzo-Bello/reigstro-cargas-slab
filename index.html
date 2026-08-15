@@ -3,6 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="https://renzo-bello.github.io/reigstro-cargas-slab/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="https://renzo-bello.github.io/reigstro-cargas-slab/favicon.png">
+  <link rel="apple-touch-icon" href="https://renzo-bello.github.io/reigstro-cargas-slab/favicon.png">
+
+  <!-- OG / Social -->
+  <meta property="og:title" content="StrengthLab · by @rennzolifts">
+  <meta property="og:description" content="Tu herramienta de entrenamiento personalizada. Registra cargas, evoluciona semana a semana.">
+  <meta property="og:image" content="https://renzo-bello.github.io/reigstro-cargas-slab/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://renzo-bello.github.io/reigstro-cargas-slab/">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="StrengthLab · by @rennzolifts">
+  <meta name="twitter:description" content="Tu herramienta de entrenamiento personalizada.">
+  <meta name="twitter:image" content="https://renzo-bello.github.io/reigstro-cargas-slab/og-image.png">
+
+  <!-- PWA -->
+  <meta name="theme-color" content="#0D0D0D">
+  <meta name="apple-mobile-web-app-title" content="StrengthLab">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Registro de Entrenamientos | SLAB</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -4205,8 +4230,12 @@
       };
       nameInput.onfocus = function() {
         var self = this;
+        // Modo personalizado — no abrir picker
+        if (self._skipPicker) {
+          self._skipPicker = false;
+          return;
+        }
         var inlinePicker = card.querySelector('.ex-inline-picker');
-        if (inlinePicker && inlinePicker._customMode) return;
         if (!self.value.trim() && inlinePicker) {
           self.blur();
           inlinePicker._open();
@@ -6057,16 +6086,16 @@
     customItem.className = 'ex-inline-custom';
     customItem.innerHTML = '<div class="ex-inline-custom-icon"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><div><div class="ex-inline-custom-text">Ejercicio personalizado</div><div class="ex-inline-custom-sub">Escribe el nombre tú mismo</div></div>';
     customItem.addEventListener('click', function() {
-      picker._customMode = true;
       closePicker();
+      // Marcar el input directamente para que onfocus no reabra
+      nameInput._skipPicker = true;
+      nameInput.value = '';
+      ex.nombre = '';
+      nameInput.placeholder = 'Escribe el nombre...';
+      // Pequeño delay para que el picker termine de cerrar
       setTimeout(function() {
-        nameInput.value = '';
-        ex.nombre = '';
-        nameInput.placeholder = 'Escribe el nombre...';
         nameInput.focus();
-        nameInput.removeAttribute('readonly');
-        setTimeout(function() { picker._customMode = false; }, 300);
-      }, 50);
+      }, 100);
     });
     picker.appendChild(customItem);
 
