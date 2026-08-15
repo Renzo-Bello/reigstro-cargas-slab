@@ -2351,7 +2351,7 @@
 
   /* ── IMAGEN CIRCULAR EN EXERCISE CARD ── */
   .ex-head-img {
-    flex-shrink: 0; width: 42px; height: 42px;
+    flex-shrink: 0; width: 52px; height: 52px;
     border-radius: 50%; overflow: hidden;
     border: 2px solid rgba(201,169,110,0.3);
     background: var(--dark-2);
@@ -2359,7 +2359,7 @@
     transition: border-color var(--dur-fast), transform var(--dur-fast);
     -webkit-tap-highlight-color: transparent;
   }
-  .ex-head-img:active { transform: scale(0.92); }
+  .ex-head-img:active { transform: scale(0.92); border-color: rgba(201,169,110,0.7); }
   .ex-head-img img {
     width: 100%; height: 100%; object-fit: cover;
     display: block;
@@ -3389,6 +3389,21 @@
 </div>
 
 <script>
+  /* ── MODAL IMAGEN EJERCICIO ── */
+  window.openExImg = function(imgUrl, nombre, musculo) {
+    var modal = document.getElementById('exImgModal');
+    var modalImg = document.getElementById('exImgModalImg');
+    var modalName = document.getElementById('exImgModalName');
+    var modalMuscle = document.getElementById('exImgModalMuscle');
+    if (!modal) return;
+    if (modalImg) { modalImg.src = imgUrl; modalImg.alt = nombre; }
+    if (modalName) modalName.textContent = nombre;
+    if (modalMuscle) modalMuscle.textContent = musculo || '';
+    modal.style.display = 'flex';
+    modal.style.animation = 'fadeIn 0.18s ease both';
+    modal.onclick = function() { modal.style.display = 'none'; };
+  };
+
 (function() {
 
   /* ══════════════════════════════════════
@@ -3983,7 +3998,7 @@
     var openPanels = document.querySelectorAll('.inline-rpe-panel.visible');
     if (openPanels.length === 0) return;
     var touchedInside = false;
-    openPanels.forEach(function(panel) { if (panel.contains(e.target)) touchedInside = true; });
+    openPanels.forEach(function(panel) { if (panel.contains(e.target)) touchedInside = true; }, {passive:true});
     document.querySelectorAll('.ex-rpe-btn.open').forEach(function(btn) { if (btn.contains(e.target)) touchedInside = true; });
     if (!touchedInside) {
       openPanels.forEach(function(p) { p.classList.remove('visible'); });
@@ -4149,7 +4164,7 @@
       // Autocomplete dropdown
       var autoEl = document.createElement('div'); autoEl.className = 'ex-autocomplete';
 
-      function renderAutoItems(historyResults, libraryResults) {
+      function renderAutoItems(libraryResults) {
         autoEl.innerHTML = '';
         var hasLibrary = libraryResults.length > 0;
         if (!hasLibrary) { autoEl.classList.remove('open'); return; }
@@ -4181,7 +4196,7 @@
         var q = nameInput.value;
         var library = searchExerciseDB(q);
         if (!library.length) { autoEl.classList.remove('open'); return; }
-        renderAutoItems([], library);
+        renderAutoItems(library);
       }
 
       nameInput.oninput = function() {
@@ -6975,27 +6990,6 @@
   ══════════════════════════════════════ */
 
 
-
-  /* ── MODAL IMAGEN EJERCICIO ── */
-  ;(function() {
-    var modal = document.getElementById('exImgModal');
-    var modalImg = document.getElementById('exImgModalImg');
-    var modalName = document.getElementById('exImgModalName');
-    var modalMuscle = document.getElementById('exImgModalMuscle');
-    if (!modal) return;
-
-    window.openExImg = function(imgUrl, nombre, musculo) {
-      modalImg.src = imgUrl;
-      modalImg.alt = nombre;
-      modalName.textContent = nombre;
-      modalMuscle.textContent = musculo || '';
-      modal.classList.add('open');
-    };
-
-    modal.addEventListener('click', function() {
-      modal.classList.remove('open');
-    });
-  })();
 
   async function init() {
     ;(function() {
