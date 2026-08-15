@@ -4206,6 +4206,7 @@
       nameInput.onfocus = function() {
         var self = this;
         var inlinePicker = card.querySelector('.ex-inline-picker');
+        if (inlinePicker && inlinePicker._customMode) return;
         if (!self.value.trim() && inlinePicker) {
           self.blur();
           inlinePicker._open();
@@ -6056,13 +6057,15 @@
     customItem.className = 'ex-inline-custom';
     customItem.innerHTML = '<div class="ex-inline-custom-icon"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><div><div class="ex-inline-custom-text">Ejercicio personalizado</div><div class="ex-inline-custom-sub">Escribe el nombre tú mismo</div></div>';
     customItem.addEventListener('click', function() {
+      picker._customMode = true;
       closePicker();
       setTimeout(function() {
         nameInput.value = '';
         ex.nombre = '';
-        nameInput.placeholder = 'Nombre del ejercicio...';
+        nameInput.placeholder = 'Escribe el nombre...';
         nameInput.focus();
         nameInput.removeAttribute('readonly');
+        setTimeout(function() { picker._customMode = false; }, 300);
       }, 50);
     });
     picker.appendChild(customItem);
