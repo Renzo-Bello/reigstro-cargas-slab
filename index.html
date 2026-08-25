@@ -26,6 +26,8 @@
 
   <!-- PWA -->
   <meta name="theme-color" content="#0D0D0D">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="StrengthLab">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Registro de Entrenamientos | SLAB</title>
@@ -36,8 +38,8 @@
 <link rel="dns-prefetch" href="https://fonts.gstatic.com">
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
 
   :root {
     /* Dorado — reservado para acciones primarias y logros */
@@ -218,7 +220,7 @@
   }
 
   /* ── Drawer nav items ── */
-  .drawer-nav { flex: 1; padding: 10px 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .drawer-nav { flex: 1; padding: 10px 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
   .drawer-item {
     display: flex; align-items: center; gap: 14px;
     padding: 0 20px; min-height: 52px;
@@ -680,7 +682,7 @@
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(201,169,110,0.15); border-radius: var(--radius-md);
     box-shadow: var(--shadow-float);
-    min-width: 140px; max-height: 50vh; overflow-y: auto;
+    min-width: 140px; max-height: 50vh; overflow-y: auto; overscroll-behavior: contain;
     display: none;
     -webkit-overflow-scrolling: touch;
     animation: fadeIn var(--dur-fast) var(--ease-out);
@@ -944,6 +946,14 @@
   .irpe-result-unit { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); margin-left: 3px; }
   .irpe-result-pct { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); margin-top: 3px; }
   .irpe-result-right { text-align: right; }
+  .irpe-plates {
+    margin-top: 8px; padding: 9px 14px;
+    background: var(--dark-2); border: 1px solid var(--border); border-radius: 8px;
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-mid);
+    text-align: center;
+  }
+  .irpe-plates strong { color: var(--gold); font-weight: 600; }
+  .irpe-plates-lbl { color: var(--text-dim); }
 
   .ex-fields {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px 14px 12px 18px;
@@ -1105,7 +1115,7 @@
     width: 100%; height: 40px;
     background: var(--dark-2); border: 1.5px solid transparent;
     border-radius: 8px;
-    font-family: var(--font-mono); font-size: 14px; font-weight: 600;
+    font-family: var(--font-mono); font-size: 16px; font-weight: 600;
     color: var(--gold); text-align: center; text-align-last: center;
     padding: 0; margin: 0;
     -webkit-appearance: none; appearance: none;
@@ -1212,7 +1222,7 @@
     z-index: 40;
     box-shadow: var(--shadow-float);
     overflow: hidden; display: none;
-    max-height: 52vh; overflow-y: auto;
+    max-height: 52vh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
   }
   .ex-autocomplete.open { display: block; }
 
@@ -2267,7 +2277,7 @@
   .tecnica-detail-modal.open { display: flex; }
   .tecnica-detail-sheet {
     width: 100%; max-width: 480px;
-    max-height: 85vh; overflow-y: auto;
+    max-height: 85vh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
     background: var(--card);
     border: 1px solid var(--border);
     border-bottom: none;
@@ -2539,7 +2549,7 @@
     border-top: 1px solid rgba(201,169,110,0.3);
     border-radius: 22px 22px 0 0;
     width: 100%; max-width: 480px;
-    max-height: 90vh; overflow-y: auto;
+    max-height: 90vh; overflow-y: auto; overscroll-behavior: contain;
     padding: 28px 20px calc(36px + env(safe-area-inset-bottom));
     -webkit-overflow-scrolling: touch;
     box-shadow: 0 -8px 40px rgba(0,0,0,0.5), 0 -1px 0 rgba(201,169,110,0.1);
@@ -2983,7 +2993,7 @@
     background:rgba(20,20,20,0.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(201,169,110,0.4);
     border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:28px 24px 40px;
     transform:translateY(100%);transition:transform 0.36s cubic-bezier(0.22,1,0.36,1);
-    max-height:80vh;overflow-y:auto;
+    max-height:80vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
   ">
     <div style="text-align:center;margin-bottom:20px;">
       <div id="sessionCompleteTrophy" style="font-size:48px;line-height:1;margin-bottom:8px;">🏆</div>
@@ -3142,11 +3152,15 @@
 
       <!-- Carga por ejercicio -->
       <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <div style="font-family:var(--font-mono);font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;">Evolución de carga (kg)</div>
-          <select id="chartExSelect" style="background:var(--dark-2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-mono);font-size:10px;padding:4px 8px;outline:none;max-width:140px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;" id="chartCargaTitle">Evolución de carga (kg)</div>
+          <select id="chartExSelect" style="background:var(--dark-2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-mono);font-size:16px;padding:4px 8px;outline:none;max-width:140px;">
             <option value="">— Ejercicio —</option>
           </select>
+        </div>
+        <div class="rpe-mode-toggle" id="chartCargaModeToggle" style="margin-bottom:10px;">
+          <button type="button" class="active" data-mode="peso">Peso máximo</button>
+          <button type="button" data-mode="orm">1RM estimado</button>
         </div>
         <div style="position:relative;height:160px;">
           <canvas id="chartCarga"></canvas>
@@ -5117,6 +5131,8 @@
     right.appendChild(wSpan); right.appendChild(uSpan);
     result.appendChild(left); result.appendChild(right);
     panel.appendChild(result);
+    var plates = document.createElement('div'); plates.className = 'irpe-plates'; plates.setAttribute('data-irpe', 'plates');
+    panel.appendChild(plates);
     function update() { iRpeUpdate(panel); }
     inp1.addEventListener('input', update); sel2.addEventListener('change', update); sel3.addEventListener('change', update);
     return panel;
@@ -5128,12 +5144,30 @@
     var rpe = panel.querySelector('[data-irpe="rpe"]').value;
     var weightEl = panel.querySelector('[data-irpe="weight"]');
     var pctEl = panel.querySelector('[data-irpe="pct"]');
-    if (!orm || orm <= 0 || !RPE_TABLE[rpe]) { weightEl.textContent = '--'; pctEl.textContent = '--%'; return; }
+    var platesEl = panel.querySelector('[data-irpe="plates"]');
+    if (!orm || orm <= 0 || !RPE_TABLE[rpe]) {
+      weightEl.textContent = '--'; pctEl.textContent = '--%';
+      if (platesEl) platesEl.innerHTML = '';
+      return;
+    }
     var pct = RPE_TABLE[rpe][reps - 1];
     var target = orm * pct / 100;
     var loadable = rpeNearestLoadable(target, 20, 1.25, 2);
     weightEl.textContent = rpeFmt(loadable);
     pctEl.textContent = rpeFmt(pct) + '% del 1RM';
+
+    if (platesEl) {
+      var set = PLATE_SETS.kg;
+      var perSide = rpeRound1((loadable - set.bar) / 2);
+      var used = perSide > 0 ? rpeDecompose(perSide, set.sizes) : [];
+      if (used.length === 0) {
+        platesEl.innerHTML = '<span class="irpe-plates-lbl">Solo la barra</span> · <strong>' + rpeFmt(set.bar) + ' kg</strong>';
+      } else {
+        var groups = rpeGroupCounts(used);
+        var sideStr = groups.map(function(g) { return g[1] + '×' + rpeFmt(g[0]) + 'kg'; }).join(' + ');
+        platesEl.innerHTML = '<span class="irpe-plates-lbl">Por lado:</span> <strong>' + sideStr + '</strong>';
+      }
+    }
   }
 
   /* ══════════════════════════════════════
@@ -5475,10 +5509,16 @@
     renderChartCarga(month, sel.value);
   }
 
+  var _chartCargaMode = 'peso';
+  var _chartCargaLastArgs = null;
+
   function renderChartCarga(month, ejercicio) {
+    _chartCargaLastArgs = [month, ejercicio];
     destroyChart('carga');
     var emptyEl = document.getElementById('chartCargaEmpty');
     var canvas = document.getElementById('chartCarga');
+    var titleEl = document.getElementById('chartCargaTitle');
+    if (titleEl) titleEl.textContent = _chartCargaMode === 'orm' ? 'Evolución de 1RM estimado (kg)' : 'Evolución de carga (kg)';
     if (!ejercicio) {
       canvas.style.display = 'none'; emptyEl.style.display = 'block'; return;
     }
@@ -5486,18 +5526,21 @@
 
     var labels = [], data = [];
     for (var w = 1; w <= 4; w++) {
-      var weekMax = null;
+      var weekBest = null;
       for (var d = 1; d <= 5; d++) {
         var arr = STATE.data[dayKey(month, w, d)] || [];
         arr.forEach(function(ex) {
           if (ex.nombre.trim() === ejercicio && ex.series) {
             ex.series.forEach(function(s) {
-              if (s.peso) { var p = parseFloat(String(s.peso).replace(',','.')); if (!isNaN(p) && (weekMax===null||p>weekMax)) weekMax=p; }
+              var val = _chartCargaMode === 'orm'
+                ? calcOrm1RM(s.peso, s.reps)
+                : (s.peso ? (function(){ var p = parseFloat(String(s.peso).replace(',','.')); return isNaN(p) ? null : p; })() : null);
+              if (val !== null && (weekBest === null || val > weekBest)) weekBest = val;
             });
           }
         });
       }
-      if (weekMax !== null) { labels.push('S' + w); data.push(weekMax); }
+      if (weekBest !== null) { labels.push('S' + w); data.push(weekBest); }
     }
 
     if (data.length === 0) {
@@ -5510,7 +5553,8 @@
     gradient.addColorStop(1, 'rgba(201,169,110,0)');
 
     var opts = chartBaseOptions('kg');
-    opts.plugins.tooltip.callbacks = { label: function(c) { return c.raw + ' kg'; } };
+    var lblSuffix = _chartCargaMode === 'orm' ? ' kg (1RM est.)' : ' kg';
+    opts.plugins.tooltip.callbacks = { label: function(c) { return c.raw + lblSuffix; } };
     opts.elements = { point: { radius: 5, hoverRadius: 7, backgroundColor: '#C9A96E', borderColor: '#0D0D0D', borderWidth: 2 } };
     _charts['carga'] = new Chart(ctx, {
       type: 'line',
@@ -5528,6 +5572,14 @@
       options: opts
     });
   }
+
+  document.getElementById('chartCargaModeToggle').addEventListener('click', function(e) {
+    var btn = e.target.closest('button[data-mode]');
+    if (!btn) return;
+    _chartCargaMode = btn.getAttribute('data-mode');
+    this.querySelectorAll('button').forEach(function(b) { b.classList.toggle('active', b === btn); });
+    if (_chartCargaLastArgs) renderChartCarga(_chartCargaLastArgs[0], _chartCargaLastArgs[1]);
+  });
 
   function renderChartRpe(month) {
     destroyChart('rpe');
@@ -7677,3 +7729,4 @@
       </a>
     </div>
   </div>
+
