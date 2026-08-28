@@ -327,6 +327,32 @@
   #toast.toast-error { border-color: #C8313A; color: #ff6b6b; }
   #toast.toast-ok { border-color: var(--gold); color: var(--gold); }
 
+  /* ── NUEVO PR BANNER ── */
+  #prBanner {
+    position: fixed; top: calc(14px + env(safe-area-inset-top, 0px));
+    left: 50%; width: calc(100% - 32px); max-width: 420px;
+    transform: translateX(-50%) translateY(-140%);
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px;
+    background: linear-gradient(135deg, #1a1712, #211c14);
+    border: 1px solid rgba(201,169,110,0.5);
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,169,110,0.08), 0 0 24px rgba(201,169,110,0.15);
+    z-index: 9600; pointer-events: none;
+    opacity: 0;
+    transition: transform 0.45s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease;
+  }
+  #prBanner.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  .pr-banner-icon { font-size: 26px; line-height: 1; flex-shrink: 0; }
+  .pr-banner-title {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 600;
+    color: var(--gold); text-transform: uppercase; letter-spacing: 1px;
+  }
+  .pr-banner-detail {
+    font-family: var(--font-display); font-size: 15px; font-weight: 600;
+    color: var(--text); margin-top: 2px; line-height: 1.25;
+  }
+
   /* ══════════════════════════════════════
      CRONÓMETRO DE DESCANSO
   ══════════════════════════════════════ */
@@ -1584,6 +1610,27 @@
   .records-empty {
     text-align: center; padding: 50px 20px; color: var(--text-dim);
     font-family: var(--font-body); font-size: 13px; line-height: 1.6;
+  }
+
+  /* ── Estado vacío del día (Registro) ── */
+  .registro-empty {
+    text-align: center; padding: 44px 24px 40px;
+  }
+  .registro-empty-icon {
+    width: 52px; height: 52px; margin: 0 auto 16px;
+    border-radius: 50%;
+    background: var(--gold-glow);
+    border: 1px solid rgba(201,169,110,0.25);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gold);
+  }
+  .registro-empty-title {
+    font-family: var(--font-display); font-size: 17px; font-weight: 600;
+    color: var(--text); margin-bottom: 6px;
+  }
+  .registro-empty-hint {
+    font-family: var(--font-body); font-size: 13px; line-height: 1.5;
+    color: var(--text-dim); max-width: 260px; margin: 0 auto;
   }
 
   /* ── 1RM ESTIMADO (desde reps máximas) ── */
@@ -2945,6 +2992,15 @@
 <!-- CONFETTI CANVAS -->
 <canvas id="confettiCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9000;display:none;"></canvas>
 
+<!-- NUEVO PR BANNER -->
+<div id="prBanner" role="status" aria-live="polite">
+  <div class="pr-banner-icon">🏆</div>
+  <div class="pr-banner-text">
+    <div class="pr-banner-title">Nuevo PR</div>
+    <div class="pr-banner-detail" id="prBannerDetail"></div>
+  </div>
+</div>
+
 <!-- CRONÓMETRO DE DESCANSO -->
 <div id="restTimerOverlay" role="dialog" aria-modal="true" aria-label="Cronómetro de descanso">
   <div id="restTimerBox">
@@ -3084,6 +3140,7 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>
         </span>
         <span class="drawer-item-label">Técnica</span>
+        <span class="drawer-badge">VIDEOS</span>
       </button>
     </nav>
     <div class="drawer-theme-row">
@@ -3837,6 +3894,32 @@
     return Math.round(peso * (1 + reps / 30) * 10) / 10;
   }
 
+  /* ══════════════════════════════════════
+     DETECCIÓN DE PR (récord personal)
+     Compara por 1RM estimado (Epley) para que "más peso" y
+     "mismo peso con más reps" cuenten igual como mejora real.
+  ══════════════════════════════════════ */
+  function getBestOrmForExercise(nombre, excludeKey, excludeSerie) {
+    var best = 0;
+    for (var m = 1; m <= 3; m++) {
+      for (var w = 1; w <= 4; w++) {
+        for (var d = 1; d <= 5; d++) {
+          var key = dayKey(m, w, d);
+          var arr = STATE.data[key] || [];
+          arr.forEach(function(ex) {
+            if (!ex.nombre || ex.nombre.trim() !== nombre) return;
+            (ex.series || []).forEach(function(s) {
+              if (key === excludeKey && s === excludeSerie) return;
+              var orm = calcOrm1RM(s.peso, s.reps);
+              if (orm && orm > best) best = orm;
+            });
+          });
+        }
+      }
+    }
+    return best;
+  }
+
   function updateOrmEstimate(wrap, numEl, rec) {
     var val = calcOrm1RM(rec.repMaxPeso, rec.repMaxReps);
     if (val === null) {
@@ -4492,8 +4575,14 @@
     }
 
     if (arr.length === 0) {
-      var emptyMsg = document.createElement('div'); emptyMsg.className = 'records-empty';
-      emptyMsg.textContent = 'No hay ejercicios registrados. Toca "+ Añadir ejercicio" para comenzar.';
+      var emptyMsg = document.createElement('div'); emptyMsg.className = 'registro-empty';
+      emptyMsg.innerHTML =
+        '<div class="registro-empty-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
+        '<rect x="1" y="9" width="3" height="6" rx="1"/><rect x="20" y="9" width="3" height="6" rx="1"/>' +
+        '<line x1="7" y1="12" x2="17" y2="12"/><rect x="4" y="7" width="3" height="10" rx="1"/><rect x="17" y="7" width="3" height="10" rx="1"/>' +
+        '</svg></div>' +
+        '<div class="registro-empty-title">Empecemos</div>' +
+        '<div class="registro-empty-hint">Toca "+ Añadir ejercicio" para registrar tu primera serie del día.</div>';
       el.appendChild(emptyMsg);
     }
 
@@ -4830,6 +4919,14 @@
           scheduleSave(); rebuildSeriesRows();
           if (!wasDone && serie.done) {
             startRestTimer(ex.nombre);
+            var thisOrm = calcOrm1RM(serie.peso, serie.reps);
+            if (thisOrm && ex.nombre && ex.nombre.trim()) {
+              var currentKey = dayKey(STATE.month, STATE.week, STATE.day);
+              var prevBest = getBestOrmForExercise(ex.nombre.trim(), currentKey, serie);
+              if (prevBest > 0 && thisOrm > prevBest) {
+                celebratePR(ex.nombre.trim(), serie.peso, serie.reps);
+              }
+            }
           }
         };
         row.appendChild(chk);
@@ -5233,7 +5330,7 @@
      CONFETTI ENGINE
   ══════════════════════════════════════ */
   var _confettiAnim = null;
-  function launchConfetti() {
+  function launchConfetti(count) {
     var canvas = document.getElementById('confettiCanvas');
     var ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
@@ -5242,7 +5339,7 @@
 
     var colors = ['#C9A96E','#F0BE55','#E3B34C','#F5F0E8','#A8895A','#fff8e7'];
     var pieces = [];
-    for (var i = 0; i < 120; i++) {
+    for (var i = 0; i < (count || 120); i++) {
       pieces.push({
         x: Math.random() * canvas.width,
         y: -10 - Math.random() * 120,
@@ -5289,6 +5386,23 @@
     }
     if (_confettiAnim) cancelAnimationFrame(_confettiAnim);
     _confettiAnim = requestAnimationFrame(draw);
+  }
+
+  /* ══════════════════════════════════════
+     CELEBRACIÓN DE NUEVO PR
+  ══════════════════════════════════════ */
+  var _prBannerTimer = null;
+  function celebratePR(nombre, peso, reps) {
+    var banner = document.getElementById('prBanner');
+    var detail = document.getElementById('prBannerDetail');
+    if (!banner || !detail) return;
+    var pesoStr = String(peso).replace('.', ',');
+    detail.textContent = nombre + ' — ' + pesoStr + ' kg × ' + reps;
+    launchConfetti(45);
+    if (navigator.vibrate) navigator.vibrate([15, 40, 15]);
+    clearTimeout(_prBannerTimer);
+    banner.classList.add('show');
+    _prBannerTimer = setTimeout(function() { banner.classList.remove('show'); }, 3200);
   }
 
   /* ══════════════════════════════════════
