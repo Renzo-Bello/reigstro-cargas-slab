@@ -1870,6 +1870,26 @@
     margin-top: 8px;
   }
 
+  /* ── Tabla de equivalencia RIR/RPE ── */
+  .rir-eq-title {
+    font-family: var(--font-mono); font-size: 10px; color: var(--gold);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin: 18px 0 8px;
+  }
+  .rir-eq-table {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden;
+  }
+  .rir-eq-row {
+    display: grid; grid-template-columns: 1fr 24px 1fr;
+    align-items: center; text-align: center;
+    padding: 10px 6px;
+    font-family: var(--font-mono); font-size: 13px; color: var(--text);
+    border-bottom: 1px solid var(--border);
+  }
+  .rir-eq-row:last-child { border-bottom: none; }
+  .rir-eq-eq { color: var(--text-dim); font-size: 11px; }
+
   .rpe-mode-toggle, .rpe-unit-toggle {
     display: flex; gap: 6px; margin-bottom: 14px;
   }
@@ -3141,6 +3161,12 @@
         </span>
         <span class="drawer-item-label">Técnica</span>
         <span class="drawer-badge">VIDEOS</span>
+      </button>
+      <button class="drawer-item" data-drawer-tab="tab-rir">
+        <span class="drawer-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        </span>
+        <span class="drawer-item-label">Sobre RIR</span>
       </button>
     </nav>
     <div class="drawer-theme-row">
@@ -6475,7 +6501,8 @@
     'orm':      'CALCULAR 1RM',
     'records':  'RÉCORDS',
     'recursos': 'RECURSOS',
-    'tecnica':  'TÉCNICA'
+    'tecnica':  'TÉCNICA',
+    'rir':      'SOBRE RIR'
   };
   /* ══════════════════════════════════════
      INLINE EXERCISE PICKER (por card)
@@ -6661,7 +6688,7 @@
 
 
   window.switchTab = function switchTab(tab) {
-    ['registro','progreso','rpe','orm','records','recursos','tecnica'].forEach(function(t) {
+    ['registro','progreso','rpe','orm','records','recursos','tecnica','rir'].forEach(function(t) {
       var tabEl  = document.getElementById('tab-'  + t);
       var viewEl = document.getElementById('view-' + t);
       if (tabEl)  tabEl.classList.remove('active');
@@ -7830,4 +7857,33 @@
         Ver video de técnica
       </a>
     </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       PANEL: SOBRE RIR
+  ═══════════════════════════════════════ -->
+  <div id="view-rir" class="panel" style="display:none;">
+    <p class="calc-info-text"><strong>RIR</strong> (Reps in Reserve — repeticiones en reserva) mide cuántas repeticiones más podrías haber hecho antes de llegar al fallo muscular. Es la forma "en espejo" del RPE: en vez de decir qué tan duro sentiste la serie, decís cuánto te quedó en el tanque.</p>
+
+    <div class="calc-info-scale">
+      <div class="calc-info-scale-item"><span class="scale-val scale-low">4</span><span class="scale-desc">Te quedan 4 reps más</span></div>
+      <div class="calc-info-scale-item"><span class="scale-val scale-mid">2</span><span class="scale-desc">Te quedan 2 reps más</span></div>
+      <div class="calc-info-scale-item"><span class="scale-val scale-high">F</span><span class="scale-desc">Fallo total, no queda nada</span></div>
+    </div>
+
+    <div class="rir-eq-title">Equivalencia con RPE</div>
+    <div class="rir-eq-table">
+      <div class="rir-eq-row"><span>RIR 4</span><span class="rir-eq-eq">=</span><span>RPE 6</span></div>
+      <div class="rir-eq-row"><span>RIR 3</span><span class="rir-eq-eq">=</span><span>RPE 7</span></div>
+      <div class="rir-eq-row"><span>RIR 2</span><span class="rir-eq-eq">=</span><span>RPE 8</span></div>
+      <div class="rir-eq-row"><span>RIR 1</span><span class="rir-eq-eq">=</span><span>RPE 9</span></div>
+      <div class="rir-eq-row"><span>RIR 0 (F)</span><span class="rir-eq-eq">=</span><span>RPE 10</span></div>
+    </div>
+
+    <div class="calc-info-tip">💡 Podés cambiar entre RPE y RIR en cada ejercicio desde "Modo intensidad" al registrar tus series.</div>
+
+    <a href="https://youtube.com/shorts/DDsx0NaF9gE" class="tecnica-detail-video-btn" target="_blank" rel="noopener noreferrer" style="margin-top:20px;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+      Ver video explicativo
+    </a>
   </div>
