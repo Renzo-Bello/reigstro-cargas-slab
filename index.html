@@ -3167,6 +3167,7 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
         </span>
         <span class="drawer-item-label">Sobre RIR</span>
+        <span class="drawer-badge">INFO</span>
       </button>
     </nav>
     <div class="drawer-theme-row">
@@ -4944,7 +4945,7 @@
           if (navigator.vibrate && serie.done) navigator.vibrate(25);
           scheduleSave(); rebuildSeriesRows();
           if (!wasDone && serie.done) {
-            startRestTimer(ex.nombre);
+            startRestTimer(ex.nombre, sIdx + 1);
             var thisOrm = calcOrm1RM(serie.peso, serie.reps);
             if (thisOrm && ex.nombre && ex.nombre.trim()) {
               var currentKey = dayKey(STATE.month, STATE.week, STATE.day);
@@ -7165,16 +7166,23 @@
     total: 120,
     remaining: 120,
     paused: false,
-    preset: 120
+    preset: 120,
+    serieNum: 1
   };
 
-  function _restBeep() {
+  // Notas ascendentes por número de serie (Do·Mi·Sol·Si·Re, se repite en ciclo
+  // si hay más series que notas) — así cada serie suena distinto y se
+  // reconoce por oído cuál acaba de terminar sin mirar el teléfono.
+  var REST_BEEP_NOTES = [523.25, 659.25, 783.99, 987.77, 1174.66];
+  function _restBeep(serieNum) {
+    var idx = ((serieNum || 1) - 1) % REST_BEEP_NOTES.length;
+    var base = REST_BEEP_NOTES[idx];
     try {
       var ctx = new (window.AudioContext || window.webkitAudioContext)();
       var osc = ctx.createOscillator();
       var gain = ctx.createGain();
       osc.connect(gain); gain.connect(ctx.destination);
-      osc.frequency.value = 880;
+      osc.frequency.value = base;
       gain.gain.setValueAtTime(0.4, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
       osc.start(ctx.currentTime);
@@ -7183,7 +7191,7 @@
         var osc2 = ctx.createOscillator();
         var g2 = ctx.createGain();
         osc2.connect(g2); g2.connect(ctx.destination);
-        osc2.frequency.value = 1100;
+        osc2.frequency.value = base * 1.25;
         g2.gain.setValueAtTime(0.5, ctx.currentTime);
         g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
         osc2.start(ctx.currentTime);
@@ -7212,11 +7220,12 @@
     document.getElementById('restTimerOverlay').classList.remove('open');
   }
 
-  function startRestTimer(exNombre) {
+  function startRestTimer(exNombre, serieNum) {
     clearInterval(_restTimer.interval);
     _restTimer.remaining = _restTimer.preset;
     _restTimer.total = _restTimer.preset;
     _restTimer.paused = false;
+    _restTimer.serieNum = serieNum || 1;
     var exEl = document.getElementById('restTimerExercise');
     exEl.textContent = exNombre || '';
     _restUpdateUI();
@@ -7227,7 +7236,7 @@
       _restUpdateUI();
       if (_restTimer.remaining <= 0) {
         stopRestTimer();
-        _restBeep();
+        _restBeep(_restTimer.serieNum);
         showToast('¡Descanso terminado! A por la siguiente serie 💪', 'ok', 3000);
       }
     }, 1000);
@@ -7255,7 +7264,7 @@
         _restUpdateUI();
         if (_restTimer.remaining <= 0) {
           stopRestTimer();
-          _restBeep();
+          _restBeep(_restTimer.serieNum);
           showToast('¡Descanso terminado! A por la siguiente serie 💪', 'ok', 3000);
         }
       }, 1000);
@@ -7383,7 +7392,7 @@
         scheduleSave();
         renderFocusMode();
         if (!wasDone && serie.done) {
-          startRestTimer(ex.nombre);
+          startRestTimer(ex.nombre, sIdx + 1);
         }
       };
       row.appendChild(chkBtn);
@@ -7863,13 +7872,21 @@
        PANEL: SOBRE RIR
   ═══════════════════════════════════════ -->
   <div id="view-rir" class="panel" style="display:none;">
-    <p class="calc-info-text"><strong>RIR</strong> (Reps in Reserve — repeticiones en reserva) mide cuántas repeticiones más podrías haber hecho antes de llegar al fallo muscular. Es la forma "en espejo" del RPE: en vez de decir qué tan duro sentiste la serie, decís cuánto te quedó en el tanque.</p>
+    <a href="https://youtube.com/shorts/DDsx0NaF9gE" class="tecnica-detail-video-btn" target="_blank" rel="noopener noreferrer">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+      Ver video explicativo
+    </a>
 
+    <p class="calc-info-text" style="margin-top:18px;"><strong>RIR</strong> (Reps in Reserve — repeticiones en reserva) mide cuántas repeticiones más se podrían haber hecho antes de llegar al fallo muscular. Es la forma "en espejo" del RPE: en lugar de indicar qué tan exigente se sintió la serie, indica cuánto quedaba en reserva.</p>
+
+    <div class="rir-eq-title">Escala (hasta RIR 0)</div>
     <div class="calc-info-scale">
-      <div class="calc-info-scale-item"><span class="scale-val scale-low">4</span><span class="scale-desc">Te quedan 4 reps más</span></div>
-      <div class="calc-info-scale-item"><span class="scale-val scale-mid">2</span><span class="scale-desc">Te quedan 2 reps más</span></div>
-      <div class="calc-info-scale-item"><span class="scale-val scale-high">F</span><span class="scale-desc">Fallo total, no queda nada</span></div>
+      <div class="calc-info-scale-item"><span class="scale-val scale-low">4</span><span class="scale-desc">Quedan 4 repeticiones posibles</span></div>
+      <div class="calc-info-scale-item"><span class="scale-val scale-mid">2</span><span class="scale-desc">Quedan 2 repeticiones posibles</span></div>
+      <div class="calc-info-scale-item"><span class="scale-val scale-high">0</span><span class="scale-desc">No queda ninguna repetición más</span></div>
     </div>
+
+    <div class="calc-info-tip">⚠️ RIR 0 no es lo mismo que el fallo muscular. RIR 0 significa que no se podría completar una repetición más con buena técnica; el fallo es intentar la repetición y no lograr terminarla. Se puede entrenar a RIR 0 con control; llegar al fallo de forma constante no es necesario ni recomendable.</div>
 
     <div class="rir-eq-title">Equivalencia con RPE</div>
     <div class="rir-eq-table">
@@ -7877,13 +7894,8 @@
       <div class="rir-eq-row"><span>RIR 3</span><span class="rir-eq-eq">=</span><span>RPE 7</span></div>
       <div class="rir-eq-row"><span>RIR 2</span><span class="rir-eq-eq">=</span><span>RPE 8</span></div>
       <div class="rir-eq-row"><span>RIR 1</span><span class="rir-eq-eq">=</span><span>RPE 9</span></div>
-      <div class="rir-eq-row"><span>RIR 0 (F)</span><span class="rir-eq-eq">=</span><span>RPE 10</span></div>
+      <div class="rir-eq-row"><span>RIR 0</span><span class="rir-eq-eq">=</span><span>RPE 10</span></div>
     </div>
 
-    <div class="calc-info-tip">💡 Podés cambiar entre RPE y RIR en cada ejercicio desde "Modo intensidad" al registrar tus series.</div>
-
-    <a href="https://youtube.com/shorts/DDsx0NaF9gE" class="tecnica-detail-video-btn" target="_blank" rel="noopener noreferrer" style="margin-top:20px;">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-      Ver video explicativo
-    </a>
+    <div class="calc-info-tip">💡 Es posible cambiar entre RPE y RIR en cada ejercicio desde "Modo intensidad" al registrar las series.</div>
   </div>
