@@ -2306,11 +2306,25 @@
   .tecnica-row:active { opacity: 0.7; }
   .tecnica-row.no-video { cursor: default; }
 
+  /* Foto del ejercicio */
+  .tecnica-row-img {
+    flex-shrink: 0; width: 38px; height: 38px;
+    border-radius: 50%; overflow: hidden;
+    border: 1.5px solid rgba(201,169,110,0.3);
+    background: var(--card-alt);
+    box-shadow: 0 0 8px rgba(201,169,110,0.08);
+  }
+  .tecnica-row-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .tecnica-row-img .tecnica-row-img-fallback {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  }
+  .tecnica-row-img .tecnica-row-img-fallback svg { width: 60%; height: 60%; opacity: 0.85; }
+
   /* Número */
   .tecnica-row-num {
-    flex-shrink: 0; width: 20px;
-    font-family: var(--font-mono); font-size: 10px;
-    color: var(--text-dim); text-align: right; opacity: 0.5;
+    flex-shrink: 0; width: 14px;
+    font-family: var(--font-mono); font-size: 9px;
+    color: var(--text-dim); text-align: right; opacity: 0.4;
   }
 
   /* Nombre */
@@ -2392,6 +2406,10 @@
   .tecnica-detail-img-wrap img {
     width: 100%; height: 100%; object-fit: cover; display: block;
   }
+  .tecnica-detail-img-wrap .tecnica-detail-img-fallback {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  }
+  .tecnica-detail-img-wrap .tecnica-detail-img-fallback svg { width: 62%; height: 62%; }
   .tecnica-detail-name {
     font-family: var(--font-display); font-size: 20px; font-weight: 600;
     color: var(--text); line-height: 1.25;
@@ -7566,6 +7584,30 @@
         num.className = 'tecnica-row-num';
         num.textContent = i + 1;
 
+        // Foto
+        var imgWrap = document.createElement('div');
+        imgWrap.className = 'tecnica-row-img';
+        var imgUrl = getExerciseImgUrl(ex.nombre);
+        if (imgUrl) {
+          var imgEl = document.createElement('img');
+          imgEl.src = imgUrl;
+          imgEl.alt = ex.nombre;
+          imgEl.loading = 'lazy';
+          imgEl.onerror = function() {
+            this.remove();
+            var fb = document.createElement('div');
+            fb.className = 'tecnica-row-img-fallback';
+            fb.innerHTML = ex.svg || '';
+            imgWrap.appendChild(fb);
+          };
+          imgWrap.appendChild(imgEl);
+        } else {
+          var fbEmpty = document.createElement('div');
+          fbEmpty.className = 'tecnica-row-img-fallback';
+          fbEmpty.innerHTML = ex.svg || '';
+          imgWrap.appendChild(fbEmpty);
+        }
+
         // Nombre
         var name = document.createElement('div');
         name.className = 'tecnica-row-name';
@@ -7583,6 +7625,7 @@
         }
 
         row.appendChild(num);
+        row.appendChild(imgWrap);
         row.appendChild(name);
         row.appendChild(action);
         listEl.appendChild(row);
@@ -7598,6 +7641,7 @@
     var modal = document.getElementById('tecnicaDetailModal');
     if (!modal) return;
     var img = document.getElementById('tecnicaDetailImg');
+    var imgFallback = document.getElementById('tecnicaDetailImgFallback');
     var name = document.getElementById('tecnicaDetailName');
     var muscle = document.getElementById('tecnicaDetailMuscle');
     var erroresList = document.getElementById('tecnicaDetailErrores');
@@ -7605,8 +7649,11 @@
     var videoBtn = document.getElementById('tecnicaDetailVideo');
 
     var imgUrl = getExerciseImgUrl(ex.nombre);
-    if (imgUrl) { img.src = imgUrl; img.style.display = ''; }
-    else { img.removeAttribute('src'); img.style.display = 'none'; }
+    imgFallback.innerHTML = ex.svg || '';
+    imgFallback.hidden = true;
+    img.onerror = function() { img.style.display = 'none'; imgFallback.hidden = false; };
+    if (imgUrl) { img.style.display = ''; img.src = imgUrl; }
+    else { img.removeAttribute('src'); img.style.display = 'none'; imgFallback.hidden = false; }
     name.textContent = ex.nombre;
     muscle.textContent = ex.musculo || '';
 
@@ -7867,7 +7914,7 @@
     <div class="tecnica-detail-sheet">
       <button class="tecnica-detail-close" id="tecnicaDetailClose" type="button" aria-label="Cerrar">✕</button>
       <div class="tecnica-detail-head">
-        <div class="tecnica-detail-img-wrap"><img id="tecnicaDetailImg" alt="" loading="lazy"></div>
+        <div class="tecnica-detail-img-wrap"><img id="tecnicaDetailImg" alt="" loading="lazy"><div id="tecnicaDetailImgFallback" class="tecnica-detail-img-fallback" hidden></div></div>
         <div class="tecnica-detail-head-info">
           <div class="tecnica-detail-name" id="tecnicaDetailName"></div>
           <div class="tecnica-detail-muscle" id="tecnicaDetailMuscle"></div>
