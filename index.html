@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="https://renzo-bello.github.io/reigstro-cargas-slab/favicon-32.png">
@@ -2904,6 +2904,155 @@
   /* Override específico para mantener diseño pero evitar zoom */
   .ex-name-input { font-size: 16px; }
   .ob-input { font-size: max(16px, 32px); }
+
+/* StrengthLab — refined mobile interface */
+#view-tecnica,#view-rir { max-width:620px; margin-left:auto; margin-right:auto; }
+.tecnica-search-wrap { margin:0 0 20px; padding:12px 0; background:var(--dark); backdrop-filter:none; -webkit-backdrop-filter:none; }
+:root {
+ --dark:#101211; --dark-2:#171a18; --card:#1b1e1c; --card-alt:#232723;
+ --text:#f3f1e9; --text-mid:#bebfb5; --text-dim:#a0a59b;
+ --border:#343a33; --border-hover:#50574d; --gold:#dcc497; --gold-dim:#aa9066;
+ --day-accent:#dcc497; --month-accent:#dcc497; --num-white:#faf9f3;
+ --radius-sm:10px; --radius-md:18px; --radius-lg:22px; --radius-xl:26px;
+}
+body.light-mode { --text-dim:#62685e; --text-mid:#495044; --border:#d5d8ce; }
+body { background:var(--dark); }
+#app { max-width:620px; }
+header.topbar { background:var(--dark); border-bottom:1px solid var(--border); padding-bottom:14px; backdrop-filter:none; -webkit-backdrop-filter:none; will-change:auto; }
+header.topbar h1 { font-family:var(--font-body); font-size:14px; letter-spacing:2px; }
+header.topbar p { margin-top:5px; font-size:10px; letter-spacing:.7px; }
+.hamburger-btn,.btn-hoy { border-radius:12px; }
+nav.tabs { position:relative; top:auto; background:var(--dark); padding:12px 16px; gap:5px; border:0; backdrop-filter:none; -webkit-backdrop-filter:none; }
+nav.tabs button { border:1px solid transparent; border-radius:12px; font-family:var(--font-body); font-size:12px; letter-spacing:0; text-transform:none; opacity:1; padding:12px 5px; }
+nav.tabs #tab-tecnica { display:block; }
+nav.tabs button.active,nav.tabs #tab-recursos.active { background:var(--card-alt); color:var(--gold); border-color:var(--border); }
+.panel { padding:8px 16px 0; }
+.training-intro { padding:20px 0 25px; }
+.training-intro .eyebrow { color:var(--gold); font:500 10px var(--font-mono); letter-spacing:2px; text-transform:uppercase; }
+.training-intro h2 { margin:10px 0; font:600 clamp(30px,7vw,40px)/1.15 var(--font-display); letter-spacing:-1px; }
+.training-intro p { margin:0; color:var(--text-mid); font-size:13px; line-height:1.6; }
+.nav-selector { border-top:1px solid var(--border); padding-top:12px; margin-bottom:12px; }
+.nav-seg-label,.ctx-progress { font-size:10px; }
+.day-strip { gap:7px; margin-bottom:24px; }
+.day-btn { min-height:64px; border-radius:14px; gap:7px; background:var(--card); }
+.day-btn .day-sub { font-size:10px; }
+.day-btn .day-n { font-size:17px; }
+.day-btn.day-active.day-today .day-n { color:var(--dark); }
+.exercise-card { border-radius:20px; margin-bottom:20px; box-shadow:0 6px 20px rgba(0,0,0,.09); }
+.exercise-card::before { display:none; }
+.exercise-card:active { transform:none; }
+.ex-head-top { padding:18px 14px 12px; gap:10px; }
+.ex-head-img { width:58px; height:58px; border-radius:16px; border:1px solid var(--border); box-shadow:none; }
+.ex-head-actions .ex-rpe-btn,.ex-head-actions .ex-video-btn { min-height:44px; min-width:44px; height:44px; border-radius:10px; }
+.series-hevy-header,.serie-hevy-row { grid-template-columns:24px minmax(35px,1fr) minmax(44px,1fr) minmax(40px,1fr) 38px 38px 40px 28px; padding-left:8px; padding-right:8px; gap:3px; }
+.series-hevy-header { min-height:34px; }
+.series-hevy-header span { font-size:9px; letter-spacing:0; }
+.serie-hevy-row { min-height:64px; }
+.serie-hevy-row:nth-child(even):not(.serie-done):not(.serie-warmup) { background:var(--dark-2); }
+.serie-hevy-input,.serie-hevy-select-rpe { min-height:44px; border-radius:8px; }
+.serie-hevy-check { width:40px; height:44px; border-radius:12px; }
+.serie-hevy-del-btn { height:44px; }
+.session-card { border-color:var(--gold-dim); background:var(--card); }
+.session-card .session-label { font:600 13px var(--font-body); letter-spacing:1px; text-align:center; }
+.session-card .ex-head { padding:20px 14px; }
+.tecnica-row { padding:14px 12px; background:var(--card); border:1px solid var(--border); border-radius:16px; margin-bottom:9px; gap:12px; }
+.tecnica-row:last-child { border-bottom:1px solid var(--border); }
+.tecnica-row-img { width:58px; height:58px; border-radius:14px; border:1px solid var(--border); box-shadow:none; }
+.tecnica-row-name { font-size:15px; font-weight:600; }
+.tecnica-row-action { width:44px; height:44px; }
+.tecnica-detail-img-wrap { width:160px; height:160px; border-radius:24px; border-width:1px; box-shadow:none; }
+.tecnica-detail-sheet { border-radius:26px 26px 0 0; }
+.ex-inline-filter { min-height:44px; padding:10px 14px; }
+.drawer-nav { padding:12px; }
+.drawer-item { border-radius:12px; margin-bottom:4px; padding:14px; }
+.drawer-item.active-nav { background:var(--gold-glow); }
+.drawer-badge { border-radius:6px; }
+.recurso-card { border-radius:18px; }
+.recurso-desc { font-size:13px; line-height:1.65; }
+button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-visible,select:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+.exercise-card,.drawer-item,.day-btn,.ob-btn-primary,.tecnica-row { -webkit-transform:none; transform:none; }
+@media(min-width:800px) { #app { padding-top:20px; } .panel { padding-left:24px; padding-right:24px; } .training-intro { padding-top:28px; } }
+@media(max-width:374px) {
+ .panel { padding-left:8px; padding-right:8px; }
+ .series-hevy-header,.serie-hevy-row { grid-template-columns:20px minmax(26px,1fr) 42px 38px 34px 34px 36px 24px; gap:2px; padding-left:6px; padding-right:6px; }
+ .serie-hevy-check { width:36px; }
+ nav.tabs { padding-left:8px; padding-right:8px; }
+}
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation:none!important; transition:none!important; } }
+
+
+/* Registro — editorial training workspace */
+#view-registro .training-intro { position:relative; margin:6px 0 16px; padding:14px 16px; border:1px solid var(--border); border-radius:20px; background:linear-gradient(125deg,var(--card-alt),var(--dark-2) 76%); overflow:hidden; }
+.training-intro-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+#view-registro .training-intro .eyebrow { font-size:9px; letter-spacing:1.5px; }
+.training-monogram { display:grid; place-items:center; width:26px; height:26px; border:1px solid var(--gold-dim); border-radius:50%; color:var(--gold); font:500 11px var(--font-display); }
+#view-registro .training-intro h2 { font-size:clamp(21px,5.4vw,28px); line-height:1.2; margin:10px 0 12px; letter-spacing:-.4px; }
+.training-intro h2 em { color:var(--gold); font-weight:600; }
+.training-signature { display:flex; justify-content:space-between; gap:8px; padding-top:10px; border-top:1px solid var(--border); color:var(--text-dim); font:400 9px var(--font-mono); letter-spacing:.5px; }
+#view-registro .nav-selector { border:0; padding-top:0; }
+#view-registro .day-strip { padding:6px; border:1px solid var(--border); border-radius:18px; background:var(--dark-2); gap:4px; }
+#view-registro .day-btn { background:transparent; border-color:transparent; min-height:58px; border-radius:12px; }
+#view-registro .day-btn.day-active { background:var(--gold); color:var(--dark); box-shadow:0 3px 10px #0002; }
+#view-registro .day-btn.day-today:not(.day-active) { border-color:var(--gold-dim); box-shadow:none; }
+#view-registro .exercise-card { box-shadow:0 8px 24px #00000012; }
+#view-registro .ex-head { background:linear-gradient(115deg,var(--card-alt),var(--card)); }
+#view-registro .ex-head-actions { padding:0 12px 12px; gap:8px; }
+#view-registro .ex-head-actions .ex-rpe-btn { font-size:11px; }
+#view-registro .ex-head-actions .ex-rpe-btn::after,#view-registro .ex-head-actions .ex-video-btn::after { content:none; }
+#view-registro .exercises-header { border-bottom:1px solid var(--border); padding:0 2px 14px; margin-bottom:16px; }
+#view-registro .exercises-count { font-size:10px; letter-spacing:.3px; line-height:1.8; }
+#view-registro .add-exercise-btn { background:var(--gold); color:var(--dark); border:1px solid var(--gold); border-radius:14px; min-height:52px; font:600 13px var(--font-body); text-transform:none; letter-spacing:0; margin-bottom:22px; }
+#view-registro .registro-empty { padding:24px 18px; }
+#view-registro .registro-empty-title { font-family:var(--font-body); font-size:18px; letter-spacing:-.3px; }
+#view-registro .registro-empty-hint { font-size:13px; max-width:260px; margin-left:auto; margin-right:auto; line-height:1.6; }
+#view-registro .session-card { border-color:var(--border); }
+#view-registro .session-card .session-label { font-size:12px; }
+#view-registro .sleep-btn { border-radius:12px; min-height:58px; }
+@media(max-width:374px) { #view-registro .training-intro { padding:12px 14px; } .training-signature { font-size:8px; } }
+
+
+/* Sobre RIR — coaching guide */
+#view-rir { padding-top:12px; padding-bottom:calc(36px + env(safe-area-inset-bottom)); }
+.rir-video-card { display:block; padding:22px; border:1px solid var(--gold-dim); border-radius:22px; background:linear-gradient(125deg,var(--card-alt),var(--dark-2)); color:var(--text); text-decoration:none; }
+.rir-video-top,.rir-video-bottom,.rir-section-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.rir-guide-kicker { font:500 9px var(--font-mono); letter-spacing:1.4px; color:var(--gold); }
+.rir-info-badge { padding:5px 7px; border:1px solid var(--gold-dim); border-radius:5px; font:500 9px var(--font-mono); color:var(--gold); }
+.rir-video-title { display:block; margin:20px 0 24px; font:600 clamp(27px,7vw,36px)/1.2 var(--font-display); letter-spacing:-.5px; }
+.rir-video-title em { color:var(--gold); }
+.rir-video-bottom { justify-content:flex-start; padding-top:16px; border-top:1px solid var(--border); }
+.rir-video-play { display:grid; place-items:center; width:44px; height:44px; flex-shrink:0; border-radius:50%; background:var(--gold); color:var(--dark); }
+.rir-video-bottom strong { display:block; font-size:13px; font-weight:600; }
+.rir-video-bottom small { display:block; margin-top:5px; color:var(--text-dim); font-size:11px; }
+.rir-video-arrow { margin-left:auto; color:var(--gold); font-size:24px; }
+.rir-guide-intro { padding:30px 2px 24px; }
+.rir-guide-intro h2 { font:600 25px var(--font-display); margin:10px 0 12px; }
+.rir-guide-intro p,.rir-comparison p,.rir-guide-footer p { color:var(--text-mid); font-size:13px; line-height:1.75; margin:0; }
+.rir-guide-intro strong,.rir-guide-footer strong { color:var(--text); font-weight:600; }
+.rir-section-heading { margin:0 2px 12px; }
+.rir-section-heading h3 { margin:0; font-size:14px; font-weight:600; }
+.rir-section-heading>span { font:400 10px var(--font-mono); color:var(--gold); white-space:nowrap; }
+.rir-guide-scale { border:1px solid var(--border); border-radius:18px; overflow:hidden; }
+.rir-guide-row { display:grid; grid-template-columns:42px minmax(0,1fr) 48px; align-items:center; gap:12px; padding:16px 14px; background:var(--card); }
+.rir-guide-row+.rir-guide-row { border-top:1px solid var(--border); }
+.rir-guide-row:nth-child(even) { background:var(--dark-2); }
+.rir-guide-row:last-child { background:var(--gold-glow); }
+.rir-guide-value { font:500 25px var(--font-mono); color:var(--gold); text-align:center; }
+.rir-guide-value small { display:block; font-size:8px; margin-bottom:3px; letter-spacing:1px; color:var(--text-dim); }
+.rir-guide-row strong { font-size:12px; font-weight:600; line-height:1.4; display:block; }
+.rir-guide-row p { margin:5px 0 0; font-size:11px; line-height:1.6; color:var(--text-dim); }
+.rir-guide-rpe { font:400 9px var(--font-mono); text-align:right; color:var(--text-mid); }
+.rir-scale-note { font-size:11px; color:var(--text-dim); line-height:1.65; margin:12px 2px 26px; }
+.rir-distinction { border:1px solid var(--gold-dim); border-radius:18px; padding:20px; }
+.rir-distinction h3 { font:600 26px var(--font-display); margin:10px 0 20px; color:var(--gold); }
+.rir-comparison { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.rir-comparison>div+div { border-left:1px solid var(--border); padding-left:18px; }
+.rir-comparison span { display:block; font:500 10px var(--font-mono); letter-spacing:1px; margin-bottom:8px; }
+.rir-comparison p { font-size:12px; }
+.rir-guide-footer { display:flex; align-items:flex-start; gap:12px; padding:22px 4px 0; }
+.rir-guide-footer>span { font-size:24px; color:var(--gold); }
+.rir-guide-footer strong { display:block; }
+@media(max-width:360px) { .rir-video-card { padding:18px; } .rir-guide-row { gap:8px; padding:14px 10px; grid-template-columns:34px minmax(0,1fr) 44px; } .rir-comparison { gap:12px; } .rir-comparison>div+div { padding-left:12px; } }
+
 </style>
 </head>
 <body>
@@ -3215,14 +3364,21 @@
   </div>
 
   <!-- TABS: Registro > Progreso > Calcular RPE > Calcular 1RM > Recursos > Récords -->
-  <nav class="tabs">
+  <nav class="tabs" aria-label="Secciones principales">
     <button id="tab-registro" class="active">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:middle;opacity:0.7"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Registro</button>
+    <button id="tab-progreso">Progreso</button>
+    <button id="tab-tecnica">Técnica</button>
     <button id="tab-recursos">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:middle;opacity:0.7"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Recursos</button>
   </nav>
 
   <div id="view-registro" class="panel">
+    <section class="training-intro" aria-label="Tu entrenamiento">
+      <div class="training-intro-top"><span class="eyebrow">Tu espacio de entrenamiento</span><span class="training-monogram" aria-hidden="true">SL</span></div>
+      <h2>El físico se construye.<br><em>Serie a serie.</em></h2>
+      <div class="training-signature"><span>PLAN PERSONALIZADO</span><span>by @rennzolifts</span></div>
+    </section>
     <!-- Selector compacto Mes / Semana -->
     <div class="nav-selector" id="navSelector">
       <div class="ctx-breadcrumb">
@@ -4218,6 +4374,9 @@
     { nombre: 'Pull over', imgId: '36',                           musculo: 'Espalda',  videoUrl: 'https://youtube.com/shorts/dX5DHCZ-7p8', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><path d="M12 20 Q20 16 28 20" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="12" y1="20" x2="12" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="20" x2="28" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="4" y="28" width="36" height="4" rx="2" fill="#A8895A"/><rect x="2" y="26" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="34" y="26" width="4" height="8" rx="1.5" fill="#C9A96E"/></svg>' },
     { nombre: 'Muscle up', imgId: '37',                           musculo: 'Espalda',  videoUrl: 'https://www.youtube.com/shorts/E7CiaycXvXU', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="4" width="36" height="4" rx="2" fill="#A8895A"/><circle cx="20" cy="15" r="3" fill="#C9A96E"/><line x1="13" y1="8" x2="15" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="27" y1="8" x2="25" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="20" y2="26" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="13" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="27" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="13" y1="28" x2="12" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="27" y1="28" x2="28" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
     { nombre: 'Face pull', imgId: '38',                           musculo: 'Espalda',  videoUrl: 'https://www.youtube.com/shorts/Ue0xtLb_kvM', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><path d="M12 20 Q20 16 28 20" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="12" y1="20" x2="12" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="20" x2="28" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="4" y="28" width="36" height="4" rx="2" fill="#A8895A"/><rect x="2" y="26" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="34" y="26" width="4" height="8" rx="1.5" fill="#C9A96E"/></svg>' },
+    { nombre: 'Peck deck', imgId: '', musculo: 'Pecho', videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="30" width="32" height="5" rx="2" fill="#2A2A2A"/><rect x="14" y="20" width="12" height="10" rx="2" fill="#1C1C1C" stroke="#2A2A2A" stroke-width="1"/><circle cx="20" cy="15" r="3" fill="#C9A96E"/><line x1="20" y1="18" x2="20" y2="22" stroke="#C9A96E" stroke-width="2"/><line x1="8" y1="22" x2="32" y2="22" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><rect x="2" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="34" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/></svg>' },
+    { nombre: 'Press pecho en máquina', imgId: '', musculo: 'Pecho', videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="30" width="32" height="5" rx="2" fill="#2A2A2A"/><rect x="14" y="20" width="12" height="10" rx="2" fill="#1C1C1C" stroke="#2A2A2A" stroke-width="1"/><circle cx="20" cy="15" r="3" fill="#C9A96E"/><line x1="20" y1="18" x2="20" y2="22" stroke="#C9A96E" stroke-width="2"/><line x1="8" y1="22" x2="32" y2="22" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><rect x="2" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="34" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/></svg>' },
+    { nombre: 'Press inclinado en Smith', imgId: '', musculo: 'Pecho', videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="30" width="32" height="5" rx="2" fill="#2A2A2A"/><rect x="14" y="20" width="12" height="10" rx="2" fill="#1C1C1C" stroke="#2A2A2A" stroke-width="1"/><circle cx="20" cy="15" r="3" fill="#C9A96E"/><line x1="20" y1="18" x2="20" y2="22" stroke="#C9A96E" stroke-width="2"/><line x1="8" y1="22" x2="32" y2="22" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><rect x="2" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="34" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/></svg>' },
     { nombre: 'Cruce de poleas', imgId: '39',                     musculo: 'Pecho',    videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="30" width="32" height="5" rx="2" fill="#2A2A2A"/><rect x="14" y="20" width="12" height="10" rx="2" fill="#1C1C1C" stroke="#2A2A2A" stroke-width="1"/><circle cx="20" cy="15" r="3" fill="#C9A96E"/><line x1="20" y1="18" x2="20" y2="22" stroke="#C9A96E" stroke-width="2"/><line x1="8" y1="22" x2="32" y2="22" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><rect x="2" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="34" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/></svg>' },
     // ── PECHO ──
     { nombre: 'Press banca', imgId: '40',                         musculo: 'Pecho',    videoUrl: 'https://youtube.com/shorts/UgmYbrytasw', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="30" width="32" height="5" rx="2" fill="#2A2A2A"/><rect x="14" y="20" width="12" height="10" rx="2" fill="#1C1C1C" stroke="#2A2A2A" stroke-width="1"/><circle cx="20" cy="15" r="3" fill="#C9A96E"/><line x1="20" y1="18" x2="20" y2="22" stroke="#C9A96E" stroke-width="2"/><line x1="8" y1="22" x2="32" y2="22" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><rect x="2" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="34" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/></svg>' },
@@ -4455,6 +4614,8 @@
     'zancadas': 'sentadilla',
     'peso muerto': 'hinge', 'peso muerto rumano': 'hinge', 'hip thrust en barra': 'hinge',
     'hip thrust en máquina': 'hinge', 'hiperextensiones': 'hinge', 'patada de glúteo': 'hinge',
+    'press pecho en máquina': 'press_horizontal', 'press inclinado en smith': 'press_horizontal',
+    'peck deck': 'pecho_aislamiento',
     'press banca': 'press_horizontal', 'press banca con mancuernas': 'press_horizontal',
     'press banca inclinado': 'press_horizontal', 'press banca inclinado con mancuernas': 'press_horizontal',
     'fondos': 'press_horizontal', 'fondos en paralelas': 'press_horizontal',
@@ -7941,30 +8102,13 @@
        PANEL: SOBRE RIR
   ═══════════════════════════════════════ -->
   <div id="view-rir" class="panel" style="display:none;">
-    <a href="https://youtube.com/shorts/DDsx0NaF9gE" class="tecnica-detail-video-btn" target="_blank" rel="noopener noreferrer">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-      Ver video explicativo
+    <a class="rir-video-card" href="https://youtube.com/shorts/DDsx0NaF9gE" target="_blank" rel="noopener noreferrer" aria-label="Ver explicación de RIR de @rennzolifts en YouTube, abre en otra pestaña">
+      <span class="rir-video-top"><span class="rir-guide-kicker">LA GUÍA DE TU COACH</span><span class="rir-info-badge">INFO</span></span>
+      <span class="rir-video-title">RIR: Mide la intensidad<br><em>de tu serie.</em></span>
+      <span class="rir-video-bottom"><span class="rir-video-play" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><span><strong>Haz clic para ver el video explicativo</strong><small>@rennzolifts · YouTube</small></span><span class="rir-video-arrow" aria-hidden="true">↗</span></span>
     </a>
-
-    <p class="calc-info-text" style="margin-top:18px;"><strong>RIR</strong> (Reps in Reserve — repeticiones en reserva) mide cuántas repeticiones más se podrían haber hecho antes de llegar al fallo muscular. Es la forma "en espejo" del RPE: en lugar de indicar qué tan exigente se sintió la serie, indica cuánto quedaba en reserva.</p>
-
-    <div class="rir-eq-title">Escala (hasta RIR 0)</div>
-    <div class="calc-info-scale">
-      <div class="calc-info-scale-item"><span class="scale-val scale-low">4</span><span class="scale-desc">Quedan 4 repeticiones posibles</span></div>
-      <div class="calc-info-scale-item"><span class="scale-val scale-mid">2</span><span class="scale-desc">Quedan 2 repeticiones posibles</span></div>
-      <div class="calc-info-scale-item"><span class="scale-val scale-high">0</span><span class="scale-desc">No queda ninguna repetición más</span></div>
-    </div>
-
-    <div class="calc-info-tip">⚠️ RIR 0 no es lo mismo que el fallo muscular. RIR 0 significa que no se podría completar una repetición más con buena técnica; el fallo es intentar la repetición y no lograr terminarla. Se puede entrenar a RIR 0 con control; llegar al fallo de forma constante no es necesario ni recomendable.</div>
-
-    <div class="rir-eq-title">Equivalencia con RPE</div>
-    <div class="rir-eq-table">
-      <div class="rir-eq-row"><span>RIR 4</span><span class="rir-eq-eq">=</span><span>RPE 6</span></div>
-      <div class="rir-eq-row"><span>RIR 3</span><span class="rir-eq-eq">=</span><span>RPE 7</span></div>
-      <div class="rir-eq-row"><span>RIR 2</span><span class="rir-eq-eq">=</span><span>RPE 8</span></div>
-      <div class="rir-eq-row"><span>RIR 1</span><span class="rir-eq-eq">=</span><span>RPE 9</span></div>
-      <div class="rir-eq-row"><span>RIR 0</span><span class="rir-eq-eq">=</span><span>RPE 10</span></div>
-    </div>
-
-    <div class="calc-info-tip">💡 Es posible cambiar entre RPE y RIR en cada ejercicio desde "Modo intensidad" al registrar las series.</div>
+    <section class="rir-guide-intro" aria-labelledby="rir-guide-heading"><span class="rir-guide-kicker">ENTRENA CON CRITERIO</span><h2 id="rir-guide-heading">¿Qué es el RIR?</h2><p>RIR significa <strong>repeticiones en reserva</strong>: cuántas repeticiones más podrías completar al terminar una serie, manteniendo una buena técnica.</p></section>
+    <section aria-labelledby="rir-scale-heading"><div class="rir-section-heading"><h3 id="rir-scale-heading">Tu escala de esfuerzo</h3><span>RIR 4 → 0</span></div><div class="rir-guide-scale"><div class="rir-guide-row"><span class="rir-guide-value"><small>RIR</small>4</span><div><strong>4 repeticiones en reserva</strong><p>Podrías completar 4 repeticiones más con buena técnica.</p></div><span class="rir-guide-rpe">RPE 6</span></div><div class="rir-guide-row"><span class="rir-guide-value"><small>RIR</small>3</span><div><strong>3 repeticiones en reserva</strong><p>Podrías completar 3 repeticiones más con buena técnica.</p></div><span class="rir-guide-rpe">RPE 7</span></div><div class="rir-guide-row"><span class="rir-guide-value"><small>RIR</small>2</span><div><strong>2 repeticiones en reserva</strong><p>Podrías completar 2 repeticiones más con buena técnica.</p></div><span class="rir-guide-rpe">RPE 8</span></div><div class="rir-guide-row"><span class="rir-guide-value"><small>RIR</small>1</span><div><strong>1 repetición en reserva</strong><p>Podrías completar 1 repetición más con buena técnica.</p></div><span class="rir-guide-rpe">RPE 9</span></div><div class="rir-guide-row"><span class="rir-guide-value"><small>RIR</small>0</span><div><strong>Sin repeticiones en reserva</strong><p>Completas la última repetición posible con buena técnica.</p></div><span class="rir-guide-rpe">RPE 10</span></div></div><p class="rir-scale-note">A menor RIR, menos repeticiones en reserva. El RPE expresa ese esfuerzo en la escala inversa.</p></section>
+    <section class="rir-distinction" aria-labelledby="rir-zero-heading"><span class="rir-guide-kicker">LA DIFERENCIA IMPORTANTE</span><h3 id="rir-zero-heading">RIR 0 ≠ fallo</h3><div class="rir-comparison"><div><span>RIR 0</span><p>Terminas la última repetición. Estimas que no podrías completar otra con buena técnica.</p></div><div><span>FALLO</span><p>Intentas una repetición adicional y no logras completarla.</p></div></div></section>
+    <div class="rir-guide-footer"><span aria-hidden="true">↳</span><p><strong>Llévalo a tu entrenamiento.</strong> Cambia entre RPE y RIR desde “Modo intensidad” en cada ejercicio y sigue el objetivo de tu rutina.</p></div>
   </div>
