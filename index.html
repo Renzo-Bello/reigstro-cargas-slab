@@ -3063,9 +3063,211 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 #exImgModalImg { width:min(460px,86vw);height:min(460px,65dvh);border-radius:6px!important;box-shadow:none!important; }
 
 </style>
-<link rel="stylesheet" href="assets/ui/home.css">
-<script src="assets/data/curiosidades.js"></script>
-<script src="assets/ui/home.js"></script>
+<style>
+.home { padding-bottom:32px; }
+.home-greeting { padding:22px 2px 24px; }
+.home .home-kicker { color:var(--gold); font:500 10px/1.5 var(--font-mono); letter-spacing:1.2px; text-transform:uppercase; }
+.home-greeting h1 { font:600 clamp(24px,6vw,32px)/1.25 var(--font-body); letter-spacing:-1px; margin:12px 0 8px; overflow-wrap:anywhere; }
+.home p { font:400 12px/1.7 var(--font-body); color:var(--text-mid); margin:8px 0 0; }
+.home-hero { position:relative; isolation:isolate; overflow:hidden; border:1px solid var(--gold-dim); border-radius:22px; padding:26px 24px; background:radial-gradient(ellipse at 100% 0%,var(--gold-glow),transparent 75%),var(--card); }
+.home-hero h2 { font:600 clamp(30px,7.8vw,42px)/1.2 var(--font-display); letter-spacing:-1px; margin:20px 0 16px; }
+.home-hero h2 em { color:var(--gold); }
+.home-hero p { max-width:280px; color:var(--text-mid); }
+.home-hero-mark { position:absolute; z-index:-1; right:-15px; top:12px; font:600 170px var(--font-display); color:var(--gold); opacity:.055; transform:rotate(-12deg); pointer-events:none; }
+.home button { cursor:pointer; font-family:var(--font-body); }
+.home button:focus-visible,.home a:focus-visible,.home summary:focus-visible { outline:2px solid var(--gold); outline-offset:4px; }
+.home-primary { display:flex; justify-content:space-between; align-items:center; gap:12px; width:100%; border:0; border-radius:12px; padding:16px; min-height:50px; margin-top:24px; background:var(--gold); color:var(--dark); font-size:13px; font-weight:600; text-align:left; }
+.home-primary:hover { filter:brightness(1.08); }
+.home-primary span { font-size:20px; }
+.home-stats { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0; }
+.home-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:20px; min-width:0; }
+.home-stats .home-kicker { font-size:9px; letter-spacing:.7px; }
+.home-number { display:flex; flex-wrap:wrap; align-items:baseline; gap:8px; margin:12px 0 8px; }
+.home-number strong { font:500 42px/1 var(--font-mono); letter-spacing:-2px; color:var(--gold); }
+.home-number span { font-size:11px; color:var(--text-mid); }
+.home-stats p { font-size:11px; }
+.home-card-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:20px; }
+.home-card-heading h2 { font:600 15px var(--font-body); margin:0; }
+.home-card-heading>span { font:400 10px var(--font-mono); color:var(--text-mid); }
+.home-days { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; }
+.home-day { display:flex; align-items:center; flex-direction:column; gap:10px; padding:12px 0; border:1px solid var(--border); background:var(--dark-2); border-radius:12px; color:var(--text-mid); min-width:0; }
+.home-day>span { font-size:10px; }
+.home-day strong { font:500 18px var(--font-mono); }
+.home-day small { font-size:8px; letter-spacing:-.2px; }
+.home-day.is-done { color:var(--gold); background:var(--gold-glow); border-color:var(--gold-dim); }
+.home-day.is-today { outline:1px solid var(--gold); outline-offset:2px; }
+.home-week>p { margin-top:16px; font-size:11px; }
+.home details { margin-top:14px; border-top:1px solid var(--border); padding-top:14px; }
+.home summary { cursor:pointer; font-size:11px; color:var(--text-mid); line-height:1.6; }
+.home details p { font-size:11px; }
+.home-quote { margin:28px 0; padding:6px 16px; border-left:2px solid var(--gold); }
+.home-quote blockquote { font:600 21px/1.5 var(--font-display); margin:12px 0; }
+.home-quote>span:last-child { color:var(--text-mid); font-size:11px; }
+.home-fact h3 { font:600 20px/1.4 var(--font-display); margin:0 0 12px; }
+.home-fact-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; border-top:1px solid var(--border); margin-top:20px; padding-top:14px; }
+.home-fact a { color:var(--text-mid); font-size:11px; text-underline-offset:3px; }
+.home-secondary { min-height:44px; padding:10px 12px; background:var(--gold-glow); color:var(--gold); border:1px solid var(--border); border-radius:10px; font-size:11px; }
+.home-progress-link { display:flex; width:100%; align-items:center; justify-content:space-between; margin-top:16px; padding:18px 4px; color:var(--text); background:none; border:0; font-size:13px; }
+@media(max-width:360px) { .home-card { padding:15px 12px; } .home-hero { padding:22px 18px; } .home-days { gap:4px; } .home-day small { font-size:7px; } .home-stats { gap:8px; } }
+/* Keep the gold accent readable on the light surfaces. */
+body.light-mode .home { --gold:#856329; --gold-dim:#b5955c; --gold-glow:rgba(133,99,41,.09); }
+body.light-mode .home-primary { background:#856329; color:#fff; }
+
+</style>
+<script>
+/* Catálogo local editable. Conserva un id único y una fuente HTTPS por dato. */
+window.SLAB_FACTS = [
+  {
+    "id": "muscle",
+    "category": "Tu cuerpo",
+    "title": "Tu músculo también se adapta con los años.",
+    "text": "El entrenamiento de fuerza ayuda a mantener o aumentar la masa muscular y la fuerza, también en personas mayores.",
+    "source": "https://www.cdc.gov/physical-activity-basics/benefits/",
+    "sourceLabel": "Fuente: CDC"
+  },
+  {
+    "id": "sleep",
+    "category": "Descanso",
+    "title": "Moverte puede ayudarte a dormir mejor.",
+    "text": "La actividad física regular puede mejorar el sueño. Sus beneficios van más allá de lo que ves en el espejo.",
+    "source": "https://www.cdc.gov/physical-activity-basics/benefits/",
+    "sourceLabel": "Fuente: CDC"
+  },
+  {
+    "id": "mind",
+    "category": "Bienestar",
+    "title": "Una sesión también cuenta para tu mente.",
+    "text": "Una sesión de actividad física moderada o intensa puede reducir la sensación de ansiedad a corto plazo en adultos.",
+    "source": "https://www.cdc.gov/physical-activity-basics/benefits/",
+    "sourceLabel": "Fuente: CDC"
+  },
+  {
+    "id": "daily",
+    "category": "Vida diaria",
+    "title": "La fuerza también se nota fuera del gimnasio.",
+    "text": "Subir escaleras y cargar las compras son tareas cotidianas. Mantenerte activo ayuda a conservar tu capacidad para realizarlas.",
+    "source": "https://www.cdc.gov/physical-activity-basics/benefits/",
+    "sourceLabel": "Fuente: CDC"
+  },
+  {
+    "id": "small",
+    "category": "Constancia",
+    "title": "Un poco de movimiento ya suma.",
+    "text": "Sentarte menos y hacer algo de actividad física moderada o intensa aporta beneficios, incluso si todavía no alcanzas las recomendaciones semanales.",
+    "source": "https://www.cdc.gov/physical-activity-basics/benefits/",
+    "sourceLabel": "Fuente: CDC"
+  },
+  {
+    "id": "brain",
+    "category": "Tu cuerpo",
+    "title": "Tu cerebro también se beneficia.",
+    "text": "La actividad física regular puede ayudarte a mantener las habilidades de pensamiento, aprendizaje y juicio a medida que envejeces.",
+    "source": "https://www.cdc.gov/physical-activity-basics/benefits/",
+    "sourceLabel": "Fuente: CDC"
+  }
+];
+
+</script>
+<script>
+/* Inicio: métricas derivadas del plan, sin alterar el registro ni su almacenamiento. */
+(function () {
+  'use strict';
+  var factsOffset = 0;
+  var quotes = [
+    'No necesitas un día perfecto para dar un paso adelante.',
+    'La constancia también se construye al volver a empezar.',
+    'Tu progreso tiene su propio ritmo. Sigue construyéndolo.',
+    'Cada sesión es una oportunidad para aprender de ti.',
+    'Descansar también tiene un lugar en tu plan.',
+    'Celebra lo que hoy puedes hacer y antes parecía lejano.',
+    'Pequeños pasos, repetidos con intención.'
+  ];
+  // Calendar ordinals avoid UTC parsing and daylight-saving shifts.
+  function ordinal(date) { return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000); }
+  function metrics(data, startDate, now) {
+    var start = new Date(startDate + 'T12:00:00');
+    var today = ordinal(now), first = ordinal(start);
+    var current = Math.floor((today - first) / 7);
+    var weeks = [], total = 0;
+    for (var w = 0; w < 12; w++) {
+      var days = [];
+      for (var d = 1; d <= 5; d++) {
+        var pos = {month: Math.floor(w / 4) + 1, week: w % 4 + 1, day: d};
+        var rows = (data['m' + pos.month + 'w' + pos.week + 'd' + d] || []).filter(function (ex) { return (ex.nombre || '').trim(); });
+        var due = first + w * 7 + d - 1;
+        var done = due <= today && rows.length > 0 && rows.every(function (ex) { return !!ex.hecho; });
+        days.push({position: pos, done: done, today: due === today, future: due > today, planned: rows.length});
+        if (done) total++;
+      }
+      weeks.push(days);
+    }
+    var streak = 0;
+    var cursor = current >= 0 && current <= 12 ? Math.min(current, 11) : -1;
+    if (cursor === current && cursor >= 0 && !weeks[cursor].some(function (d) { return d.done; })) cursor--;
+    while (cursor >= 0 && weeks[cursor].some(function (d) { return d.done; })) { streak++; cursor--; }
+    return {weeks: weeks, current: current, total: total, streak: streak};
+  }
+  function set(id, value) { document.getElementById(id).textContent = value; }
+  function renderFact(seed) {
+    var facts = window.SLAB_FACTS || [];
+    var fact = facts[(seed + factsOffset) % facts.length];
+    if (!fact) {
+      set('homeFactTitle', 'Tu registro cuenta tu historia.');
+      set('homeFactText', 'En Progreso puedes revisar las sesiones que has registrado en tu plan.');
+      document.getElementById('homeFactSource').hidden = true;
+      document.getElementById('homeNextFact').hidden = true;
+      return;
+    }
+    set('homeFactCategory', fact.category); set('homeFactTitle', fact.title); set('homeFactText', fact.text);
+    var source = document.getElementById('homeFactSource');
+    source.hidden = !/^https:\/\//.test(fact.source || '');
+    if (!source.hidden) source.href = fact.source;
+    source.textContent = fact.sourceLabel + ' ↗';
+    document.getElementById('homeNextFact').onclick = function () { factsOffset++; renderFact(seed); };
+  }
+  function render(state, navigate) {
+    var now = new Date(), seed = ordinal(now), stats = metrics(state.data, state.startDate, now);
+    set('homeDate', now.toLocaleDateString('es-CL', {weekday:'long', day:'numeric', month:'long'}));
+    var greeting = now.getHours() < 12 ? 'Buenos días' : now.getHours() < 20 ? 'Buenas tardes' : 'Buenas noches';
+    set('homeGreeting', greeting + (state.name ? ', ' + state.name.trim().split(/\s+/)[0] : '') + '.');
+    set('homeStreak', stats.streak); set('homeStreakUnit', stats.streak === 1 ? 'semana' : 'semanas');
+    set('homeStreakMessage', stats.streak ? 'Una semana a la vez. Sigue a tu ritmo.' : 'Tu próxima sesión puede iniciar una nueva racha.');
+    set('homeTotal', stats.total);
+    var next = [1,5,10,20,30,40,50,60].find(function (n) { return n > stats.total; });
+    set('homeMilestone', next ? 'Próximo hito: ' + next + (next === 1 ? ' sesión.' : ' sesiones.') : '¡60 sesiones! Celebra tu recorrido.');
+    var activeWeek = stats.current >= 0 && stats.current < 12;
+    var weekIndex = activeWeek ? stats.current : Math.max(0, Math.min(11, (state.position.month - 1) * 4 + state.position.week - 1));
+    var days = stats.weeks[weekIndex], completed = days.filter(function (d) { return d.done; }).length;
+    var planned = days.filter(function (d) { return d.planned; }).length;
+    set('homeWeekTitle', activeWeek ? 'Tu semana' : 'Semana ' + (weekIndex + 1) + ' del plan');
+    set('homeWeekCount', completed + ' / ' + planned + ' sesiones');
+    set('homeWeekNote', !planned ? 'Aún no hay ejercicios en esta semana. Abre tu registro para preparar tu sesión.' : completed === planned ? 'Todas las sesiones de esta semana están completas. ¡Buen trabajo!' : 'Cada sesión completada suma. Respeta tus días de descanso.');
+    var host = document.getElementById('homeWeekDays'); host.replaceChildren();
+    days.forEach(function (day, index) {
+      var button = document.createElement('button');
+      button.className = 'home-day' + (day.done ? ' is-done' : '') + (day.today ? ' is-today' : '');
+      var status = day.done ? 'Completada' : !day.planned ? 'Sin plan' : day.today ? 'Hoy' : day.future ? 'Próxima' : 'Pendiente';
+      var name = document.createElement('span'); name.textContent = ['Lun','Mar','Mié','Jue','Vie'][index];
+      var mark = document.createElement('strong'); mark.textContent = day.done ? '✓' : String(index + 1);
+      var caption = document.createElement('small'); caption.textContent = status;
+      button.append(name, mark, caption);
+      button.setAttribute('aria-label', name.textContent + ', día ' + (index + 1) + ': ' + status + '. Abrir registro');
+      if (day.today) button.setAttribute('aria-current', 'date');
+      button.onclick = function () { navigate(day.position); };
+      host.appendChild(button);
+    });
+    var today = activeWeek && days.find(function (d) { return d.today; });
+    var target = today ? today.position : state.position;
+    set('homeSession', today ? (today.done ? 'Tu sesión de hoy ya está completa. ¡Buen trabajo!' : 'Tu espacio de hoy: mes ' + target.month + ' · semana ' + target.week + ' · día ' + target.day + '.') : activeWeek ? 'Hoy no hay una sesión programada. Disfruta tu descanso.' : stats.current < 0 ? 'Tu plan aún no comienza. Puedes preparar tu primera sesión.' : 'Tu ciclo de 12 semanas terminó. Revisa todo lo que has construido.');
+    document.getElementById('homeTrain').firstChild.textContent = today ? (today.done ? 'Revisar sesión de hoy ' : 'Abrir sesión de hoy ') : 'Ir a mi registro ';
+    document.getElementById('homeTrain').onclick = function () { navigate(target); };
+    document.getElementById('homeProgress').onclick = function () { window.switchTab('progreso'); };
+    set('homeQuote', '“' + quotes[seed % quotes.length] + '”'); renderFact(seed);
+  }
+  window.SLABHome = {render: render, metrics: metrics};
+})();
+
+</script>
 </head>
 <body>
 
