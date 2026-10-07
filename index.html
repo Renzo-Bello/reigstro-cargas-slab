@@ -3063,6 +3063,9 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 #exImgModalImg { width:min(460px,86vw);height:min(460px,65dvh);border-radius:6px!important;box-shadow:none!important; }
 
 </style>
+<link rel="stylesheet" href="assets/ui/home.css">
+<script src="assets/data/curiosidades.js"></script>
+<script src="assets/ui/home.js"></script>
 </head>
 <body>
 
@@ -3308,6 +3311,7 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
       </div>
     </div>
     <nav class="drawer-nav">
+      <button class="drawer-item" data-drawer-tab="tab-inicio"><span class="drawer-icon" aria-hidden="true">⌂</span><span class="drawer-item-label">Inicio</span></button>
       <button class="drawer-item" data-drawer-tab="tab-registro">
         <span class="drawer-icon">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
@@ -3374,7 +3378,8 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 
   <!-- TABS: Registro > Progreso > Calcular RPE > Calcular 1RM > Recursos > Récords -->
   <nav class="tabs" aria-label="Secciones principales">
-    <button id="tab-registro" class="active">
+    <button id="tab-inicio" class="active" aria-current="page">Inicio</button>
+    <button id="tab-registro">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:middle;opacity:0.7"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Registro</button>
     <button id="tab-progreso">Progreso</button>
     <button id="tab-tecnica">Técnica</button>
@@ -3382,7 +3387,16 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:middle;opacity:0.7"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Recursos</button>
   </nav>
 
-  <div id="view-registro" class="panel">
+  <main id="view-inicio" class="panel home" aria-label="Inicio">
+    <header class="home-greeting"><p id="homeDate" class="home-kicker"></p><h1 id="homeGreeting">Tu espacio, tu progreso.</h1><p>Un paso más hacia tu mejor versión.</p></header>
+    <section class="home-hero" aria-labelledby="homeHeadline"><div class="home-kicker">CONSTRUYE TU CONSTANCIA</div><h2 id="homeHeadline">Tu próxima versión<br>empieza <em>hoy.</em></h2><p id="homeSession"></p><button id="homeTrain" class="home-primary">Ir a mi entrenamiento <span aria-hidden="true">↗</span></button><span class="home-hero-mark" aria-hidden="true">SL</span></section>
+    <div class="home-stats"><section class="home-card"><span class="home-kicker">TU RACHA</span><div class="home-number"><strong id="homeStreak">0</strong><span id="homeStreakUnit">semanas</span></div><p id="homeStreakMessage"></p></section><section class="home-card"><span class="home-kicker">SESIONES COMPLETADAS</span><div class="home-number"><strong id="homeTotal">0</strong><span>en tu plan</span></div><p id="homeMilestone"></p></section></div>
+    <section class="home-card home-week" aria-labelledby="homeWeekTitle"><div class="home-card-heading"><h2 id="homeWeekTitle">Tu semana</h2><span id="homeWeekCount"></span></div><div id="homeWeekDays" class="home-days"></div><p id="homeWeekNote"></p><details><summary>¿Cómo se calcula mi racha?</summary><p>Semanas consecutivas del plan con al menos una sesión completada. La semana actual puede estar pendiente sin romper la racha. Cuenta cuando todos los ejercicios con nombre están marcados como hechos. Usamos las fechas programadas del plan, no la fecha real de ejecución. Las sesiones futuras no cuentan.</p></details></section>
+    <section class="home-quote"><span class="home-kicker">UNA IDEA PARA HOY</span><blockquote id="homeQuote"></blockquote><span>Sin prisa. Con intención.</span></section>
+    <section class="home-card home-fact" aria-labelledby="homeFactHeading"><div class="home-card-heading"><h2 id="homeFactHeading">¿Sabías que?</h2><span id="homeFactCategory" class="home-kicker"></span></div><div aria-live="polite" aria-atomic="true"><h3 id="homeFactTitle"></h3><p id="homeFactText"></p></div><div class="home-fact-footer"><a id="homeFactSource" target="_blank" rel="noopener noreferrer">Ver fuente ↗</a><button id="homeNextFact" class="home-secondary">Ver otro <span aria-hidden="true">→</span></button></div></section>
+    <button class="home-progress-link" id="homeProgress">Explorar mi progreso <span aria-hidden="true">→</span></button>
+  </main>
+  <div id="view-registro" class="panel" style="display:none;">
     <section class="training-intro" aria-label="Tu entrenamiento">
       <div class="training-intro-top"><span class="eyebrow">Tu espacio de entrenamiento</span><span class="training-monogram" aria-hidden="true">SL</span></div>
       <h2>El físico se construye.<br><em>Serie a serie.</em></h2>
@@ -3931,6 +3945,7 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
   _obBtn2.addEventListener('click', function() {
     slabSetItem(WELCOME_KEY, '1');
     obHide();
+    switchTab('inicio');
   });
   // La visibilidad del welcome se resuelve en init() tras cargar los datos
 
@@ -6705,8 +6720,10 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
   /* ══════════════════════════════════════
      TABS — orden: Registro, Progreso, Calcular RPE, Récords
   ══════════════════════════════════════ */
-  function renderAll() { renderNavSelector(); renderDayPills(); renderExercises(); updateBtnHoy(); renderTopbarSub(); }
+  function renderHome() { SLABHome.render({data: STATE.data, startDate: _startDateStr, name: getClientName(), position: {month: STATE.month, week: STATE.week, day: STATE.day}}, function(pos) { STATE.month = pos.month; STATE.week = pos.week; STATE.day = pos.day; renderAll(); switchTab('registro'); }); }
+  function renderAll() { renderHome(); renderNavSelector(); renderDayPills(); renderExercises(); updateBtnHoy(); renderTopbarSub(); }
   var TAB_TITLES = {
+    'inicio': 'INICIO',
     'registro': 'REGISTRO DE ENTRENAMIENTO',
     'progreso': 'PROGRESO',
     'rpe':      'CALCULADORA RPE',
@@ -6908,15 +6925,16 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 
 
   window.switchTab = function switchTab(tab) {
-    ['registro','progreso','rpe','orm','records','recursos','tecnica','rir'].forEach(function(t) {
+    ['inicio','registro','progreso','rpe','orm','records','recursos','tecnica','rir'].forEach(function(t) {
       var tabEl  = document.getElementById('tab-'  + t);
       var viewEl = document.getElementById('view-' + t);
-      if (tabEl)  tabEl.classList.remove('active');
+      if (tabEl) { tabEl.classList.remove('active'); tabEl.removeAttribute('aria-current'); }
       if (viewEl) viewEl.style.display = 'none';
     });
     var activeTab  = document.getElementById('tab-'  + tab);
     var activeView = document.getElementById('view-' + tab);
-    if (activeTab)  activeTab.classList.add('active');
+    if (activeTab) { activeTab.classList.add('active'); activeTab.setAttribute('aria-current', 'page'); }
+    if (tab === 'inicio') renderHome();
     if (activeView) activeView.style.display = '';
     var titleEl = document.getElementById('pageTitle');
     if (titleEl) titleEl.textContent = TAB_TITLES[tab] || tab.toUpperCase();
@@ -6926,7 +6944,7 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
     if (tab === 'tecnica') { if (typeof window.bindTecnicaSearch === 'function') window.bindTecnicaSearch(); var si = document.getElementById('tecnicaSearch'); if (si) si.value = ''; if (typeof window.renderTecnica === 'function') window.renderTecnica(''); }
   }
   document.getElementById('tab-registro').onclick = function() { switchTab('registro'); };
-  ['tab-progreso','tab-records','tab-rpe','tab-orm','tab-recursos','tab-tecnica'].forEach(function(id) {
+  ['tab-inicio','tab-progreso','tab-records','tab-rpe','tab-orm','tab-recursos','tab-tecnica'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.onclick = function() { switchTab(id.replace('tab-','')); };
   });
@@ -7944,6 +7962,7 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
       STATE.month = lastPos.month; STATE.week = lastPos.week; STATE.day = lastPos.day;
     }
     renderAll();
+    switchTab('inicio');
   }
   init();
 
@@ -8026,7 +8045,7 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
   });
 
   // ── Sincronizar ítem activo del drawer con tab actual ──
-  var _currentTab = 'registro';
+  var _currentTab = 'inicio';
   function syncDrawerActive(tabName) {
     if (tabName) _currentTab = tabName;
     var activeId = 'tab-' + _currentTab;
