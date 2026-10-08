@@ -3310,6 +3310,31 @@ body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
 @media(min-width:600px) { #view-registro .ex-head-img {height:300px;} }
 @media(max-width:360px) { #view-registro .ex-head-top {padding:16px 12px 12px;} #view-registro .ex-head-img {height:220px;} #view-registro .serie-hevy-row {padding:12px;gap:10px 8px;} }
 </style>
+<style>
+/* Compact mobile register: half-height image and two-row set controls. */
+@media(max-width:599px) {
+ #view-registro .exercise-card {margin-bottom:14px;border-radius:16px;}
+ #view-registro .ex-head-top {padding:12px 12px 8px;gap:6px 10px;}
+ #view-registro .ex-head-img {height:120px;margin:0;padding:4px 8px 20px;border-radius:10px!important;}
+ #view-registro .ex-head-img::after {bottom:6px;font-size:8px;letter-spacing:.5px;}
+ #view-registro .ex-name-input {font-size:16px;min-height:36px;}
+ #view-registro .ex-head-actions {padding:0 12px 8px;}
+ #view-registro .series-hevy-wrap {padding:4px 8px 8px;}
+ #view-registro .serie-hevy-row {grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:8px;margin:6px 0;border-radius:12px;}
+ #view-registro .serie-hevy-num {grid-column:1;grid-row:1;}
+ #view-registro .serie-hevy-prev {grid-column:2/4;grid-row:1;justify-content:flex-start;gap:3px;}
+ #view-registro .serie-hevy-check {grid-column:4;grid-row:1;height:36px;width:36px;border-radius:9px;}
+ #view-registro .register-weight {grid-column:1;grid-row:2;}
+ #view-registro .register-reps {grid-column:2;grid-row:2;}
+ #view-registro .register-target {grid-column:3;grid-row:2;}
+ #view-registro .register-actual {grid-column:4;grid-row:2;}
+ #view-registro .register-field {gap:4px;}
+ #view-registro .register-field>span {font-size:9px;min-height:26px;display:flex;align-items:flex-end;}
+ #view-registro .serie-hevy-input,#view-registro .serie-hevy-select-rpe {height:40px;min-height:40px;font-size:16px;padding:0 3px;border-radius:8px;}
+ #view-registro .serie-hevy-del-btn {grid-row:3;min-height:24px;height:24px;min-width:90px;}
+ #view-registro .serie-hevy-add {min-height:40px;}
+}
+</style>
 </head>
 <body>
 
