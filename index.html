@@ -3344,7 +3344,17 @@ body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
  #view-registro .ex-head-img::after {bottom:5px;font-size:8px;}
 }
 </style>
-</head>
+<style>
+#view-registro .ex-head-wrap {display:block;min-width:0;width:100%;}
+#view-registro .ex-head-wrap .ex-name-input {width:100%;}
+#view-registro .exercise-muscles {margin:4px 0 2px;font:400 10px/1.5 var(--font-body);color:var(--text-mid);}
+#view-registro .exercise-muscles strong {display:block;color:var(--gold);font-size:10px;font-weight:600;margin-bottom:4px;}
+#view-registro .exercise-muscles ul {display:flex;flex-wrap:wrap;gap:4px 6px;list-style:none;margin:0;padding:0;}
+#view-registro .exercise-muscles li {border:1px solid var(--border-hover);border-radius:5px;padding:2px 6px;background:var(--dark-2);}
+#view-registro .register-weight>span {display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
+#view-registro .weight-icon {flex-shrink:0;color:var(--gold);}
+body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-registro .weight-icon {color:#765823;}
+</style></head>
 <body>
 
 <!-- MODAL BIENVENIDA -->
@@ -5083,6 +5093,49 @@ body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
 
   var _lastDayKey = null;
 
+  function renderExerciseMuscles(card, name) {
+    var host = card.querySelector('.exercise-muscles');
+    if (!host) return;
+    host.replaceChildren();
+    var entry = EXERCISE_DB_INDEX[(name || '').toLowerCase().trim()];
+    host.hidden = !entry;
+    if (!entry) return;
+    var n = entry.nombre.toLowerCase();
+    var group = entry.musculo;
+    var muscles = {
+      'Pierna': ['Cuádriceps', 'Glúteos'],
+      'Glúteos': ['Glúteo mayor'],
+      'Espalda': ['Dorsal ancho', 'Bíceps'],
+      'Pecho': ['Pectorales', 'Tríceps', 'Deltoides anterior'],
+      'Hombros': ['Deltoides', 'Tríceps'],
+      'Bíceps': ['Bíceps', 'Braquial'],
+      'Tríceps': ['Tríceps'],
+      'Core': ['Abdominales']
+    }[group] || [];
+    if (n.indexOf('peso muerto') === 0) { muscles = ['Glúteos', 'Isquiotibiales', 'Erectores espinales']; group = 'Cadena posterior'; }
+    if (n === 'hiperextensiones') { muscles = ['Erectores espinales', 'Glúteos', 'Isquiotibiales']; group = 'Cadena posterior'; }
+    if (n === 'extensión de cuádriceps') muscles = ['Cuádriceps'];
+    if (n === 'curl femoral') muscles = ['Isquiotibiales'];
+    if (n === 'elevación de talones') muscles = ['Gastrocnemio', 'Sóleo'];
+    if (n === 'aductor') muscles = ['Aductores'];
+    if (n === 'abductor') muscles = ['Glúteo medio', 'Glúteo menor'];
+    if (n.indexOf('remo') === 0 || n === 'dominadas australianas') muscles = ['Dorsal ancho', 'Romboides', 'Trapecio medio'];
+    if (n === 'pull over') muscles = ['Dorsal ancho'];
+    if (n === 'muscle up') muscles = ['Dorsal ancho', 'Pectorales', 'Tríceps'];
+    if (n === 'face pull') muscles = ['Deltoides posterior', 'Trapecio', 'Rotadores externos'];
+    if (n === 'peck deck' || n === 'cruce de poleas' || n === 'aperturas pecho') muscles = ['Pectorales'];
+    if (n.indexOf('vuelos laterales') === 0) muscles = ['Deltoides lateral'];
+    if (n === 'curl martillo') muscles = ['Braquial', 'Braquiorradial', 'Bíceps'];
+    if (n === 'fondos en paralelas') muscles = ['Tríceps', 'Pectorales', 'Deltoides anterior'];
+    if (n.indexOf('elevación de piernas') === 0) muscles = ['Abdominales', 'Flexores de cadera'];
+    if (n === 'plancha') muscles = ['Recto abdominal', 'Transverso', 'Oblicuos'];
+    if (n === 'crunch abdominal') muscles = ['Recto abdominal'];
+    var title = document.createElement('strong'); title.textContent = group; host.appendChild(title);
+    var list = document.createElement('ul'); list.setAttribute('aria-label', 'Músculos involucrados');
+    muscles.forEach(function(muscle) { var item = document.createElement('li'); item.textContent = muscle; list.appendChild(item); });
+    host.appendChild(list);
+  }
+
   function renderExercises() {
     var el = document.getElementById('exerciseList'); el.innerHTML = '';
     var arr = ensureDay(STATE.month, STATE.week, STATE.day);
@@ -5147,7 +5200,7 @@ body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
             item.appendChild(icon); item.appendChild(info); item.appendChild(arrow);
             item.onmousedown = function(e) {
               e.preventDefault();
-              nameInput.value = r.nombre; ex.nombre = r.nombre; scheduleSave();
+              nameInput.value = r.nombre; ex.nombre = r.nombre; renderExerciseMuscles(card, ex.nombre); scheduleSave();
               autoEl.classList.remove('open');
               renderDayPills(); updateExerciseHeader();
             };
@@ -5165,7 +5218,7 @@ body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
       }
 
       nameInput.oninput = function() {
-        ex.nombre = this.value; scheduleSave();
+        ex.nombre = this.value; renderExerciseMuscles(card, ex.nombre); scheduleSave();
       };
       nameInput.onfocus = function() {
         var self = this;
@@ -5187,6 +5240,8 @@ body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
 
       nameWrap.appendChild(nameInput);
       nameWrap.appendChild(autoEl);
+      var muscleSummary = document.createElement('div'); muscleSummary.className = 'exercise-muscles';
+      nameWrap.appendChild(muscleSummary);
 
       // ── Botón de video técnica ──
       var dbEntry = EXERCISE_DB_INDEX[ex.nombre ? ex.nombre.toLowerCase().trim() : ''];
@@ -5263,6 +5318,7 @@ body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
       head.appendChild(actRow);
 
       card.appendChild(head);
+      renderExerciseMuscles(card, ex.nombre);
 
       // Inline picker — se expande cuando el nombre está vacío
       var inlinePicker = buildInlinePicker(ex, nameInput, card);
@@ -5409,6 +5465,9 @@ body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
           var label = document.createElement('label');
           label.className = 'register-field ' + className;
           var text = document.createElement('span'); text.textContent = caption;
+          if (className === 'register-weight') {
+            text.insertAdjacentHTML('afterbegin', '<svg class="weight-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 12h10M3 10v4m18-4v4"/><rect x="4" y="7" width="3" height="10" rx="1"/><rect x="17" y="7" width="3" height="10" rx="1"/></svg>');
+          }
           label.appendChild(text); label.appendChild(control); return label;
         }
         row.appendChild(labeledField(makeInp('peso', true), 'Peso · kg', 'register-weight'));
@@ -7147,6 +7206,7 @@ body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
       item.addEventListener('click', function() {
         nameInput.value = e.nombre;
         ex.nombre = e.nombre;
+        renderExerciseMuscles(card, ex.nombre);
         scheduleSave();
         renderDayPills(); updateExerciseHeader();
         // Actualizar imagen
@@ -7179,6 +7239,7 @@ body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
       nameInput._skipPicker = true;
       nameInput.value = '';
       ex.nombre = '';
+      renderExerciseMuscles(card, ex.nombre);
       nameInput.placeholder = 'Escribe el nombre...';
       // Pequeño delay para que el picker termine de cerrar
       setTimeout(function() {
@@ -8358,7 +8419,7 @@ body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
     document.body.classList.toggle('light-mode', isLight);
     themeToggle.setAttribute('aria-checked', isLight ? 'true' : 'false');
     themeLabel.textContent = isLight ? 'Modo claro' : 'Modo oscuro';
-    themeIcon.textContent  = isLight ? '☼︎' : '☾︎';
+    themeIcon.textContent  = isLight ? '☀️' : '🌙';
     try { localStorage.setItem('slab_theme', isLight ? 'light' : 'dark'); } catch(e) {}
   }
   themeToggle.addEventListener('click', function() {
