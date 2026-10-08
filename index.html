@@ -3268,6 +3268,48 @@ window.SLAB_FACTS = [
 })();
 
 </script>
+<style>
+/* Registro: imagen amplia y series con espacio para entrenar. */
+#view-registro .exercise-card { border-radius:22px; margin-bottom:28px; border:1px solid var(--border-hover); overflow:hidden; }
+#view-registro .ex-head-top { display:grid; grid-template-columns:30px minmax(0,1fr); gap:12px; padding:20px 18px 14px; }
+#view-registro .ex-head-top>div { min-width:0; }
+#view-registro .ex-head-img { grid-column:1/-1; position:relative; width:100%; height:240px; margin:6px 0 0; padding:12px 12px 32px; border:1px solid #e5e5e5; border-radius:16px!important; background:#fff; box-shadow:none; cursor:zoom-in; overflow:hidden; }
+#view-registro .ex-head-img img { width:100%;height:100%;object-fit:contain!important;display:block;opacity:1;filter:none; }
+#view-registro .ex-head-img::after { content:'VER EJERCICIO EN DETALLE ↗'; position:absolute; bottom:12px;left:0;right:0; text-align:center; color:#53534e; font:500 9px var(--font-mono);letter-spacing:1px; }
+#view-registro .ex-head-img.no-img { display:none; }
+#view-registro .ex-head-img:active { transform:none; }
+#view-registro .ex-name-input { font:600 19px/1.4 var(--font-body); min-height:44px; }
+#view-registro .ex-head-actions { padding:0 18px 16px; }
+#view-registro .series-hevy-header { display:none; }
+#view-registro .series-hevy-wrap { padding:8px 12px 14px; }
+#view-registro .serie-hevy-row { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 10px;padding:16px; margin:10px 0; border:1px solid var(--border);border-radius:16px;background:var(--dark-2); }
+#view-registro .serie-hevy-num { grid-column:1;grid-row:1;justify-content:flex-start; }
+#view-registro .serie-hevy-num .num-inner { width:auto;min-width:30px; padding:0 8px; border-radius:8px; }
+#view-registro .serie-hevy-prev { grid-column:2/4;grid-row:1;display:flex;justify-content:flex-end;align-items:center;gap:5px;flex-wrap:wrap;font-size:10px; }
+#view-registro .serie-hevy-prev::before { content:'Anterior';color:var(--text-mid);font:400 10px var(--font-body); }
+#view-registro .serie-hevy-prev .prev-val,#view-registro .serie-hevy-prev .prev-reps,#view-registro .serie-hevy-prev .prev-sub {font-size:10px;margin:0; }
+#view-registro .register-field { display:flex;flex-direction:column;gap:8px;min-width:0; }
+#view-registro .register-field>span {font:500 10px/1.4 var(--font-body);color:var(--text-mid); }
+#view-registro .register-weight {grid-column:1/3;grid-row:2;}
+#view-registro .register-reps {grid-column:3/5;grid-row:2;}
+#view-registro .register-target {grid-column:1/3;grid-row:3;}
+#view-registro .register-actual {grid-column:3/5;grid-row:3;}
+#view-registro .serie-hevy-input {width:100%;height:58px;min-width:0;font:500 25px var(--font-mono);border:1px solid var(--border-hover);border-radius:10px;background:var(--card); }
+#view-registro .serie-hevy-select-rpe {width:100%;height:46px;font:500 17px var(--font-mono);border-radius:10px;background:var(--card); }
+#view-registro .serie-hevy-check {grid-column:4;grid-row:1;justify-self:end;width:44px;height:44px;border-radius:12px; }
+#view-registro .serie-hevy-del-btn {grid-column:1/-1;grid-row:4;justify-self:end;width:auto;min-width:100px;height:36px;font-size:0;padding:0 8px; }
+#view-registro .serie-hevy-del-btn::before {content:'Eliminar serie';font:400 10px var(--font-body); }
+#view-registro .serie-hevy-row.serie-done {border-color:var(--gold-dim);background:var(--gold-glow); }
+#view-registro .serie-hevy-row.serie-done :is(.serie-hevy-input,.serie-hevy-select-rpe) {background:var(--dark-2);color:var(--text);}
+body.light-mode #view-registro .serie-hevy-row.serie-done :is(.serie-hevy-input,.serie-hevy-select-rpe) {background:#fff;color:#262820;}
+#view-registro .serie-hevy-del-btn {color:var(--text-mid);}
+#view-registro .serie-hevy-row:focus-within {border-color:var(--gold-dim); }
+#view-registro .serie-hevy-add {min-height:48px;font-size:12px; }
+#view-registro :is(button,[role=checkbox],input,select):focus-visible {outline:2px solid var(--gold);outline-offset:3px; }
+body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
+@media(min-width:600px) { #view-registro .ex-head-img {height:300px;} }
+@media(max-width:360px) { #view-registro .ex-head-top {padding:16px 12px 12px;} #view-registro .ex-head-img {height:220px;} #view-registro .serie-hevy-row {padding:12px;gap:10px 8px;} }
+</style>
 </head>
 <body>
 
@@ -5156,27 +5198,25 @@ window.SLAB_FACTS = [
       topRow.appendChild(num);
       topRow.appendChild(nameWrap);
 
-      // Imagen circular del ejercicio
-      var imgWrap = document.createElement('div');
+      // Referencia amplia y accesible; la imagen sigue al ejercicio seleccionado.
+      var imgWrap = document.createElement('button');
+      imgWrap.type = 'button';
       imgWrap.className = 'ex-head-img';
+      imgWrap.setAttribute('aria-label', 'Ampliar imagen del ejercicio');
       var imgUrl = getExerciseImgUrl(ex.nombre);
-      if (imgUrl) {
-        var imgEl = document.createElement('img');
-        imgEl.src = imgUrl;
-        imgEl.alt = ex.nombre;
-        imgEl.onerror = function() { imgWrap.classList.add('no-img'); };
-        imgWrap.appendChild(imgEl);
-        // Click abre modal
-        var _exNombre = ex.nombre;
-        imgWrap.addEventListener('click', function(e) {
-          e.stopPropagation();
-          var dbEntry = EXERCISE_DB_INDEX[_exNombre.toLowerCase().trim()];
-          var musculo = dbEntry ? dbEntry.musculo : '';
-          if (typeof window.openExImg === 'function') window.openExImg(imgUrl, _exNombre, musculo);
-        });
-      } else {
-        imgWrap.classList.add('no-img');
-      }
+      var imgEl = document.createElement('img');
+      imgEl.alt = ex.nombre;
+      imgEl.loading = 'lazy';
+      imgEl.decoding = 'async';
+      imgEl.onerror = function() { imgWrap.classList.add('no-img'); };
+      if (imgUrl) { imgEl.src = imgUrl; imgWrap.appendChild(imgEl); }
+      else { imgWrap.classList.add('no-img'); }
+      imgWrap.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var url = getExerciseImgUrl(ex.nombre);
+        var entry = EXERCISE_DB_INDEX[ex.nombre.toLowerCase().trim()];
+        if (url && typeof window.openExImg === 'function') window.openExImg(url, ex.nombre, entry ? entry.musculo : '');
+      });
       topRow.appendChild(imgWrap);
       head.appendChild(topRow);
 
@@ -5331,14 +5371,20 @@ window.SLAB_FACTS = [
           inp.onblur  = function() { this.style.borderColor=''; };
           return inp;
         }
-        row.appendChild(makeInp('peso', true));
-        row.appendChild(makeInp('reps', false));
+        function labeledField(control, caption, className) {
+          var label = document.createElement('label');
+          label.className = 'register-field ' + className;
+          var text = document.createElement('span'); text.textContent = caption;
+          label.appendChild(text); label.appendChild(control); return label;
+        }
+        row.appendChild(labeledField(makeInp('peso', true), 'Peso · kg', 'register-weight'));
+        row.appendChild(labeledField(makeInp('reps', false), 'Repeticiones', 'register-reps'));
 
         // ── Col 5 & 6: RPE obj / RPE real (select compacto) ──
         function makeRpeSelect(key) {
           var sel = document.createElement('select');
           sel.className = 'serie-hevy-select-rpe';
-          sel.setAttribute('aria-label', ex.rirMode ? 'RIR' : 'RPE');
+          sel.setAttribute('aria-label', (ex.rirMode ? 'RIR' : 'RPE') + (key === 'rpe' ? ' objetivo' : ' real'));
           var blank = document.createElement('option');
           blank.value = ''; blank.textContent = '—'; sel.appendChild(blank);
           if (ex.rirMode) {
@@ -5358,13 +5404,16 @@ window.SLAB_FACTS = [
           sel.onchange = function() { serie[key] = this.value; scheduleSave(); };
           return sel;
         }
-        row.appendChild(makeRpeSelect('rpe'));
-        row.appendChild(makeRpeSelect('rpeReal'));
+        row.appendChild(labeledField(makeRpeSelect('rpe'), (ex.rirMode ? 'RIR' : 'RPE') + ' objetivo', 'register-target'));
+        row.appendChild(labeledField(makeRpeSelect('rpeReal'), (ex.rirMode ? 'RIR' : 'RPE') + ' real', 'register-actual'));
 
         // ── Col 7: check completado ──
         var chk = document.createElement('div');
         chk.className = 'serie-hevy-check';
         chk.setAttribute('role', 'checkbox');
+        chk.tabIndex = 0;
+        chk.setAttribute('aria-label', 'Completar serie ' + (sIdx + 1));
+        chk.onkeydown = function(event) { if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); chk.click(); } };
         chk.setAttribute('aria-checked', isDone ? 'true' : 'false');
         chk.innerHTML = isDone ? '✓' : '';
         chk.onclick = function() {
