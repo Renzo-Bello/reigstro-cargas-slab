@@ -3335,6 +3335,15 @@ body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
  #view-registro .serie-hevy-add {min-height:40px;}
 }
 </style>
+<style>
+/* Compact image frame, without a full-width white strip. */
+#view-registro .ex-head-img {width:200px;max-width:100%;height:200px;justify-self:center;padding:8px 8px 24px;}
+#view-registro .ex-head-img::after {content:'AMPLIAR ↗';font-size:9px;letter-spacing:.7px;bottom:8px;}
+@media(max-width:599px) {
+ #view-registro .ex-head-img {width:120px;height:120px;padding:4px 4px 18px;}
+ #view-registro .ex-head-img::after {bottom:5px;font-size:8px;}
+}
+</style>
 </head>
 <body>
 
