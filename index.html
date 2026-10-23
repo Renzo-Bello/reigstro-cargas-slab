@@ -3014,11 +3014,6 @@ body.profile-open {overflow:hidden;}
 @media(max-width:374px){.home-profile{padding:16px;}.home-profile-head{flex-wrap:wrap;}.home-profile-head .home-secondary{margin-left:68px;}.profile-dialog{padding:18px;}}
 
 /* Lugar de entrenamiento */
-.training-mode-switch {display:flex;gap:6px;padding:5px;border:1px solid var(--border);border-radius:14px;background:var(--dark-2);margin:0 0 8px;}
-.training-mode-switch button {flex:1;min-height:48px;border:0;border-radius:10px;background:transparent;color:var(--text-mid);font:600 12px var(--font-body);letter-spacing:1px;cursor:pointer;}
-.training-mode-switch button[aria-pressed="true"] {background:var(--gold);color:var(--dark);}
-.training-mode-switch button:focus-visible {outline:2px solid var(--gold);outline-offset:3px;}
-.training-mode-hint {font:400 12px/1.5 var(--font-body);color:var(--text-mid);margin:0 4px 20px;}
 /* Registro — editorial training workspace */
 #view-registro .training-intro { position:relative; margin:6px 0 16px; padding:14px 16px; border:1px solid var(--border); border-radius:20px; background:linear-gradient(125deg,var(--card-alt),var(--dark-2) 76%); overflow:hidden; }
 .training-intro-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
@@ -3153,73 +3148,9 @@ body.light-mode .home-primary { background:#856329; color:#fff; }
 
 </style>
 <script>
-/* Catálogo local editable. Conserva un id único y una fuente HTTPS por dato. */
-window.SLAB_FACTS = [
-  {
-    "id": "muscle",
-    "category": "Tu cuerpo",
-    "title": "Tu músculo también se adapta con los años.",
-    "text": "El entrenamiento de fuerza ayuda a mantener o aumentar la masa muscular y la fuerza, también en personas mayores.",
-    "source": "https://www.cdc.gov/physical-activity-basics/benefits/",
-    "sourceLabel": "Fuente: CDC"
-  },
-  {
-    "id": "sleep",
-    "category": "Descanso",
-    "title": "Moverte puede ayudarte a dormir mejor.",
-    "text": "La actividad física regular puede mejorar el sueño. Sus beneficios van más allá de lo que ves en el espejo.",
-    "source": "https://www.cdc.gov/physical-activity-basics/benefits/",
-    "sourceLabel": "Fuente: CDC"
-  },
-  {
-    "id": "mind",
-    "category": "Bienestar",
-    "title": "Una sesión también cuenta para tu mente.",
-    "text": "Una sesión de actividad física moderada o intensa puede reducir la sensación de ansiedad a corto plazo en adultos.",
-    "source": "https://www.cdc.gov/physical-activity-basics/benefits/",
-    "sourceLabel": "Fuente: CDC"
-  },
-  {
-    "id": "daily",
-    "category": "Vida diaria",
-    "title": "La fuerza también se nota fuera del gimnasio.",
-    "text": "Subir escaleras y cargar las compras son tareas cotidianas. Mantenerte activo ayuda a conservar tu capacidad para realizarlas.",
-    "source": "https://www.cdc.gov/physical-activity-basics/benefits/",
-    "sourceLabel": "Fuente: CDC"
-  },
-  {
-    "id": "small",
-    "category": "Constancia",
-    "title": "Un poco de movimiento ya suma.",
-    "text": "Sentarte menos y hacer algo de actividad física moderada o intensa aporta beneficios, incluso si todavía no alcanzas las recomendaciones semanales.",
-    "source": "https://www.cdc.gov/physical-activity-basics/benefits/",
-    "sourceLabel": "Fuente: CDC"
-  },
-  {
-    "id": "brain",
-    "category": "Tu cuerpo",
-    "title": "Tu cerebro también se beneficia.",
-    "text": "La actividad física regular puede ayudarte a mantener las habilidades de pensamiento, aprendizaje y juicio a medida que envejeces.",
-    "source": "https://www.cdc.gov/physical-activity-basics/benefits/",
-    "sourceLabel": "Fuente: CDC"
-  }
-];
-
-</script>
-<script>
 /* Inicio: métricas derivadas del plan, sin alterar el registro ni su almacenamiento. */
 (function () {
   'use strict';
-  var factsOffset = 0;
-  var quotes = [
-    'No necesitas un día perfecto para dar un paso adelante.',
-    'La constancia también se construye al volver a empezar.',
-    'Tu progreso tiene su propio ritmo. Sigue construyéndolo.',
-    'Cada sesión es una oportunidad para aprender de ti.',
-    'Descansar también tiene un lugar en tu plan.',
-    'Celebra lo que hoy puedes hacer y antes parecía lejano.',
-    'Pequeños pasos, repetidos con intención.'
-  ];
   // Calendar ordinals avoid UTC parsing and daylight-saving shifts.
   function ordinal(date) { return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000); }
   function metrics(data, startDate, now) {
@@ -3246,61 +3177,34 @@ window.SLAB_FACTS = [
     return {weeks: weeks, current: current, total: total, streak: streak};
   }
   function set(id, value) { document.getElementById(id).textContent = value; }
-  function renderFact(seed) {
-    var facts = window.SLAB_FACTS || [];
-    var fact = facts[(seed + factsOffset) % facts.length];
-    if (!fact) {
-      set('homeFactTitle', 'Tu registro cuenta tu historia.');
-      set('homeFactText', 'En Progreso puedes revisar las sesiones que has registrado en tu plan.');
-      document.getElementById('homeFactSource').hidden = true;
-      document.getElementById('homeNextFact').hidden = true;
-      return;
-    }
-    set('homeFactCategory', fact.category); set('homeFactTitle', fact.title); set('homeFactText', fact.text);
-    var source = document.getElementById('homeFactSource');
-    source.hidden = !/^https:\/\//.test(fact.source || '');
-    if (!source.hidden) source.href = fact.source;
-    source.textContent = fact.sourceLabel + ' ↗';
-    document.getElementById('homeNextFact').onclick = function () { factsOffset++; renderFact(seed); };
-  }
   function render(state, navigate) {
-    var now = new Date(), seed = ordinal(now), stats = metrics(state.data, state.startDate, now);
+    var now = new Date(), stats = metrics(state.data, state.startDate, now);
     set('homeDate', now.toLocaleDateString('es-CL', {weekday:'long', day:'numeric', month:'long'}));
-    var greeting = now.getHours() < 12 ? 'Buenos días' : now.getHours() < 20 ? 'Buenas tardes' : 'Buenas noches';
-    set('homeGreeting', greeting + (state.name ? ', ' + state.name.trim().split(/\s+/)[0] : '') + '.');
-    set('homeStreak', stats.streak); set('homeStreakUnit', stats.streak === 1 ? 'semana' : 'semanas');
-    set('homeStreakMessage', stats.streak ? 'Una semana a la vez. Sigue a tu ritmo.' : 'Tu próxima sesión puede iniciar una nueva racha.');
-    set('homeTotal', stats.total);
-    var next = [1,5,10,20,30,40,50,60].find(function (n) { return n > stats.total; });
-    set('homeMilestone', next ? 'Próximo hito: ' + next + (next === 1 ? ' sesión.' : ' sesiones.') : '¡60 sesiones! Celebra tu recorrido.');
+    set('homeGreeting', state.name ? 'Hola, ' + state.name.trim().split(/\s+/)[0] + '.' : 'Tu entrenamiento, a tu ritmo.');
     var activeWeek = stats.current >= 0 && stats.current < 12;
     var weekIndex = activeWeek ? stats.current : Math.max(0, Math.min(11, (state.position.month - 1) * 4 + state.position.week - 1));
-    var days = stats.weeks[weekIndex], completed = days.filter(function (d) { return d.done; }).length;
-    var planned = days.filter(function (d) { return d.planned; }).length;
-    set('homeWeekTitle', activeWeek ? 'Tu semana' : 'Semana ' + (weekIndex + 1) + ' del plan');
-    set('homeWeekCount', completed + ' / ' + planned + ' sesiones');
-    set('homeWeekNote', !planned ? 'Aún no hay ejercicios en esta semana. Abre tu registro para preparar tu sesión.' : completed === planned ? 'Todas las sesiones de esta semana están completas. ¡Buen trabajo!' : 'Cada sesión completada suma. Respeta tus días de descanso.');
+    var days = stats.weeks[weekIndex], completed = days.filter(function(d) { return d.done; }).length;
+    var planned = days.filter(function(d) { return d.planned; }).length;
+    set('homeWeekTitle', activeWeek ? 'Esta semana' : 'Semana ' + (weekIndex + 1));
+    set('homeWeekCount', planned ? completed + ' de ' + planned + ' sesiones' : 'Prepara tu semana');
     var host = document.getElementById('homeWeekDays'); host.replaceChildren();
-    days.forEach(function (day, index) {
+    days.forEach(function(day, index) {
       var button = document.createElement('button');
       button.className = 'home-day' + (day.done ? ' is-done' : '') + (day.today ? ' is-today' : '');
       var status = day.done ? 'Completada' : !day.planned ? 'Sin plan' : day.today ? 'Hoy' : day.future ? 'Próxima' : 'Pendiente';
       var name = document.createElement('span'); name.textContent = ['Lun','Mar','Mié','Jue','Vie'][index];
       var mark = document.createElement('strong'); mark.textContent = day.done ? '✓' : String(index + 1);
-      var caption = document.createElement('small'); caption.textContent = status;
-      button.append(name, mark, caption);
-      button.setAttribute('aria-label', name.textContent + ', día ' + (index + 1) + ': ' + status + '. Abrir registro');
-      if (day.today) button.setAttribute('aria-current', 'date');
-      button.onclick = function () { navigate(day.position); };
-      host.appendChild(button);
+      button.append(name, mark);
+      button.setAttribute('aria-label', name.textContent + ': ' + status + '. Abrir registro');
+      if(day.today) button.setAttribute('aria-current', 'date');
+      button.onclick = function() { navigate(day.position); }; host.appendChild(button);
     });
-    var today = activeWeek && days.find(function (d) { return d.today; });
+    var today = activeWeek && days.find(function(d) { return d.today; });
     var target = today ? today.position : state.position;
-    set('homeSession', today ? (today.done ? 'Tu sesión de hoy ya está completa. ¡Buen trabajo!' : 'Tu espacio de hoy: mes ' + target.month + ' · semana ' + target.week + ' · día ' + target.day + '.') : activeWeek ? 'Hoy no hay una sesión programada. Disfruta tu descanso.' : stats.current < 0 ? 'Tu plan aún no comienza. Puedes preparar tu primera sesión.' : 'Tu ciclo de 12 semanas terminó. Revisa todo lo que has construido.');
-    document.getElementById('homeTrain').firstChild.textContent = today ? (today.done ? 'Revisar sesión de hoy ' : 'Abrir sesión de hoy ') : 'Ir a mi registro ';
-    document.getElementById('homeTrain').onclick = function () { navigate(target); };
-    document.getElementById('homeProgress').onclick = function () { window.switchTab('progreso'); };
-    set('homeQuote', '“' + quotes[seed % quotes.length] + '”'); renderFact(seed);
+    set('homeSession', state.mode + ' · Mes ' + target.month + ' / Semana ' + target.week);
+    document.getElementById('homeTrain').firstChild.textContent = today && today.done ? 'Revisar entrenamiento ' : 'Ir a entrenar ';
+    document.getElementById('homeTrain').onclick = function() { navigate(target); };
+    document.getElementById('homeProgress').onclick = function() { window.switchTab('progreso'); };
   }
   window.SLABHome = {render: render, metrics: metrics};
 })();
@@ -3347,6 +3251,51 @@ body.light-mode #view-registro .serie-hevy-row.serie-done :is(.serie-hevy-input,
 body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
 @media(min-width:600px) { #view-registro .ex-head-img {height:300px;} }
 @media(max-width:360px) { #view-registro .ex-head-top {padding:16px 12px 12px;} #view-registro .ex-head-img {height:220px;} #view-registro .serie-hevy-row {padding:12px;gap:10px 8px;} }
+
+/* Inicio y Registro: jerarquía compacta, una acción principal. */
+.seg-dropdown-item {display:block;width:100%;background:transparent;border:0;border-bottom:1px solid var(--border);text-align:left;}
+.nav-segment:focus-visible {outline:2px solid var(--gold);outline-offset:2px;}
+.home .home-greeting {padding:18px 2px 22px;}
+.home .home-greeting h1 {font-size:28px;letter-spacing:-.8px;margin:10px 0 0;}
+.home .home-profile {padding:24px;margin:0 0 18px;border:1px solid var(--border-hover);border-radius:20px;background:var(--card);}
+.home .home-profile-head {gap:12px;flex-wrap:nowrap;}
+.home .profile-avatar {width:44px;height:44px;font-size:16px;}
+.home .home-profile-identity h2 {font:500 13px var(--font-body);color:var(--text-mid);margin:0;}
+.home .home-profile-head .home-secondary {padding:8px 10px;min-height:40px;margin:0;border:0;background:transparent;color:var(--text-mid);font-size:11px;}
+.home .home-profile-goal {font:500 clamp(23px,6vw,30px)/1.4 var(--font-display);margin:24px 0 26px;letter-spacing:-.4px;}
+.home .home-profile .home-primary {width:100%;margin:0;min-height:52px;border-radius:12px;font:500 14px var(--font-body);letter-spacing:0;}
+.home .home-session-context {font:400 10px/1.5 var(--font-body);color:var(--text-mid);text-align:center;margin:12px 0 0;}
+.home .home-week {padding:20px;border-radius:18px;background:transparent;border:1px solid var(--border);}
+.home .home-card-heading {margin-bottom:18px;}
+.home .home-card-heading h2 {font:500 15px var(--font-body);}
+.home .home-card-heading>span {font-size:10px;}
+.home .home-day {min-height:65px;gap:8px;border:0;background:var(--dark-2);}
+.home .home-progress-link {min-height:48px;font:400 12px var(--font-body);margin:4px 0 16px;color:var(--text-mid);}
+#view-registro {padding-top:18px;}
+#view-registro .nav-selector {padding:6px 0;margin:0 0 16px;border:1px solid var(--border);border-radius:12px;background:var(--card);}
+#view-registro .ctx-breadcrumb {width:100%;justify-content:space-between;}
+#view-registro .nav-segment {border:0;background:none;min-height:42px;gap:6px;padding:8px 10px;}
+#view-registro .nav-seg-label {font:400 10px var(--font-body);text-transform:none;letter-spacing:0;color:var(--text-mid);}
+#view-registro .nav-seg-value {font:500 12px var(--font-body);color:var(--text);}
+#view-registro .ctx-progress {display:none;}
+.mode-segment {position:relative;}
+#trainingModeSelect {appearance:none;-webkit-appearance:none;background:transparent;border:0;padding:4px 0;color:var(--text);font:500 16px var(--font-body);max-width:86px;cursor:pointer;}
+#trainingModeSelect option {background:var(--card);color:var(--text);}
+.mode-segment:focus-within {outline:2px solid var(--gold);outline-offset:-2px;}
+#view-registro .session-card {padding:0 20px;margin:16px 0 28px;border:1px solid var(--border-hover);border-radius:18px;background:var(--card);box-shadow:none;}
+.session-review-head {padding:22px 0 18px;border-bottom:1px solid var(--border);}
+.session-review-eyebrow {font:500 9px var(--font-body);letter-spacing:1.4px;color:var(--text-mid);}
+.session-review-head h3 {font:500 18px/1.4 var(--font-body);letter-spacing:-.3px;color:var(--text);margin:6px 0 0;}
+.session-review-row {display:grid;grid-template-columns:32px minmax(0,1fr) 132px;gap:10px;align-items:center;padding:20px 0;}
+.session-review-row+.session-review-row {border-top:1px solid var(--border);}
+.session-review-icon {display:flex;align-items:center;justify-content:flex-start;color:var(--gold);}
+.session-review-row label {display:flex;flex-direction:column;gap:5px;min-width:0;}
+.session-review-row label strong {font:500 13px/1.4 var(--font-body);color:var(--text);}
+.session-review-row label span {font:400 10px/1.4 var(--font-body);color:var(--text-mid);}
+.session-review-row select {box-sizing:border-box;min-width:0;width:100%;min-height:46px;border:1px solid var(--border-hover);border-radius:10px;padding:0 10px;background:var(--dark-2);color:var(--text-mid);font:500 16px var(--font-body);cursor:pointer;}
+.session-review-row select.has-value {color:var(--text);border-color:var(--gold-dim);}
+.session-review-row select:focus-visible {outline:2px solid var(--gold);outline-offset:3px;}
+@media(max-width:374px){.home .home-profile{padding:18px;}.home .home-profile-head{gap:8px;}.home .home-profile-head .home-secondary{padding:6px;font-size:10px;}#view-registro .nav-segment{padding:8px 6px;gap:4px;}#view-registro .session-card{padding:0 16px;}.session-review-row{grid-template-columns:24px minmax(0,1fr) 116px;gap:8px;}.session-review-row select{padding:0 6px;font-size:16px;}}
 </style>
 <style>
 /* Compact mobile register: half-height image and two-row set controls. */
@@ -3727,48 +3676,37 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   </nav>
 
   <main id="view-inicio" class="panel home" aria-label="Inicio">
-    <header class="home-greeting"><p id="homeDate" class="home-kicker"></p><h1 id="homeGreeting">Tu espacio, tu progreso.</h1><p>Un paso más hacia tu mejor versión.</p></header>
+    <header class="home-greeting"><p id="homeDate" class="home-kicker"></p><h1 id="homeGreeting">Tu entrenamiento, a tu ritmo.</h1></header>
     <section class="home-profile" aria-labelledby="homeProfileTitle">
       <div class="home-profile-head">
         <div id="homeProfileAvatar" class="profile-avatar" aria-hidden="true"></div>
-        <div class="home-profile-identity"><span class="home-kicker">MI PERFIL</span><h2 id="homeProfileTitle">Tu motivo para entrenar</h2></div>
-        <button id="editProfileBtn" type="button" class="home-secondary">Editar perfil</button>
+        <div class="home-profile-identity"><h2 id="homeProfileTitle">Mi objetivo</h2></div>
+        <button id="editProfileBtn" type="button" class="home-secondary" aria-label="Editar mi perfil">Editar perfil</button>
       </div>
-      <p class="home-profile-label">RECUERDA POR QUÉ EMPEZASTE</p>
       <p id="homeProfileGoal" class="home-profile-goal"></p>
+      <button id="homeTrain" class="home-primary">Ir a entrenar <span aria-hidden="true">↗</span></button>
+      <p id="homeSession" class="home-session-context"></p>
     </section>
-    <section class="home-hero" aria-labelledby="homeHeadline"><div class="home-kicker">CONSTRUYE TU CONSTANCIA</div><h2 id="homeHeadline">Tu próxima versión<br>empieza <em>hoy.</em></h2><p id="homeSession"></p><button id="homeTrain" class="home-primary">Ir a mi entrenamiento <span aria-hidden="true">↗</span></button><span class="home-hero-mark" aria-hidden="true">SL</span></section>
-    <div class="home-stats"><section class="home-card"><span class="home-kicker">TU RACHA</span><div class="home-number"><strong id="homeStreak">0</strong><span id="homeStreakUnit">semanas</span></div><p id="homeStreakMessage"></p></section><section class="home-card"><span class="home-kicker">SESIONES COMPLETADAS</span><div class="home-number"><strong id="homeTotal">0</strong><span>en tu plan</span></div><p id="homeMilestone"></p></section></div>
-    <section class="home-card home-week" aria-labelledby="homeWeekTitle"><div class="home-card-heading"><h2 id="homeWeekTitle">Tu semana</h2><span id="homeWeekCount"></span></div><div id="homeWeekDays" class="home-days"></div><p id="homeWeekNote"></p><details><summary>¿Cómo se calcula mi racha?</summary><p>Semanas consecutivas del plan con al menos una sesión completada. La semana actual puede estar pendiente sin romper la racha. Cuenta cuando todos los ejercicios con nombre están marcados como hechos. Usamos las fechas programadas del plan, no la fecha real de ejecución. Las sesiones futuras no cuentan.</p></details></section>
-    <section class="home-quote"><span class="home-kicker">UNA IDEA PARA HOY</span><blockquote id="homeQuote"></blockquote><span>Sin prisa. Con intención.</span></section>
-    <section class="home-card home-fact" aria-labelledby="homeFactHeading"><div class="home-card-heading"><h2 id="homeFactHeading">¿Sabías que?</h2><span id="homeFactCategory" class="home-kicker"></span></div><div aria-live="polite" aria-atomic="true"><h3 id="homeFactTitle"></h3><p id="homeFactText"></p></div><div class="home-fact-footer"><a id="homeFactSource" target="_blank" rel="noopener noreferrer">Ver fuente ↗</a><button id="homeNextFact" class="home-secondary">Ver otro <span aria-hidden="true">→</span></button></div></section>
-    <button class="home-progress-link" id="homeProgress">Explorar mi progreso <span aria-hidden="true">→</span></button>
+    <section class="home-card home-week" aria-labelledby="homeWeekTitle"><div class="home-card-heading"><h2 id="homeWeekTitle">Esta semana</h2><span id="homeWeekCount"></span></div><div id="homeWeekDays" class="home-days"></div></section>
+    <button class="home-progress-link" id="homeProgress">Ver mi progreso <span aria-hidden="true">↗</span></button>
   </main>
   <div id="view-registro" class="panel" style="display:none;">
-    <section class="training-intro" aria-label="Tu entrenamiento">
-      <div class="training-intro-top"><span class="eyebrow">Tu espacio de entrenamiento</span><span class="training-monogram" aria-hidden="true">SL</span></div>
-      <h2>El físico se construye.<br><em>Serie a serie.</em></h2>
-      <div class="training-signature"><span>PLAN PERSONALIZADO</span><span>by @rennzolifts</span></div>
-    </section>
-    <div class="training-mode-switch" role="group" aria-label="Lugar de entrenamiento">
-      <button type="button" data-training-mode="gimnasio" aria-pressed="true">GIMNASIO</button>
-      <button type="button" data-training-mode="casa" aria-pressed="false">CASA</button>
-    </div>
-    <p id="trainingModeHint" class="training-mode-hint"></p>
     <!-- Selector compacto Mes / Semana -->
     <div class="nav-selector" id="navSelector">
       <div class="ctx-breadcrumb">
-        <div class="nav-segment" id="segMes">
+        <label class="nav-segment mode-segment"><span class="nav-seg-label">Modo</span><select id="trainingModeSelect" aria-label="Modo de entrenamiento"><option value="gimnasio">Gimnasio</option><option value="casa">Casa</option></select><span class="nav-chevron" aria-hidden="true">▾</span></label>
+        <span class="ctx-sep" aria-hidden="true">/</span>
+        <button type="button" class="nav-segment" id="segMes" aria-label="Elegir mes" aria-expanded="false" aria-controls="dropMes">
           <span class="nav-seg-label">Mes</span>
           <span class="nav-seg-value" id="segMesVal">1</span>
           <span class="nav-chevron">▾</span>
-        </div>
+        </button>
         <span class="ctx-sep">/</span>
-        <div class="nav-segment" id="segSem">
+        <button type="button" class="nav-segment" id="segSem" aria-label="Elegir semana" aria-expanded="false" aria-controls="dropSem">
           <span class="nav-seg-label">Sem</span>
           <span class="nav-seg-value" id="segSemVal">1</span>
           <span class="nav-chevron">▾</span>
-        </div>
+        </button>
       </div>
       <span class="ctx-progress" id="ctxProgress"></span>
     </div>
@@ -4331,28 +4269,17 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   var trainingPlans = { gimnasio: {}, casa: {} };
   function trainingStorageKey(mode) { return mode === 'casa' ? STORAGE_KEY + '-casa' : STORAGE_KEY; }
   function renderTrainingMode() {
-    document.querySelectorAll('[data-training-mode]').forEach(function(button) {
-      button.setAttribute('aria-pressed', String(button.dataset.trainingMode === trainingMode));
-    });
-    document.getElementById('trainingModeHint').textContent = trainingMode === 'casa'
-      ? 'CASA · Mancuernas, bandas, barra y peso corporal. Tu rutina e historial se guardan por separado.'
-      : 'GIMNASIO · Máquinas, poleas y peso libre. Tu rutina e historial se guardan por separado.';
+    document.getElementById('trainingModeSelect').value = trainingMode;
   }
-  document.querySelectorAll('[data-training-mode]').forEach(function(button) {
-    button.onclick = function() {
-      var next = button.dataset.trainingMode;
-      if (next === trainingMode) return;
-      clearTimeout(saveTimeout);
-      // saveData captura el modo y los datos antes de cualquier espera.
-      saveData();
-      trainingPlans[trainingMode] = STATE.data;
-      trainingMode = next;
-      STATE.data = trainingPlans[next];
-      ensureRecords();
-      slabSetItem(TRAINING_MODE_KEY, next);
-      renderTrainingMode(); renderAll();
-    };
-  });
+  document.getElementById('trainingModeSelect').onchange = function() {
+    var next = this.value;
+    if (next === trainingMode || ['gimnasio', 'casa'].indexOf(next) === -1) return;
+    closeDropdowns(); clearTimeout(saveTimeout); saveData();
+    trainingPlans[trainingMode] = STATE.data;
+    trainingMode = next; STATE.data = trainingPlans[next];
+    ensureRecords(); slabSetItem(TRAINING_MODE_KEY, next);
+    renderTrainingMode(); renderAll();
+  };
   var IDB_NAME = 'slab-db';
   var IDB_STORE = 'kv';
   var IDB_VERSION = 1;
@@ -4606,8 +4533,8 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   }
   function renderPersonalProfile() {
     var name = getClientName();
-    document.getElementById('homeProfileTitle').textContent = name || 'Tu motivo para entrenar';
-    document.getElementById('homeProfileGoal').textContent = personalProfile.objective || 'Escribe tu objetivo. Vuelve a él cada vez que necesites recordar por qué empezaste.';
+    document.getElementById('homeProfileTitle').textContent = 'Mi objetivo';
+    document.getElementById('homeProfileGoal').textContent = personalProfile.objective || '¿Por qué entrenas? Añade tu objetivo al perfil.';
     renderProfileAvatar(document.getElementById('homeProfileAvatar'), personalProfile.photo, name);
   }
   var profileDialog = document.getElementById('profileDialog');
@@ -5226,6 +5153,8 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     document.getElementById('segBackdrop').classList.remove('open');
     document.getElementById('segMes').classList.remove('seg-active');
     document.getElementById('segSem').classList.remove('seg-active');
+    document.getElementById('segMes').setAttribute('aria-expanded', 'false');
+    document.getElementById('segSem').setAttribute('aria-expanded', 'false');
     _dropOpen = null;
   }
 
@@ -5239,13 +5168,14 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     dropEl.classList.add('open');
     document.getElementById('segBackdrop').classList.add('open');
     segEl.classList.add('seg-active');
+    segEl.setAttribute('aria-expanded', 'true');
     _dropOpen = which;
   }
 
   function buildDropMes() {
     var el = document.getElementById('dropMes'); el.innerHTML = '';
     for (var m = 1; m <= 3; m++) {
-      var item = document.createElement('div'); item.className = 'seg-dropdown-item' + (m === STATE.month ? ' item-active' : '');
+      var item = document.createElement('button'); item.type = 'button'; item.className = 'seg-dropdown-item' + (m === STATE.month ? ' item-active' : '');
       item.innerHTML = 'Mes ' + m + (m === STATE.month ? ' <span class="item-check">✓</span>' : '');
       item.onclick = (function(mm) { return function() {
         STATE.month = mm; STATE.week = 1; STATE.day = 1; closeDropdowns(); renderAll();
@@ -5257,7 +5187,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   function buildDropSem() {
     var el = document.getElementById('dropSem'); el.innerHTML = '';
     for (var w = 1; w <= 4; w++) {
-      var item = document.createElement('div'); item.className = 'seg-dropdown-item' + (w === STATE.week ? ' item-active' : '');
+      var item = document.createElement('button'); item.type = 'button'; item.className = 'seg-dropdown-item' + (w === STATE.week ? ' item-active' : '');
       item.innerHTML = 'Semana ' + w + (w === STATE.week ? ' <span class="item-check">✓</span>' : '');
       item.onclick = (function(ww) { return function() {
         STATE.week = ww; STATE.day = 1; closeDropdowns(); renderAll();
@@ -5279,6 +5209,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   document.getElementById('segMes').onclick = function() { _dropOpen === 'mes' ? closeDropdowns() : openDrop('mes'); };
   document.getElementById('segSem').onclick = function() { _dropOpen === 'sem' ? closeDropdowns() : openDrop('sem'); };
   document.getElementById('segBackdrop').onclick = closeDropdowns;
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && _dropOpen) { var trigger = document.getElementById(_dropOpen === 'mes' ? 'segMes' : 'segSem'); closeDropdowns(); trigger.focus(); } });
 
   /* ══════════════════════════════════════
      TIRA DE DÍAS
@@ -5871,40 +5802,31 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     el.appendChild(addExBtn);
 
     var session = ensureSession(STATE.month, STATE.week, STATE.day);
-    var sessionCard = document.createElement('div'); sessionCard.className = 'exercise-card session-card';
-    var sessionHead = document.createElement('div'); sessionHead.className = 'ex-head';
-    var sessionLabel = document.createElement('div'); sessionLabel.className = 'session-label';
-    sessionLabel.textContent = 'RPE entrenamiento'; sessionHead.appendChild(sessionLabel);
+    var sessionCard = document.createElement('section'); sessionCard.className = 'exercise-card session-card';
+    sessionCard.setAttribute('aria-labelledby', 'sessionReviewTitle');
+    var sessionHead = document.createElement('div'); sessionHead.className = 'session-review-head';
+    sessionHead.innerHTML = '<span class="session-review-eyebrow">AL TERMINAR</span><h3 id="sessionReviewTitle">Balance de la sesión</h3>';
     sessionCard.appendChild(sessionHead);
-    var sessionFields = document.createElement('div'); sessionFields.className = 'ex-fields session-fields';
-    sessionFields.appendChild(makeRPEField('RPE de toda la sesión', session, 'rpeSesion', 'session-rpe-field'));
-    sessionCard.appendChild(sessionFields);
-
-    // ── Selector de horas de sueño ──
-    var sleepSection = document.createElement('div'); sleepSection.className = 'sleep-section';
-    var sleepLbl = document.createElement('div'); sleepLbl.className = 'sleep-label'; sleepLbl.textContent = 'Horas de sueño (noche anterior)';
-    var sleepBtns = document.createElement('div'); sleepBtns.className = 'sleep-btns';
-    var SLEEP_OPTIONS = [
-      { value: '5-6', label: '5 – 6 h', sub: 'Poco' },
-      { value: '6-7', label: '6 – 7 h', sub: 'Regular' },
-      { value: '8-9', label: '8 – 9 h', sub: 'Óptimo' }
-    ];
-    SLEEP_OPTIONS.forEach(function(opt) {
-      var btn = document.createElement('button');
-      btn.className = 'sleep-btn' + (session.sueno === opt.value ? ' active' : '');
-      btn.setAttribute('type', 'button');
-      btn.innerHTML = '<span class="sleep-h">' + opt.label + '</span><span class="sleep-sub">' + opt.sub + '</span>';
-      btn.onclick = function() {
-        session.sueno = (session.sueno === opt.value) ? '' : opt.value;
-        scheduleSave();
-        sleepBtns.querySelectorAll('.sleep-btn').forEach(function(b) { b.classList.remove('active'); });
-        if (session.sueno) btn.classList.add('active');
-      };
-      sleepBtns.appendChild(btn);
-    });
-    sleepSection.appendChild(sleepLbl);
-    sleepSection.appendChild(sleepBtns);
-    sessionCard.appendChild(sleepSection);
+    function sessionRow(id, title, hint, icon, key, options) {
+      var row = document.createElement('div'); row.className = 'session-review-row';
+      var symbol = document.createElement('span'); symbol.className = 'session-review-icon'; symbol.setAttribute('aria-hidden','true');
+      symbol.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' + icon + '</svg>';
+      var label = document.createElement('label'); label.htmlFor = id;
+      var name = document.createElement('strong'); name.textContent = title;
+      var detail = document.createElement('span'); detail.textContent = hint; label.append(name, detail);
+      var select = document.createElement('select'); select.id = id; select.setAttribute('aria-label', title);
+      options.forEach(function(item) { var option = document.createElement('option'); option.value = item[0]; option.textContent = item[1]; select.appendChild(option); });
+      select.value = session[key] || '';
+      select.classList.toggle('has-value', !!select.value);
+      select.onchange = function() { session[key] = this.value; this.classList.toggle('has-value', !!this.value); scheduleSave(); };
+      row.append(symbol, label, select); return row;
+    }
+    sessionCard.appendChild(sessionRow('sessionRpe', 'Esfuerzo general', 'RPE de la sesión', '<path d="M3 12h4l3-8 4 16 3-8h4"/>', 'rpeSesion', [
+      ['', 'Elegir'], ['5', 'RPE 5'], ['6', 'RPE 6'], ['7', 'RPE 7'], ['8', 'RPE 8'], ['9', 'RPE 9'], ['10', 'RPE 10']
+    ]));
+    sessionCard.appendChild(sessionRow('sessionSleep', 'Sueño', 'Noche anterior', '<path d="M20.8 13A9 9 0 0111 3.2 9 9 0 1020.8 13z"/>', 'sueno', [
+      ['', 'Elegir'], ['5-6', '5–6 h'], ['6-7', '6–7 h'], ['7-8', '7–8 h'], ['8-9', '8–9 h']
+    ]));
 
     el.appendChild(sessionCard);
 
@@ -7311,11 +7233,11 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   /* ══════════════════════════════════════
      TABS — orden: Registro, Progreso, Calcular RPE, Récords
   ══════════════════════════════════════ */
-  function renderHome() { renderPersonalProfile(); SLABHome.render({data: STATE.data, startDate: _startDateStr, name: getClientName(), position: {month: STATE.month, week: STATE.week, day: STATE.day}}, function(pos) { STATE.month = pos.month; STATE.week = pos.week; STATE.day = pos.day; renderAll(); switchTab('registro'); }); }
+  function renderHome() { renderPersonalProfile(); SLABHome.render({data: STATE.data, startDate: _startDateStr, name: getClientName(), mode: trainingMode === 'casa' ? 'Casa' : 'Gimnasio', position: {month: STATE.month, week: STATE.week, day: STATE.day}}, function(pos) { STATE.month = pos.month; STATE.week = pos.week; STATE.day = pos.day; renderAll(); switchTab('registro'); }); }
   function renderAll() { renderHome(); renderNavSelector(); renderDayPills(); renderExercises(); updateBtnHoy(); renderTopbarSub(); }
   var TAB_TITLES = {
     'inicio': 'INICIO',
-    'registro': 'REGISTRO DE ENTRENAMIENTO',
+    'registro': 'REGISTRO',
     'progreso': 'PROGRESO',
     'rpe':      'CALCULADORA RPE',
     'orm':      'CALCULAR 1RM',
