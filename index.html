@@ -2981,6 +2981,38 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation:none!important; transition:none!important; } }
 
 
+
+/* Perfil: el motivo personal acompaña cada visita a Inicio. */
+.home-profile {padding:20px;margin-bottom:20px;border:1px solid var(--gold-dim);border-radius:20px;background:var(--card);}
+.home-profile-head {display:flex;align-items:center;gap:12px;}
+.home-profile-identity {flex:1;min-width:0;}
+.home-profile-identity h2 {font:600 16px/1.4 var(--font-body);margin:5px 0 0;overflow-wrap:anywhere;}
+.home-profile-head .home-secondary {flex-shrink:0;}
+.profile-avatar {display:flex;align-items:center;justify-content:center;flex-shrink:0;width:56px;height:56px;border-radius:50%;overflow:hidden;background:var(--gold-glow);border:1px solid var(--gold-dim);color:var(--gold);font:600 20px var(--font-body);}
+.profile-avatar img {width:100%;height:100%;object-fit:cover;display:block;}
+.home .home-profile-label {font:500 9px/1.5 var(--font-mono);letter-spacing:1px;color:var(--text-mid);margin:20px 0 8px;}
+.home .home-profile-goal {font:500 20px/1.6 var(--font-display);color:var(--text);margin:0;white-space:pre-wrap;overflow-wrap:anywhere;}
+.profile-dialog {box-sizing:border-box;width:calc(100% - 24px);max-width:460px;max-height:calc(100dvh - 24px);margin:auto;padding:24px;border:1px solid var(--border-hover);border-radius:22px;background:var(--card);color:var(--text);overflow-y:auto;overscroll-behavior:contain;}
+.profile-dialog::backdrop {background:#000b;}
+body.profile-open {overflow:hidden;}
+.profile-dialog-head {display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.profile-dialog h2 {font:600 24px var(--font-body);margin:0;}
+.profile-dialog-head button {width:44px;height:44px;border:1px solid var(--border);border-radius:12px;background:var(--dark-2);color:var(--text);font-size:24px;}
+.profile-intro,.profile-private {font:400 12px/1.6 var(--font-body);color:var(--text-mid);}
+.profile-photo-edit {display:flex;align-items:center;gap:16px;margin:20px 0;}
+.profile-avatar-large {width:80px;height:80px;}
+.profile-upload {display:inline-flex;align-items:center;min-height:44px;position:relative;border:1px solid var(--border-hover);border-radius:10px;padding:0 12px;font:500 12px var(--font-body);cursor:pointer;}
+.profile-upload input {position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;}
+.profile-upload:focus-within {outline:2px solid var(--gold);outline-offset:3px;}
+.profile-remove {display:block;min-height:36px;background:none;border:0;color:var(--text-mid);font:400 12px var(--font-body);text-decoration:underline;}
+.profile-field {display:flex;flex-direction:column;gap:8px;font:500 13px var(--font-body);margin:18px 0;}
+.profile-field input,.profile-field textarea {box-sizing:border-box;width:100%;min-width:0;padding:12px;background:var(--dark-2);border:1px solid var(--border-hover);border-radius:10px;color:var(--text);font:400 16px/1.5 var(--font-body);}
+.profile-field textarea {resize:vertical;}
+.profile-dialog #profileStatus {font:400 12px/1.5 var(--font-body);color:var(--gold);min-height:18px;}
+.profile-dialog .home-primary {width:100%;}
+.profile-dialog :is(button,input,textarea):focus-visible {outline:2px solid var(--gold);outline-offset:3px;}
+@media(max-width:374px){.home-profile{padding:16px;}.home-profile-head{flex-wrap:wrap;}.home-profile-head .home-secondary{margin-left:68px;}.profile-dialog{padding:18px;}}
+
 /* Lugar de entrenamiento */
 .training-mode-switch {display:flex;gap:6px;padding:5px;border:1px solid var(--border);border-radius:14px;background:var(--dark-2);margin:0 0 8px;}
 .training-mode-switch button {flex:1;min-height:48px;border:0;border-radius:10px;background:transparent;color:var(--text-mid);font:600 12px var(--font-body);letter-spacing:1px;cursor:pointer;}
@@ -3574,6 +3606,19 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   </div>
 </div>
 
+<dialog id="profileDialog" class="profile-dialog" aria-labelledby="profileDialogTitle">
+  <form id="profileForm">
+    <div class="profile-dialog-head"><h2 id="profileDialogTitle">Mi perfil</h2><button type="button" id="profileCancel" aria-label="Cerrar perfil">×</button></div>
+    <p class="profile-intro">Tu objetivo aparecerá en Inicio para recordarte por qué entrenas.</p>
+    <div class="profile-photo-edit"><div id="profilePhotoPreview" class="profile-avatar profile-avatar-large" aria-hidden="true"></div><div><label class="profile-upload">Elegir foto<input id="profilePhotoInput" type="file" accept="image/jpeg,image/png,image/webp"></label><button type="button" id="profilePhotoRemove" class="profile-remove">Quitar foto</button></div></div>
+    <label class="profile-field" for="profileName">Nombre<input id="profileName" name="name" type="text" maxlength="80" required autocomplete="given-name" placeholder="Tu nombre"></label>
+    <label class="profile-field" for="profileGoal">Mi objetivo<textarea id="profileGoal" name="goal" maxlength="280" rows="4" placeholder="Por ejemplo: sentirme más fuerte y tener energía para disfrutar con mi familia."></textarea></label>
+    <p class="profile-private">Tu perfil y tu foto se guardan en este dispositivo. Puedes incluirlos en tu respaldo.</p>
+    <p id="profileStatus" role="status" aria-live="polite"></p>
+    <button id="profileSave" type="submit" class="home-primary">Guardar perfil</button>
+  </form>
+</dialog>
+
 <!-- TOAST -->
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -3683,6 +3728,15 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
 
   <main id="view-inicio" class="panel home" aria-label="Inicio">
     <header class="home-greeting"><p id="homeDate" class="home-kicker"></p><h1 id="homeGreeting">Tu espacio, tu progreso.</h1><p>Un paso más hacia tu mejor versión.</p></header>
+    <section class="home-profile" aria-labelledby="homeProfileTitle">
+      <div class="home-profile-head">
+        <div id="homeProfileAvatar" class="profile-avatar" aria-hidden="true"></div>
+        <div class="home-profile-identity"><span class="home-kicker">MI PERFIL</span><h2 id="homeProfileTitle">Tu motivo para entrenar</h2></div>
+        <button id="editProfileBtn" type="button" class="home-secondary">Editar perfil</button>
+      </div>
+      <p class="home-profile-label">RECUERDA POR QUÉ EMPEZASTE</p>
+      <p id="homeProfileGoal" class="home-profile-goal"></p>
+    </section>
     <section class="home-hero" aria-labelledby="homeHeadline"><div class="home-kicker">CONSTRUYE TU CONSTANCIA</div><h2 id="homeHeadline">Tu próxima versión<br>empieza <em>hoy.</em></h2><p id="homeSession"></p><button id="homeTrain" class="home-primary">Ir a mi entrenamiento <span aria-hidden="true">↗</span></button><span class="home-hero-mark" aria-hidden="true">SL</span></section>
     <div class="home-stats"><section class="home-card"><span class="home-kicker">TU RACHA</span><div class="home-number"><strong id="homeStreak">0</strong><span id="homeStreakUnit">semanas</span></div><p id="homeStreakMessage"></p></section><section class="home-card"><span class="home-kicker">SESIONES COMPLETADAS</span><div class="home-number"><strong id="homeTotal">0</strong><span>en tu plan</span></div><p id="homeMilestone"></p></section></div>
     <section class="home-card home-week" aria-labelledby="homeWeekTitle"><div class="home-card-heading"><h2 id="homeWeekTitle">Tu semana</h2><span id="homeWeekCount"></span></div><div id="homeWeekDays" class="home-days"></div><p id="homeWeekNote"></p><details><summary>¿Cómo se calcula mi racha?</summary><p>Semanas consecutivas del plan con al menos una sesión completada. La semana actual puede estar pendiente sin romper la racha. Cuenta cuando todos los ejercicios con nombre están marcados como hechos. Usamos las fechas programadas del plan, no la fecha real de ejecución. Las sesiones futuras no cuentan.</p></details></section>
@@ -4525,6 +4579,99 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     STATE.clientName = _clientName;
     slabSetItem(CLIENT_NAME_KEY, _clientName);
   }
+  var PROFILE_KEY = 'slab-personal-profile';
+  var personalProfile = { objective: '', photo: '' };
+  var profilePhotoDraft = '';
+  var profilePhotoBusy = false;
+  var profilePhotoRevision = 0;
+  function validProfile(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return { objective: '', photo: '' };
+    var objective = typeof value.objective === 'string' ? value.objective.trim().slice(0, 280) : '';
+    var photo = typeof value.photo === 'string' && value.photo.length < 1000000 && /^data:image\/(jpeg|png|webp);base64,/.test(value.photo) ? value.photo : '';
+    return { objective: objective, photo: photo };
+  }
+  async function loadPersonalProfile() {
+    try {
+      var stored = await slabGetItem(PROFILE_KEY);
+      personalProfile = validProfile(typeof stored === 'string' ? JSON.parse(stored) : stored);
+    } catch(e) { personalProfile = { objective: '', photo: '' }; }
+  }
+  function renderProfileAvatar(host, photo, name) {
+    host.replaceChildren();
+    if (photo) {
+      var img = document.createElement('img'); img.src = photo; img.alt = '';
+      img.decoding = 'async'; img.width = 80; img.height = 80;
+      host.appendChild(img);
+    } else host.textContent = (name || '').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(function(word) { return word[0]; }).join('').toUpperCase() || 'SL';
+  }
+  function renderPersonalProfile() {
+    var name = getClientName();
+    document.getElementById('homeProfileTitle').textContent = name || 'Tu motivo para entrenar';
+    document.getElementById('homeProfileGoal').textContent = personalProfile.objective || 'Escribe tu objetivo. Vuelve a él cada vez que necesites recordar por qué empezaste.';
+    renderProfileAvatar(document.getElementById('homeProfileAvatar'), personalProfile.photo, name);
+  }
+  var profileDialog = document.getElementById('profileDialog');
+  document.getElementById('editProfileBtn').onclick = function() {
+    profilePhotoRevision++;
+    profilePhotoDraft = personalProfile.photo;
+    profilePhotoBusy = false;
+    document.getElementById('profileSave').disabled = false;
+    document.getElementById('profileName').value = getClientName();
+    document.getElementById('profileGoal').value = personalProfile.objective;
+    document.getElementById('profilePhotoInput').value = '';
+    document.getElementById('profileStatus').textContent = '';
+    renderProfileAvatar(document.getElementById('profilePhotoPreview'), profilePhotoDraft, getClientName());
+    profileDialog.showModal(); document.body.classList.add('profile-open');
+  };
+  profileDialog.addEventListener('close', function() { profilePhotoRevision++; document.body.classList.remove('profile-open'); });
+  document.getElementById('profileCancel').onclick = function() { profileDialog.close(); };
+  document.getElementById('profileName').oninput = function() { renderProfileAvatar(document.getElementById('profilePhotoPreview'), profilePhotoDraft, this.value); };
+  document.getElementById('profilePhotoRemove').onclick = function() {
+    profilePhotoRevision++; profilePhotoBusy = false; profilePhotoDraft = '';
+    document.getElementById('profileSave').disabled = false;
+    document.getElementById('profilePhotoInput').value = '';
+    document.getElementById('profileStatus').textContent = '';
+    renderProfileAvatar(document.getElementById('profilePhotoPreview'), '', document.getElementById('profileName').value);
+  };
+  document.getElementById('profilePhotoInput').onchange = async function() {
+    var file = this.files[0]; if (!file) return;
+    var revision = ++profilePhotoRevision;
+    var status = document.getElementById('profileStatus');
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size > 15 * 1024 * 1024) {
+      status.textContent = 'Elige una foto JPG, PNG o WebP de hasta 15 MB.'; this.value = ''; return;
+    }
+    profilePhotoBusy = true; document.getElementById('profileSave').disabled = true; status.textContent = 'Preparando tu foto…';
+    var url = URL.createObjectURL(file);
+    try {
+      var image = new Image(); image.src = url; await image.decode();
+      var size = Math.min(1, 512 / Math.max(image.naturalWidth, image.naturalHeight));
+      var canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * size));
+      canvas.height = Math.max(1, Math.round(image.naturalHeight * size));
+      canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+      if (revision !== profilePhotoRevision) return;
+      profilePhotoDraft = canvas.toDataURL('image/webp', 0.85);
+      renderProfileAvatar(document.getElementById('profilePhotoPreview'), profilePhotoDraft, document.getElementById('profileName').value);
+      status.textContent = 'Foto lista.';
+    } catch(e) { if (revision === profilePhotoRevision) status.textContent = 'No pudimos abrir esa foto. Prueba con otra.'; }
+    finally {
+      URL.revokeObjectURL(url);
+      if (revision === profilePhotoRevision) { profilePhotoBusy = false; document.getElementById('profileSave').disabled = false; }
+    }
+  };
+  document.getElementById('profileForm').onsubmit = async function(e) {
+    e.preventDefault(); if (profilePhotoBusy) return;
+    var name = document.getElementById('profileName').value.trim();
+    if (!name) { document.getElementById('profileStatus').textContent = 'Escribe tu nombre.'; document.getElementById('profileName').focus(); return; }
+    personalProfile = validProfile({objective: document.getElementById('profileGoal').value, photo: profilePhotoDraft});
+    _clientName = name; STATE.clientName = name;
+    document.getElementById('profileSave').disabled = true;
+    await Promise.all([slabSetItem(PROFILE_KEY, personalProfile), slabSetItem(CLIENT_NAME_KEY, name)]);
+    renderClientName(); renderAll();
+    document.getElementById('profileSave').disabled = false;
+    profileDialog.close(); showToast('Perfil guardado', 'ok');
+  };
+
   function renderTopbarSub() {
     var sub = document.getElementById('topbarSub');
     if (!sub) return;
@@ -4769,22 +4916,25 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     { nombre: 'Crunch abdominal con mancuerna', imgId: '65', imageLocal: 'assets/exercises/crunch-mancuerna.png',                    musculo: 'Core',     videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="30" width="32" height="4" rx="2" fill="#2A2A2A"/><circle cx="20" cy="22" r="3" fill="#C9A96E"/><path d="M12 30 Q16 22 20 19 Q24 22 28 30" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="14" y1="16" x2="18" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="16" x2="22" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
     // ── NUEVOS ──
     { nombre: 'Sentadilla búlgara con barra', imgId: '9', imageLocal: 'assets/exercises/64-sentadilla-bulgara-con-barra.png',         musculo: 'Pierna',   videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="12" x2="30" y2="12" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><line x1="20" y1="18" x2="12" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="28" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="30" x2="10" y2="38" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="30" x2="30" y2="38" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
-    { nombre: 'Dominadas contra liga', imgId: '28', imageLocal: 'assets/exercises/65-dominadas-contra-liga.png',                musculo: 'Espalda',  videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="4" width="36" height="4" rx="2" fill="#A8895A"/><circle cx="20" cy="15" r="3" fill="#C9A96E"/><line x1="13" y1="8" x2="15" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="27" y1="8" x2="25" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="20" y2="26" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="13" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="27" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="13" y1="28" x2="12" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="27" y1="28" x2="28" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    { nombre: 'Dominadas contra liga', imgId: '28', imageLocal: 'assets/exercises/dominadas-liga-cintura.webp',                musculo: 'Espalda',  videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="4" width="36" height="4" rx="2" fill="#A8895A"/><circle cx="20" cy="15" r="3" fill="#C9A96E"/><line x1="13" y1="8" x2="15" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="27" y1="8" x2="25" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="20" y2="26" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="13" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="27" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="13" y1="28" x2="12" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="27" y1="28" x2="28" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
     { nombre: 'Dominadas pin', imgId: '29', imageLocal: 'assets/exercises/66-dominadas-pin.png',                        musculo: 'Espalda',  videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="4" width="36" height="4" rx="2" fill="#A8895A"/><circle cx="20" cy="15" r="3" fill="#C9A96E"/><line x1="13" y1="8" x2="15" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="27" y1="8" x2="25" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="20" y2="26" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="13" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="27" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="13" y1="28" x2="12" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="27" y1="28" x2="28" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
     { nombre: 'Press francés', imgId: '62', imageLocal: 'assets/exercises/67-press-frances.png',                        musculo: 'Tríceps',  videoUrl: 'https://youtube.com/shorts/L3bEz-vcdGU', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="16" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="10" x2="26" y2="10" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="10" x2="12" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="10" x2="28" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="16" x2="20" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="15" y="26" width="10" height="4" rx="1.5" fill="#A8895A"/></svg>' },
     { nombre: 'Curl bíceps Bayesian', imgId: '57', imageLocal: 'assets/exercises/68-curl-biceps-bayesian.png',                 musculo: 'Bíceps',   videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="14" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><path d="M14 28 Q10 24 12 18 Q14 14 20 18" stroke="#C9A96E" stroke-width="1.5" fill="none" stroke-linecap="round"/><line x1="14" y1="28" x2="14" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="20" y1="18" x2="26" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="30" x2="26" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><rect x="8" y="26" width="9" height="4" rx="1.5" fill="#A8895A"/></svg>' },
   ];
 
   EXERCISE_DB.push(
-    { nombre: 'Remo con banda elástica', musculo: 'Espalda', homeOnly: true, videoUrl: '', svg: '' },
-    { nombre: 'Face pull con banda elástica', musculo: 'Hombros', homeOnly: true, videoUrl: '', svg: '' },
-    { nombre: 'Extensión de tríceps con banda elástica', musculo: 'Tríceps', homeOnly: true, videoUrl: '', svg: '' },
+    { nombre: 'Flexiones', imageLocal: 'assets/exercises/flexiones.webp', homeOnly: true, videoUrl: '', svg: '', musculo: 'Pecho' },
+    { nombre: 'Burpees', imageLocal: 'assets/exercises/burpees.webp', homeOnly: true, videoUrl: '', svg: '', musculo: 'Cuerpo completo' },
+    { nombre: 'Remo con banda elástica', imageLocal: 'assets/exercises/remo-banda.webp', musculo: 'Espalda', homeOnly: true, videoUrl: '', svg: '' },
+    { nombre: 'Face pull con banda elástica', imageLocal: 'assets/exercises/face-pull-banda.webp', musculo: 'Hombros', homeOnly: true, videoUrl: '', svg: '' },
+    { nombre: 'Extensión de tríceps con banda elástica', imageLocal: 'assets/exercises/triceps-banda.webp', musculo: 'Tríceps', homeOnly: true, videoUrl: '', svg: '' },
     { nombre: 'Remo T', musculo: 'Espalda', imageLocal: 'assets/exercises/remo-t.png', videoUrl: '', svg: '' },
     { nombre: 'Remo unilateral en máquina', musculo: 'Espalda', imageLocal: 'assets/exercises/remo-unilateral-maquina.png', videoUrl: '', svg: '' },
     { nombre: 'Crunch abdominal en polea', musculo: 'Core', imageLocal: 'assets/exercises/crunch-polea.png', videoUrl: '', svg: '' }
   );
   // Casa: ejercicios disponibles con mancuernas, bandas, barra y peso corporal.
   var HOME_EXERCISES = [
+    'Flexiones', 'Burpees',
     'Sentadilla', 'Sentadilla con barra', 'Sentadilla búlgara con barra', 'Sentadilla búlgara', 'Sentadilla goblet', 'Zancadas', 'Elevación de talones',
     'Peso muerto', 'Peso muerto rumano', 'Hip thrust en barra', 'Remo con barra', 'Press militar',
     'Curl bíceps en barra', 'Press francés', 'Dominadas', 'Dominadas supinas', 'Dominadas contra liga',
@@ -4819,6 +4969,14 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
      consistentes en vez de texto genérico repetido.
   ══════════════════════════════════════ */
   var TECNICA_FAMILIAS = {
+    burpee: {
+      errores: ['Dejar caer la cadera en la plancha', 'Aterrizar con las rodillas rígidas', 'Perder el control por buscar velocidad'],
+      tips: ['Apoya las manos y lleva los pies atrás hasta una plancha firme', 'Vuelve a acercar los pies y extiende cadera y rodillas para saltar', 'Aterriza suave con rodillas ligeramente flexionadas; puedes dar pasos en vez de saltar']
+    },
+    dominada_resistida: {
+      errores: ['Colocar la liga en rodillas o pies como si fuera una dominada asistida', 'Balancear el cuerpo o arquear la zona lumbar', 'Usar un cinturón o anclaje que se desplaza'],
+      tips: ['Conecta la liga al cinturón en la cintura y el otro extremo al anclaje firme del suelo', 'La liga tira hacia abajo: añade resistencia al subir', 'Mantén el abdomen activo, sube sin impulso y controla la bajada']
+    },
     sentadilla: {
       errores: [
         'Las rodillas colapsan hacia adentro al bajar',
@@ -4999,13 +5157,13 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     'hip thrust en máquina': 'hinge', 'hiperextensiones': 'hinge', 'patada de glúteo': 'hinge',
     'press pecho en máquina': 'press_horizontal', 'press inclinado en smith': 'press_horizontal',
     'peck deck': 'pecho_aislamiento',
-    'press banca': 'press_horizontal', 'press banca con mancuernas': 'press_horizontal',
+    'flexiones': 'press_horizontal', 'burpees': 'burpee', 'press banca': 'press_horizontal', 'press banca con mancuernas': 'press_horizontal',
     'press banca inclinado': 'press_horizontal', 'press banca inclinado con mancuernas': 'press_horizontal',
     'fondos': 'press_horizontal', 'fondos en paralelas': 'press_horizontal',
     'press militar': 'press_vertical', 'press militar en máquina': 'press_vertical',
     'press militar unilateral': 'press_vertical', 'press militar con mancuernas': 'press_vertical',
     'dominadas': 'traccion_vertical', 'dominadas supinas': 'traccion_vertical', 'dominadas australianas': 'traccion_vertical',
-    'dominadas contra liga': 'traccion_vertical', 'dominadas pin': 'traccion_vertical',
+    'dominadas contra liga': 'dominada_resistida', 'dominadas pin': 'traccion_vertical',
     'mantención isométrica de dominadas': 'traccion_vertical', 'muscle up': 'traccion_vertical',
     'jalón al pecho': 'traccion_vertical', 'jalón al pecho agarre supino': 'traccion_vertical', 'jalón al pecho unilateral': 'traccion_vertical',
     'remo con barra': 'remo', 'remo con mancuerna': 'remo', 'remo en máquina': 'remo',
@@ -5180,7 +5338,8 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
       'Hombros': ['Deltoides', 'Tríceps'],
       'Bíceps': ['Bíceps', 'Braquial'],
       'Tríceps': ['Tríceps'],
-      'Core': ['Abdominales']
+      'Core': ['Abdominales'],
+      'Cuerpo completo': ['Cuádriceps', 'Glúteos', 'Pectorales', 'Tríceps', 'Core']
     }[group] || [];
     if (n.indexOf('peso muerto') === 0) { muscles = ['Glúteos', 'Isquiotibiales', 'Erectores espinales']; group = 'Cadena posterior'; }
     if (n === 'hiperextensiones') { muscles = ['Erectores espinales', 'Glúteos', 'Isquiotibiales']; group = 'Cadena posterior'; }
@@ -5192,7 +5351,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     if (n.indexOf('remo') === 0 || n === 'dominadas australianas') muscles = ['Dorsal ancho', 'Romboides', 'Trapecio medio'];
     if (n === 'pull over') muscles = ['Dorsal ancho'];
     if (n === 'muscle up') muscles = ['Dorsal ancho', 'Pectorales', 'Tríceps'];
-    if (n === 'face pull') muscles = ['Deltoides posterior', 'Trapecio', 'Rotadores externos'];
+    if (n === 'face pull' || n === 'face pull con banda elástica') muscles = ['Deltoides posterior', 'Trapecio', 'Rotadores externos'];
     if (n === 'peck deck' || n === 'cruce de poleas' || n === 'aperturas pecho') muscles = ['Pectorales'];
     if (n.indexOf('vuelos laterales') === 0) muscles = ['Deltoides lateral'];
     if (n === 'curl martillo') muscles = ['Braquial', 'Braquiorradial', 'Bíceps'];
@@ -7099,6 +7258,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
         trainingPlans: Object.assign({}, trainingPlans, { [trainingMode]: STATE.data }),
         pesoCorporal: STATE.pesoCorporal,
         clientName: getClientName() || '',
+        profile: personalProfile,
         startDate: _startDateStr || '',
         exportedAt: new Date().toISOString()
       };
@@ -7116,6 +7276,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     reader.onload = function(ev) {
       try {
         var parsed = JSON.parse(ev.target.result);
+        var importedProfile = parsed.profile ? validProfile(parsed.profile) : null;
         // Respaldo con ambos modos; los respaldos anteriores se aplican al modo activo.
         if (parsed.trainingPlans) {
           if (!parsed.trainingPlans.gimnasio || !parsed.trainingPlans.casa ||
@@ -7139,7 +7300,8 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
           STATE.data = parsed; // formato antiguo
         }
         ensureRecords();
-        renderTrainingMode(); saveData(); renderAll(); renderProgress();
+        if (importedProfile) { personalProfile = importedProfile; slabSetItem(PROFILE_KEY, personalProfile); }
+        renderClientName(); renderTrainingMode(); saveData(); renderAll(); renderProgress();
         showToast('Respaldo restaurado correctamente', 'ok', 3000);
       } catch(err) { showToast('Ese archivo no es un respaldo válido', 'error', 3000); }
     };
@@ -7149,7 +7311,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   /* ══════════════════════════════════════
      TABS — orden: Registro, Progreso, Calcular RPE, Récords
   ══════════════════════════════════════ */
-  function renderHome() { SLABHome.render({data: STATE.data, startDate: _startDateStr, name: getClientName(), position: {month: STATE.month, week: STATE.week, day: STATE.day}}, function(pos) { STATE.month = pos.month; STATE.week = pos.week; STATE.day = pos.day; renderAll(); switchTab('registro'); }); }
+  function renderHome() { renderPersonalProfile(); SLABHome.render({data: STATE.data, startDate: _startDateStr, name: getClientName(), position: {month: STATE.month, week: STATE.week, day: STATE.day}}, function(pos) { STATE.month = pos.month; STATE.week = pos.week; STATE.day = pos.day; renderAll(); switchTab('registro'); }); }
   function renderAll() { renderHome(); renderNavSelector(); renderDayPills(); renderExercises(); updateBtnHoy(); renderTopbarSub(); }
   var TAB_TITLES = {
     'inicio': 'INICIO',
@@ -7166,7 +7328,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
      INLINE EXERCISE PICKER (por card)
   ══════════════════════════════════════ */
   function buildInlinePicker(ex, nameInput, card) {
-    var GRUPOS = ['Todos','Pierna','Glúteos','Espalda','Pecho','Hombros','Bíceps','Tríceps','Core'];
+    var GRUPOS = ['Todos','Pierna','Glúteos','Espalda','Pecho','Hombros','Bíceps','Tríceps','Core','Cuerpo completo'];
     var _filter = 'Todos';
     var _query  = '';
     var _timer;
@@ -7242,7 +7404,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
 
       // Agrupar si es "Todos" sin búsqueda
       if (_filter === 'Todos' && !q) {
-        var orden = ['Pierna','Glúteos','Espalda','Pecho','Hombros','Bíceps','Tríceps','Core'];
+        var orden = ['Pierna','Glúteos','Espalda','Pecho','Hombros','Bíceps','Tríceps','Core','Cuerpo completo'];
         var grupos = {};
         items.forEach(function(e) {
           if (!grupos[e.musculo]) grupos[e.musculo] = [];
@@ -8161,7 +8323,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     }
 
     // Agrupar por músculo
-    var orden = ['Pierna','Glúteos','Espalda','Pecho','Hombros','Bíceps','Tríceps','Core'];
+    var orden = ['Pierna','Glúteos','Espalda','Pecho','Hombros','Bíceps','Tríceps','Core','Cuerpo completo'];
     var grupos = {};
     ejercicios.forEach(function(e) {
       var g = e.musculo || 'Otros';
@@ -8364,7 +8526,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     })();
     // Cargar todo desde IndexedDB (con migración automática desde localStorage)
     await loadData();
-    await Promise.all([loadClientName(), loadStartDate(), loadPesoCorporal()]);
+    await Promise.all([loadClientName(), loadStartDate(), loadPesoCorporal(), loadPersonalProfile()]);
     // Welcome modal
     var seenWelcome = await slabGetItem(WELCOME_KEY);
     if (!seenWelcome) {
