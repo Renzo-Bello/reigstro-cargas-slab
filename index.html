@@ -3147,6 +3147,7 @@ body.light-mode .home { --gold:#856329; --gold-dim:#b5955c; --gold-glow:rgba(133
 body.light-mode .home-primary { background:#856329; color:#fff; }
 
 </style>
+<script src="assets/home-content.js"></script>
 <script>
 /* Inicio: métricas derivadas del plan, sin alterar el registro ni su almacenamiento. */
 (function () {
@@ -3176,9 +3177,61 @@ body.light-mode .home-primary { background:#856329; color:#fff; }
     while (cursor >= 0 && weeks[cursor].some(function (d) { return d.done; })) { streak++; cursor--; }
     return {weeks: weeks, current: current, total: total, streak: streak};
   }
+  var editorialKind = 'quote';
+  var quoteOffset = 0, factOffset = 0, editorialDay = '';
+  var quoteIndex = 0, factIndex = 0;
+  var content = window.SLAB_EDITORIAL || { quotes: [], facts: [] };
   function set(id, value) { document.getElementById(id).textContent = value; }
+  function renderEditorial(now, announce) {
+    var day = now.getFullYear() + '-' + now.getMonth() + '-' + now.getDate();
+    if (editorialDay !== day) { quoteOffset = 0; factOffset = 0; editorialDay = day; }
+    var seed = ordinal(now);
+    quoteIndex = ((seed + quoteOffset) % content.quotes.length + content.quotes.length) % content.quotes.length;
+    factIndex = ((seed + factOffset) % content.facts.length + content.facts.length) % content.facts.length;
+    var quote = content.quotes[quoteIndex], fact = content.facts[factIndex];
+    if (quote) {
+      set('editorialQuote', '«' + quote.text + '»');
+      var author = document.getElementById('editorialQuoteAuthor'); author.textContent = quote.author + ' ↗'; author.href = quote.source;
+      author.title = quote.reference + ' · Versión en español';
+      author.setAttribute('aria-label', quote.author + '. Fuente: ' + quote.reference + ', versión en español. Abre en otra pestaña.');
+    }
+    if (fact) {
+      set('editorialFactTitle', fact.title); set('editorialFactText', fact.text);
+      var source = document.getElementById('editorialFactSource'); source.textContent = 'Fuente: ' + fact.sourceLabel + ' ↗'; source.href = fact.source;
+      source.setAttribute('aria-label', 'Fuente: ' + fact.sourceLabel + '. Abre en otra pestaña.');
+    }
+    var showQuote = editorialKind === 'quote';
+    document.getElementById('editorialQuotePanel').hidden = !showQuote;
+    document.getElementById('editorialFactPanel').hidden = showQuote;
+    ['editorialQuoteTab', 'editorialFactTab'].forEach(function(id, i) {
+      var selected = (i === 0) === showQuote, tab = document.getElementById(id);
+      tab.setAttribute('aria-selected', String(selected)); tab.tabIndex = selected ? 0 : -1;
+    });
+    document.getElementById('editorialNext').setAttribute('aria-label', showQuote ? 'Ver otra frase' : 'Ver otro dato');
+    if (announce) set('editorialAnnouncement', showQuote && quote ? quote.text + ' — ' + quote.author : fact ? fact.title + ' ' + fact.text : '');
+  }
+  function bindEditorial() {
+    var quoteTab = document.getElementById('editorialQuoteTab'), factTab = document.getElementById('editorialFactTab');
+    quoteTab.onclick = function() { editorialKind = 'quote'; renderEditorial(new Date(), true); };
+    factTab.onclick = function() { editorialKind = 'fact'; renderEditorial(new Date(), true); };
+    [quoteTab, factTab].forEach(function(tab) {
+      tab.onkeydown = function(e) {
+        if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].indexOf(e.key) === -1) return;
+        e.preventDefault();
+        var next = e.key === 'Home' ? quoteTab : e.key === 'End' ? factTab : tab === quoteTab ? factTab : quoteTab;
+        next.click(); next.focus();
+      };
+    });
+    document.getElementById('editorialNext').onclick = function() {
+      if (editorialKind === 'quote') quoteOffset++; else factOffset++;
+      renderEditorial(new Date(), true);
+    };
+  }
+
   function render(state, navigate) {
     var now = new Date(), stats = metrics(state.data, state.startDate, now);
+    set('homeStreakValue', stats.streak + (stats.streak === 1 ? ' semana' : ' semanas'));
+    renderEditorial(now, false); bindEditorial();
     set('homeDate', now.toLocaleDateString('es-CL', {weekday:'long', day:'numeric', month:'long'}));
     set('homeGreeting', state.name ? 'Hola, ' + state.name.trim().split(/\s+/)[0] + '.' : 'Tu entrenamiento, a tu ritmo.');
     var activeWeek = stats.current >= 0 && stats.current < 12;
@@ -3296,6 +3349,32 @@ body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
 .session-review-row select.has-value {color:var(--text);border-color:var(--gold-dim);}
 .session-review-row select:focus-visible {outline:2px solid var(--gold);outline-offset:3px;}
 @media(max-width:374px){.home .home-profile{padding:18px;}.home .home-profile-head{gap:8px;}.home .home-profile-head .home-secondary{padding:6px;font-size:10px;}#view-registro .nav-segment{padding:8px 6px;gap:4px;}#view-registro .session-card{padding:0 16px;}.session-review-row{grid-template-columns:24px minmax(0,1fr) 116px;gap:8px;}.session-review-row select{padding:0 6px;font-size:16px;}}
+
+/* Contenido editorial discreto: una sola pieza visible, sin rotación automática. */
+.home .home-profile-identity h2 {font-size:12px;line-height:1.5;max-width:180px;}
+.home .home-streak {margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
+.home .home-streak summary {display:flex;align-items:center;gap:8px;list-style:none;color:var(--text-mid);font:400 11px/1.5 var(--font-body);min-height:28px;}
+.home-streak summary::-webkit-details-marker {display:none;}
+.streak-mark {display:flex;color:var(--gold);}
+.home-streak strong {margin-left:auto;color:var(--text);font-weight:500;}
+.streak-info {font:500 9px/14px var(--font-body);text-align:center;border:1px solid var(--border-hover);border-radius:50%;width:14px;height:14px;}
+.home .home-streak p {font:400 11px/1.6 var(--font-body);color:var(--text-mid);margin:12px 0 0;}
+.home-editorial {padding:20px 4px 8px;margin-top:2px;}
+.editorial-nav {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;}
+.editorial-tabs {display:flex;gap:18px;}
+.editorial-tabs button {background:none;border:0;border-bottom:1px solid transparent;border-radius:0;padding:10px 0;min-height:42px;font:500 11px var(--font-body);color:var(--text-mid);cursor:pointer;}
+.editorial-tabs button[aria-selected="true"] {color:var(--text);border-bottom-color:var(--gold);}
+.editorial-next {display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:1px solid var(--border);border-radius:50%;color:var(--text-mid);font-size:17px;cursor:pointer;}
+.editorial-panel {min-height:112px;}
+.editorial-panel[hidden] {display:none;}
+.home .editorial-panel blockquote {font:500 clamp(18px,4.8vw,22px)/1.6 var(--font-display);letter-spacing:-.2px;color:var(--text);margin:0 0 16px;overflow-wrap:anywhere;}
+.home .editorial-panel h3 {font:500 16px/1.5 var(--font-body);letter-spacing:-.2px;color:var(--text);margin:0 0 8px;}
+.home .editorial-panel p {font:400 13px/1.7 var(--font-body);color:var(--text-mid);margin:0 0 16px;}
+.editorial-panel a {font:400 10px/1.6 var(--font-body);color:var(--text-mid);text-decoration:none;display:inline-block;padding:4px 0;}
+.editorial-panel a:hover {color:var(--gold);text-decoration:underline;}
+.home-editorial :is(button,a):focus-visible,.home-streak summary:focus-visible {outline:2px solid var(--gold);outline-offset:4px;}
+.editorial-sr {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+#view-registro .register-mantra {font:400 15px/1.5 var(--font-display);color:var(--text-mid);margin:0 4px 16px;letter-spacing:-.1px;}
 </style>
 <style>
 /* Compact mobile register: half-height image and two-row set controls. */
@@ -3680,17 +3759,26 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     <section class="home-profile" aria-labelledby="homeProfileTitle">
       <div class="home-profile-head">
         <div id="homeProfileAvatar" class="profile-avatar" aria-hidden="true"></div>
-        <div class="home-profile-identity"><h2 id="homeProfileTitle">Mi objetivo</h2></div>
+        <div class="home-profile-identity"><h2 id="homeProfileTitle">Recuerda por qué entrenas</h2></div>
         <button id="editProfileBtn" type="button" class="home-secondary" aria-label="Editar mi perfil">Editar perfil</button>
       </div>
       <p id="homeProfileGoal" class="home-profile-goal"></p>
       <button id="homeTrain" class="home-primary">Ir a entrenar <span aria-hidden="true">↗</span></button>
       <p id="homeSession" class="home-session-context"></p>
     </section>
-    <section class="home-card home-week" aria-labelledby="homeWeekTitle"><div class="home-card-heading"><h2 id="homeWeekTitle">Esta semana</h2><span id="homeWeekCount"></span></div><div id="homeWeekDays" class="home-days"></div></section>
+    <section class="home-card home-week" aria-labelledby="homeWeekTitle"><div class="home-card-heading"><h2 id="homeWeekTitle">Esta semana</h2><span id="homeWeekCount"></span></div><div id="homeWeekDays" class="home-days"></div>
+      <details class="home-streak"><summary><span class="streak-mark" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3c1 5-5 5-3 10 1-1 2-2 2-4 4 3 6 6 4 9a6 6 0 01-10-1C3 12 8 8 13 3z"/></svg></span><span>Racha semanal</span><strong id="homeStreakValue">0 semanas</strong><span class="streak-info" aria-hidden="true">i</span></summary><p>Semanas seguidas del plan, en el modo seleccionado, con al menos una sesión completada. La semana actual puede estar pendiente sin romper la racha. Se usan las fechas programadas; los entrenamientos futuros no suman.</p></details>
+    </section>
+    <section class="home-editorial" aria-label="Inspiración y aprendizaje">
+      <div class="editorial-nav"><div class="editorial-tabs" role="tablist" aria-label="Contenido para ti"><button type="button" id="editorialQuoteTab" role="tab" aria-selected="true" aria-controls="editorialQuotePanel">Inspírate</button><button type="button" id="editorialFactTab" role="tab" aria-selected="false" aria-controls="editorialFactPanel" tabindex="-1">Aprende</button></div><button type="button" id="editorialNext" class="editorial-next" aria-label="Ver otra frase">→</button></div>
+      <div id="editorialQuotePanel" class="editorial-panel" role="tabpanel" aria-labelledby="editorialQuoteTab"><blockquote id="editorialQuote"></blockquote><a id="editorialQuoteAuthor" target="_blank" rel="noopener noreferrer"></a></div>
+      <div id="editorialFactPanel" class="editorial-panel" role="tabpanel" aria-labelledby="editorialFactTab" hidden><h3 id="editorialFactTitle"></h3><p id="editorialFactText"></p><a id="editorialFactSource" target="_blank" rel="noopener noreferrer"></a></div>
+      <span id="editorialAnnouncement" class="editorial-sr" role="status" aria-live="polite"></span>
+    </section>
     <button class="home-progress-link" id="homeProgress">Ver mi progreso <span aria-hidden="true">↗</span></button>
   </main>
   <div id="view-registro" class="panel" style="display:none;">
+    <p class="register-mantra">El físico lo construyes serie a serie.</p>
     <!-- Selector compacto Mes / Semana -->
     <div class="nav-selector" id="navSelector">
       <div class="ctx-breadcrumb">
@@ -4533,7 +4621,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   }
   function renderPersonalProfile() {
     var name = getClientName();
-    document.getElementById('homeProfileTitle').textContent = 'Mi objetivo';
+    document.getElementById('homeProfileTitle').textContent = 'Recuerda por qué entrenas';
     document.getElementById('homeProfileGoal').textContent = personalProfile.objective || '¿Por qué entrenas? Añade tu objetivo al perfil.';
     renderProfileAvatar(document.getElementById('homeProfileAvatar'), personalProfile.photo, name);
   }
@@ -7452,7 +7540,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     var activeView = document.getElementById('view-' + tab);
     if (activeTab) { activeTab.classList.add('active'); activeTab.setAttribute('aria-current', 'page'); }
     if (tab === 'inicio') renderHome();
-    if (activeView) activeView.style.display = '';
+    if (activeView) { activeView.style.display = ''; window.scrollTo({top: 0, left: 0, behavior: 'instant'}); }
     var titleEl = document.getElementById('pageTitle');
     if (titleEl) titleEl.textContent = TAB_TITLES[tab] || tab.toUpperCase();
     if (tab === 'progreso') { STATE.progressMonth = STATE.month; renderProgress(); }
