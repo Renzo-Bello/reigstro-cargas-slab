@@ -2981,6 +2981,12 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation:none!important; transition:none!important; } }
 
 
+/* Lugar de entrenamiento */
+.training-mode-switch {display:flex;gap:6px;padding:5px;border:1px solid var(--border);border-radius:14px;background:var(--dark-2);margin:0 0 8px;}
+.training-mode-switch button {flex:1;min-height:48px;border:0;border-radius:10px;background:transparent;color:var(--text-mid);font:600 12px var(--font-body);letter-spacing:1px;cursor:pointer;}
+.training-mode-switch button[aria-pressed="true"] {background:var(--gold);color:var(--dark);}
+.training-mode-switch button:focus-visible {outline:2px solid var(--gold);outline-offset:3px;}
+.training-mode-hint {font:400 12px/1.5 var(--font-body);color:var(--text-mid);margin:0 4px 20px;}
 /* Registro — editorial training workspace */
 #view-registro .training-intro { position:relative; margin:6px 0 16px; padding:14px 16px; border:1px solid var(--border); border-radius:20px; background:linear-gradient(125deg,var(--card-alt),var(--dark-2) 76%); overflow:hidden; }
 .training-intro-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
@@ -3690,6 +3696,11 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
       <h2>El físico se construye.<br><em>Serie a serie.</em></h2>
       <div class="training-signature"><span>PLAN PERSONALIZADO</span><span>by @rennzolifts</span></div>
     </section>
+    <div class="training-mode-switch" role="group" aria-label="Lugar de entrenamiento">
+      <button type="button" data-training-mode="gimnasio" aria-pressed="true">GIMNASIO</button>
+      <button type="button" data-training-mode="casa" aria-pressed="false">CASA</button>
+    </div>
+    <p id="trainingModeHint" class="training-mode-hint"></p>
     <!-- Selector compacto Mes / Semana -->
     <div class="nav-selector" id="navSelector">
       <div class="ctx-breadcrumb">
@@ -4261,6 +4272,33 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   }
 
   var STORAGE_KEY = 'slab-registro-plan';
+  var TRAINING_MODE_KEY = 'slab-training-mode';
+  var trainingMode = 'gimnasio';
+  var trainingPlans = { gimnasio: {}, casa: {} };
+  function trainingStorageKey(mode) { return mode === 'casa' ? STORAGE_KEY + '-casa' : STORAGE_KEY; }
+  function renderTrainingMode() {
+    document.querySelectorAll('[data-training-mode]').forEach(function(button) {
+      button.setAttribute('aria-pressed', String(button.dataset.trainingMode === trainingMode));
+    });
+    document.getElementById('trainingModeHint').textContent = trainingMode === 'casa'
+      ? 'CASA · Mancuernas, bandas, barra y peso corporal. Tu rutina e historial se guardan por separado.'
+      : 'GIMNASIO · Máquinas, poleas y peso libre. Tu rutina e historial se guardan por separado.';
+  }
+  document.querySelectorAll('[data-training-mode]').forEach(function(button) {
+    button.onclick = function() {
+      var next = button.dataset.trainingMode;
+      if (next === trainingMode) return;
+      clearTimeout(saveTimeout);
+      // saveData captura el modo y los datos antes de cualquier espera.
+      saveData();
+      trainingPlans[trainingMode] = STATE.data;
+      trainingMode = next;
+      STATE.data = trainingPlans[next];
+      ensureRecords();
+      slabSetItem(TRAINING_MODE_KEY, next);
+      renderTrainingMode(); renderAll();
+    };
+  });
   var IDB_NAME = 'slab-db';
   var IDB_STORE = 'kv';
   var IDB_VERSION = 1;
@@ -4384,19 +4422,27 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   }
 
   async function loadData() {
-    try {
-      await migrateFromLocalStorage();
-      var stored = await slabGetItem(STORAGE_KEY);
-      if (stored) STATE.data = (typeof stored === 'string') ? JSON.parse(stored) : stored;
-    } catch(e) { STATE.data = {}; }
-    ensureRecords();
+    await migrateFromLocalStorage();
+    for (var mode of ['gimnasio', 'casa']) {
+      try {
+        var stored = await slabGetItem(trainingStorageKey(mode));
+        var data = typeof stored === 'string' ? JSON.parse(stored) : stored;
+        trainingPlans[mode] = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+      } catch(e) { trainingPlans[mode] = {}; }
+    }
+    trainingMode = await slabGetItem(TRAINING_MODE_KEY) === 'casa' ? 'casa' : 'gimnasio';
+    STATE.data = trainingPlans[trainingMode];
+    ensureRecords(); renderTrainingMode();
   }
 
   async function saveData() {
+    var saveKey = trainingStorageKey(trainingMode);
+    var savePayload = JSON.parse(JSON.stringify(STATE.data));
+    trainingPlans[trainingMode] = STATE.data;
     var bar = document.getElementById('saveBar');
     if (bar) { bar.textContent = 'Guardando...'; bar.style.opacity = '0.5'; bar.classList.remove('saved'); }
     try {
-      await slabSetItem(STORAGE_KEY, STATE.data);
+      await slabSetItem(saveKey, savePayload);
       if (bar) {
         bar.textContent = 'Guardado ✓'; bar.classList.add('saved');
         bar.style.opacity = '1';
@@ -4483,7 +4529,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     var sub = document.getElementById('topbarSub');
     if (!sub) return;
     var name = (getClientName() || (STATE.clientName && STATE.clientName.trim()) || '').trim();
-    sub.textContent = name || 'by @rennzolifts';
+    sub.textContent = (name || 'by @rennzolifts') + ' · ' + trainingMode.toUpperCase();
     sub.style.opacity = name ? '1' : '0.45';
   }
 
@@ -4686,7 +4732,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     { nombre: 'Remo en máquina', imgId: '35', imageLocal: 'assets/exercises/32-remo-en-maquina.png',                     musculo: 'Espalda',  videoUrl: 'https://www.youtube.com/shorts/r65_c9qRsdM', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><path d="M12 20 Q20 16 28 20" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="12" y1="20" x2="12" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="20" x2="28" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="4" y="28" width="36" height="4" rx="2" fill="#A8895A"/><rect x="2" y="26" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="34" y="26" width="4" height="8" rx="1.5" fill="#C9A96E"/></svg>' },
     { nombre: 'Pull over', imgId: '36', imageLocal: 'assets/exercises/33-pull-over.png',                           musculo: 'Espalda',  videoUrl: 'https://youtube.com/shorts/dX5DHCZ-7p8', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><path d="M12 20 Q20 16 28 20" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="12" y1="20" x2="12" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="20" x2="28" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="4" y="28" width="36" height="4" rx="2" fill="#A8895A"/><rect x="2" y="26" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="34" y="26" width="4" height="8" rx="1.5" fill="#C9A96E"/></svg>' },
     { nombre: 'Muscle up', imgId: '37', imageLocal: 'assets/exercises/34-muscle-up.png',                           musculo: 'Espalda',  videoUrl: 'https://www.youtube.com/shorts/E7CiaycXvXU', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="4" width="36" height="4" rx="2" fill="#A8895A"/><circle cx="20" cy="15" r="3" fill="#C9A96E"/><line x1="13" y1="8" x2="15" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="27" y1="8" x2="25" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="20" y2="26" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="13" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="27" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="13" y1="28" x2="12" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="27" y1="28" x2="28" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
-    { nombre: 'Face pull', imgId: '38', imageLocal: 'assets/exercises/35-face-pull.png',                           musculo: 'Espalda',  videoUrl: 'https://www.youtube.com/shorts/Ue0xtLb_kvM', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><path d="M12 20 Q20 16 28 20" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="12" y1="20" x2="12" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="20" x2="28" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="4" y="28" width="36" height="4" rx="2" fill="#A8895A"/><rect x="2" y="26" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="34" y="26" width="4" height="8" rx="1.5" fill="#C9A96E"/></svg>' },
+    { nombre: 'Face pull', imgId: '38', imageLocal: 'assets/exercises/face-pull-v2.png',                           musculo: 'Espalda',  videoUrl: 'https://www.youtube.com/shorts/Ue0xtLb_kvM', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><path d="M12 20 Q20 16 28 20" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="12" y1="20" x2="12" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="20" x2="28" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="4" y="28" width="36" height="4" rx="2" fill="#A8895A"/><rect x="2" y="26" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="34" y="26" width="4" height="8" rx="1.5" fill="#C9A96E"/></svg>' },
     { nombre: 'Peck deck', imgId: '', imageLocal: 'assets/exercises/36-peck-deck.png', musculo: 'Pecho', videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="30" width="32" height="5" rx="2" fill="#2A2A2A"/><rect x="14" y="20" width="12" height="10" rx="2" fill="#1C1C1C" stroke="#2A2A2A" stroke-width="1"/><circle cx="20" cy="15" r="3" fill="#C9A96E"/><line x1="20" y1="18" x2="20" y2="22" stroke="#C9A96E" stroke-width="2"/><line x1="8" y1="22" x2="32" y2="22" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><rect x="2" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="34" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/></svg>' },
     { nombre: 'Press pecho en máquina', imgId: '', imageLocal: 'assets/exercises/37-press-pecho-en-maquina.png', musculo: 'Pecho', videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="30" width="32" height="5" rx="2" fill="#2A2A2A"/><rect x="14" y="20" width="12" height="10" rx="2" fill="#1C1C1C" stroke="#2A2A2A" stroke-width="1"/><circle cx="20" cy="15" r="3" fill="#C9A96E"/><line x1="20" y1="18" x2="20" y2="22" stroke="#C9A96E" stroke-width="2"/><line x1="8" y1="22" x2="32" y2="22" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><rect x="2" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="34" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/></svg>' },
     { nombre: 'Press inclinado en Smith', imgId: '', imageLocal: 'assets/exercises/38-press-inclinado-en-smith.png', musculo: 'Pecho', videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="30" width="32" height="5" rx="2" fill="#2A2A2A"/><rect x="14" y="20" width="12" height="10" rx="2" fill="#1C1C1C" stroke="#2A2A2A" stroke-width="1"/><circle cx="20" cy="15" r="3" fill="#C9A96E"/><line x1="20" y1="18" x2="20" y2="22" stroke="#C9A96E" stroke-width="2"/><line x1="8" y1="22" x2="32" y2="22" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><rect x="2" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/><rect x="34" y="20" width="4" height="8" rx="1.5" fill="#C9A96E"/></svg>' },
@@ -4702,7 +4748,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     { nombre: 'Press militar', imgId: '46', imageLocal: 'assets/exercises/46-press-militar.png',                       musculo: 'Hombros',  videoUrl: 'https://www.youtube.com/shorts/DdITN8U-kFI', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="15" x2="30" y2="15" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><line x1="10" y1="15" x2="8" y2="9" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="15" x2="32" y2="9" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="3" y="6" width="4" height="7" rx="1.5" fill="#C9A96E"/><rect x="33" y="6" width="4" height="7" rx="1.5" fill="#C9A96E"/><line x1="20" y1="18" x2="14" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="26" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="30" x2="14" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="26" y1="30" x2="26" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
     { nombre: 'Press militar en máquina', imgId: '47', imageLocal: 'assets/exercises/47-press-militar-en-maquina.png',            musculo: 'Hombros',  videoUrl: 'https://www.youtube.com/shorts/9j21aSaPyLU', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="15" x2="30" y2="15" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><line x1="10" y1="15" x2="8" y2="9" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="15" x2="32" y2="9" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="3" y="6" width="4" height="7" rx="1.5" fill="#C9A96E"/><rect x="33" y="6" width="4" height="7" rx="1.5" fill="#C9A96E"/><line x1="20" y1="18" x2="14" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="26" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="30" x2="14" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="26" y1="30" x2="26" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
     { nombre: 'Press militar unilateral', imgId: '48', imageLocal: 'assets/exercises/48-press-militar-unilateral.png',            musculo: 'Hombros',  videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="15" x2="30" y2="15" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><line x1="10" y1="15" x2="8" y2="9" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="15" x2="32" y2="9" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="3" y="6" width="4" height="7" rx="1.5" fill="#C9A96E"/><rect x="33" y="6" width="4" height="7" rx="1.5" fill="#C9A96E"/><line x1="20" y1="18" x2="14" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="26" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="30" x2="14" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="26" y1="30" x2="26" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
-    { nombre: 'Press Arnold', imgId: '49', imageLocal: 'assets/exercises/49-press-arnold.png',                        musculo: 'Hombros',  videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="15" x2="30" y2="15" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><line x1="10" y1="15" x2="8" y2="9" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="15" x2="32" y2="9" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="3" y="6" width="4" height="7" rx="1.5" fill="#C9A96E"/><rect x="33" y="6" width="4" height="7" rx="1.5" fill="#C9A96E"/><line x1="20" y1="18" x2="14" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="26" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="30" x2="14" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="26" y1="30" x2="26" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    { nombre: 'Press militar con mancuernas', imgId: '49', imageLocal: 'assets/exercises/press-militar-mancuernas.png',                        musculo: 'Hombros',  videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="15" x2="30" y2="15" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><line x1="10" y1="15" x2="8" y2="9" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="15" x2="32" y2="9" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="3" y="6" width="4" height="7" rx="1.5" fill="#C9A96E"/><rect x="33" y="6" width="4" height="7" rx="1.5" fill="#C9A96E"/><line x1="20" y1="18" x2="14" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="26" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="30" x2="14" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="26" y1="30" x2="26" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
     { nombre: 'Vuelos laterales en polea', imgId: '50', imageLocal: 'assets/exercises/50-vuelos-laterales-en-polea.png',           musculo: 'Hombros',  videoUrl: 'https://www.youtube.com/shorts/SaoW-iSUxfk', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="15" x2="30" y2="15" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><line x1="10" y1="15" x2="8" y2="9" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="15" x2="32" y2="9" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="3" y="6" width="4" height="7" rx="1.5" fill="#C9A96E"/><rect x="33" y="6" width="4" height="7" rx="1.5" fill="#C9A96E"/><line x1="20" y1="18" x2="14" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="26" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="30" x2="14" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="26" y1="30" x2="26" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
     { nombre: 'Vuelos laterales con mancuernas', imgId: '51', imageLocal: 'assets/exercises/51-vuelos-laterales-con-mancuernas.png',     musculo: 'Hombros',  videoUrl: 'https://www.youtube.com/shorts/Vh_Kjw3O-DQ', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="15" x2="30" y2="15" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><line x1="10" y1="15" x2="8" y2="9" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="15" x2="32" y2="9" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="3" y="6" width="4" height="7" rx="1.5" fill="#C9A96E"/><rect x="33" y="6" width="4" height="7" rx="1.5" fill="#C9A96E"/><line x1="20" y1="18" x2="14" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="26" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="30" x2="14" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="26" y1="30" x2="26" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
     // ── BÍCEPS ──
@@ -4720,7 +4766,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     { nombre: 'Patada de glúteo', imgId: '63', imageLocal: 'assets/exercises/61-patada-de-gluteo.png',                    musculo: 'Glúteos',  videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="26" r="3" fill="#C9A96E"/><line x1="24" y1="23" x2="24" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="28" x2="32" y2="28" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><rect x="28" y="24" width="9" height="7" rx="2" fill="#C9A96E"/><line x1="24" y1="29" x2="20" y2="36" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="28" x2="12" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
     // ── CORE ──
     { nombre: 'Plancha', imgId: '64', imageLocal: 'assets/exercises/62-plancha.png',                             musculo: 'Core',     videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="30" width="32" height="4" rx="2" fill="#2A2A2A"/><circle cx="20" cy="22" r="3" fill="#C9A96E"/><path d="M12 30 Q16 22 20 19 Q24 22 28 30" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="14" y1="16" x2="18" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="16" x2="22" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
-    { nombre: 'Crunch abdominal', imgId: '65', imageLocal: 'assets/exercises/63-crunch-abdominal.png',                    musculo: 'Core',     videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="30" width="32" height="4" rx="2" fill="#2A2A2A"/><circle cx="20" cy="22" r="3" fill="#C9A96E"/><path d="M12 30 Q16 22 20 19 Q24 22 28 30" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="14" y1="16" x2="18" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="16" x2="22" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
+    { nombre: 'Crunch abdominal con mancuerna', imgId: '65', imageLocal: 'assets/exercises/crunch-mancuerna.png',                    musculo: 'Core',     videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="30" width="32" height="4" rx="2" fill="#2A2A2A"/><circle cx="20" cy="22" r="3" fill="#C9A96E"/><path d="M12 30 Q16 22 20 19 Q24 22 28 30" stroke="#C9A96E" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="14" y1="16" x2="18" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="16" x2="22" y2="20" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
     // ── NUEVOS ──
     { nombre: 'Sentadilla búlgara con barra', imgId: '9', imageLocal: 'assets/exercises/64-sentadilla-bulgara-con-barra.png',         musculo: 'Pierna',   videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="12" x2="30" y2="12" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/><line x1="20" y1="18" x2="12" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="28" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="30" x2="10" y2="38" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="30" x2="30" y2="38" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/></svg>' },
     { nombre: 'Dominadas contra liga', imgId: '28', imageLocal: 'assets/exercises/65-dominadas-contra-liga.png',                musculo: 'Espalda',  videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="4" width="36" height="4" rx="2" fill="#A8895A"/><circle cx="20" cy="15" r="3" fill="#C9A96E"/><line x1="13" y1="8" x2="15" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="27" y1="8" x2="25" y2="14" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="20" y2="26" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="13" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="22" x2="27" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="13" y1="28" x2="12" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="27" y1="28" x2="28" y2="36" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>' },
@@ -4728,6 +4774,30 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     { nombre: 'Press francés', imgId: '62', imageLocal: 'assets/exercises/67-press-frances.png',                        musculo: 'Tríceps',  videoUrl: 'https://youtube.com/shorts/L3bEz-vcdGU', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="16" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="10" x2="26" y2="10" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="10" x2="12" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="10" x2="28" y2="22" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="16" x2="20" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><rect x="15" y="26" width="10" height="4" rx="1.5" fill="#A8895A"/></svg>' },
     { nombre: 'Curl bíceps Bayesian', imgId: '57', imageLocal: 'assets/exercises/68-curl-biceps-bayesian.png',                 musculo: 'Bíceps',   videoUrl: '', svg: '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="3" fill="#C9A96E"/><line x1="20" y1="8" x2="20" y2="18" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="18" x2="14" y2="28" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><path d="M14 28 Q10 24 12 18 Q14 14 20 18" stroke="#C9A96E" stroke-width="1.5" fill="none" stroke-linecap="round"/><line x1="14" y1="28" x2="14" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><line x1="20" y1="18" x2="26" y2="30" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="30" x2="26" y2="38" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/><rect x="8" y="26" width="9" height="4" rx="1.5" fill="#A8895A"/></svg>' },
   ];
+
+  EXERCISE_DB.push(
+    { nombre: 'Remo con banda elástica', musculo: 'Espalda', homeOnly: true, videoUrl: '', svg: '' },
+    { nombre: 'Face pull con banda elástica', musculo: 'Hombros', homeOnly: true, videoUrl: '', svg: '' },
+    { nombre: 'Extensión de tríceps con banda elástica', musculo: 'Tríceps', homeOnly: true, videoUrl: '', svg: '' },
+    { nombre: 'Remo T', musculo: 'Espalda', imageLocal: 'assets/exercises/remo-t.png', videoUrl: '', svg: '' },
+    { nombre: 'Remo unilateral en máquina', musculo: 'Espalda', imageLocal: 'assets/exercises/remo-unilateral-maquina.png', videoUrl: '', svg: '' },
+    { nombre: 'Crunch abdominal en polea', musculo: 'Core', imageLocal: 'assets/exercises/crunch-polea.png', videoUrl: '', svg: '' }
+  );
+  // Casa: ejercicios disponibles con mancuernas, bandas, barra y peso corporal.
+  var HOME_EXERCISES = [
+    'Sentadilla', 'Sentadilla con barra', 'Sentadilla búlgara con barra', 'Sentadilla búlgara', 'Sentadilla goblet', 'Zancadas', 'Elevación de talones',
+    'Peso muerto', 'Peso muerto rumano', 'Hip thrust en barra', 'Remo con barra', 'Press militar',
+    'Curl bíceps en barra', 'Press francés', 'Dominadas', 'Dominadas supinas', 'Dominadas contra liga',
+    'Remo con banda elástica', 'Face pull con banda elástica', 'Extensión de tríceps con banda elástica',
+    'Remo con mancuerna', 'Press militar con mancuernas', 'Press militar unilateral',
+    'Vuelos laterales con mancuernas', 'Curl bíceps', 'Curl martillo',
+    'Plancha', 'Crunch abdominal con mancuerna'
+  ];
+  function availableExercises() {
+    return EXERCISE_DB.filter(function(ex) {
+      return trainingMode === 'gimnasio' ? !ex.homeOnly : HOME_EXERCISES.indexOf(ex.nombre) !== -1;
+    });
+  }
 
   // Índice de búsqueda
   var EXERCISE_DB_INDEX = {};
@@ -4933,7 +5003,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     'press banca inclinado': 'press_horizontal', 'press banca inclinado con mancuernas': 'press_horizontal',
     'fondos': 'press_horizontal', 'fondos en paralelas': 'press_horizontal',
     'press militar': 'press_vertical', 'press militar en máquina': 'press_vertical',
-    'press militar unilateral': 'press_vertical', 'press arnold': 'press_vertical',
+    'press militar unilateral': 'press_vertical', 'press militar con mancuernas': 'press_vertical',
     'dominadas': 'traccion_vertical', 'dominadas supinas': 'traccion_vertical', 'dominadas australianas': 'traccion_vertical',
     'dominadas contra liga': 'traccion_vertical', 'dominadas pin': 'traccion_vertical',
     'mantención isométrica de dominadas': 'traccion_vertical', 'muscle up': 'traccion_vertical',
@@ -4946,7 +5016,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     'aperturas pecho': 'pecho_aislamiento', 'cruce de poleas': 'pecho_aislamiento', 'pull over': 'pecho_aislamiento',
     'extensión de cuádriceps': 'pierna_aislamiento', 'curl femoral': 'pierna_aislamiento', 'prensa de piernas': 'pierna_aislamiento',
     'abductor': 'pierna_aislamiento', 'aductor': 'pierna_aislamiento', 'elevación de talones': 'pierna_aislamiento',
-    'crunch abdominal': 'core', 'plancha': 'core', 'elevación de piernas en barra': 'core', 'elevación de piernas en fonderas': 'core'
+    'crunch abdominal con mancuerna': 'core', 'crunch abdominal en polea': 'core', 'remo con banda elástica': 'remo', 'face pull con banda elástica': 'hombro_aislamiento', 'extensión de tríceps con banda elástica': 'triceps', 'remo t': 'remo', 'remo unilateral en máquina': 'remo', 'plancha': 'core', 'elevación de piernas en barra': 'core', 'elevación de piernas en fonderas': 'core'
   };
 
   function getTecnicaInfo(nombre) {
@@ -4956,9 +5026,9 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   }
 
   function searchExerciseDB(query) {
-    if (!query || query.trim() === '') return EXERCISE_DB.slice(0, 8);
+    if (!query || query.trim() === '') return availableExercises().slice(0, 8);
     var q = query.trim().toLowerCase();
-    return EXERCISE_DB.filter(function(ex) {
+    return availableExercises().filter(function(ex) {
       return ex.nombre.toLowerCase().indexOf(q) !== -1 ||
              ex.musculo.toLowerCase().indexOf(q) !== -1;
     }).slice(0, 6);
@@ -5129,7 +5199,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     if (n === 'fondos en paralelas') muscles = ['Tríceps', 'Pectorales', 'Deltoides anterior'];
     if (n.indexOf('elevación de piernas') === 0) muscles = ['Abdominales', 'Flexores de cadera'];
     if (n === 'plancha') muscles = ['Recto abdominal', 'Transverso', 'Oblicuos'];
-    if (n === 'crunch abdominal') muscles = ['Recto abdominal'];
+    if (n.indexOf('crunch abdominal') === 0) muscles = ['Recto abdominal'];
     var title = document.createElement('strong'); title.textContent = group; host.appendChild(title);
     var list = document.createElement('ul'); list.setAttribute('aria-label', 'Músculos involucrados');
     muscles.forEach(function(muscle) { var item = document.createElement('li'); item.textContent = muscle; list.appendChild(item); });
@@ -5629,7 +5699,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     addExBtn.onclick = function() {
       arr.push(emptyExercise()); scheduleSave(); renderExercises();
       setTimeout(function() {
-        var cards = el.querySelectorAll('.exercise-card');
+        var cards = el.querySelectorAll('.exercise-card:not(.session-card)');
         var last = cards[cards.length - 1];
         if (last) {
           last.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -7025,6 +7095,8 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     try {
       var exportObj = {
         data: STATE.data,
+        trainingMode: trainingMode,
+        trainingPlans: Object.assign({}, trainingPlans, { [trainingMode]: STATE.data }),
         pesoCorporal: STATE.pesoCorporal,
         clientName: getClientName() || '',
         startDate: _startDateStr || '',
@@ -7032,7 +7104,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
       };
       var blob = new Blob([JSON.stringify(exportObj, null, 2)], {type:'application/json'});
       var url = URL.createObjectURL(blob), a = document.createElement('a');
-      a.href = url; a.download = 'respaldo-slab-' + new Date().toISOString().slice(0,10) + '.json';
+      a.href = url; a.download = 'respaldo-slab-ambos-modos-' + new Date().toISOString().slice(0,10) + '.json';
       document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
       showToast('Respaldo descargado', 'ok');
     } catch(e) { showToast('Error al exportar', 'error'); }
@@ -7044,6 +7116,19 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     reader.onload = function(ev) {
       try {
         var parsed = JSON.parse(ev.target.result);
+        // Respaldo con ambos modos; los respaldos anteriores se aplican al modo activo.
+        if (parsed.trainingPlans) {
+          if (!parsed.trainingPlans.gimnasio || !parsed.trainingPlans.casa ||
+              Array.isArray(parsed.trainingPlans.gimnasio) || Array.isArray(parsed.trainingPlans.casa) ||
+              typeof parsed.trainingPlans.gimnasio !== 'object' || typeof parsed.trainingPlans.casa !== 'object') throw new Error('Modos inválidos');
+          trainingPlans = parsed.trainingPlans;
+          trainingMode = parsed.trainingMode === 'casa' ? 'casa' : 'gimnasio';
+          STATE.data = trainingPlans[trainingMode];
+          parsed.data = STATE.data;
+          slabSetItem(trainingStorageKey('gimnasio'), trainingPlans.gimnasio);
+          slabSetItem(trainingStorageKey('casa'), trainingPlans.casa);
+          slabSetItem(TRAINING_MODE_KEY, trainingMode);
+        }
         // Soporte para formato nuevo (con metadata) y antiguo (solo data)
         if (parsed.data) {
           STATE.data = parsed.data;
@@ -7054,7 +7139,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
           STATE.data = parsed; // formato antiguo
         }
         ensureRecords();
-        saveData(); renderAll(); renderProgress();
+        renderTrainingMode(); saveData(); renderAll(); renderProgress();
         showToast('Respaldo restaurado correctamente', 'ok', 3000);
       } catch(err) { showToast('Ese archivo no es un respaldo válido', 'error', 3000); }
     };
@@ -7139,7 +7224,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
 
     function renderList() {
       listEl.innerHTML = '';
-      var db = typeof EXERCISE_DB !== 'undefined' ? EXERCISE_DB : [];
+      var db = availableExercises();
       var q = _query.toLowerCase().trim();
       var items = db.filter(function(e) {
         var mg = _filter === 'Todos' || e.musculo === _filter;
@@ -7181,7 +7266,9 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
       item.className = 'ex-inline-item';
       var exercisePhoto = document.createElement('img');
       exercisePhoto.className = 'exercise-picker-photo';
-      exercisePhoto.src = getExerciseImgUrl(e.nombre);
+      var photoUrl = getExerciseImgUrl(e.nombre);
+      if (photoUrl) exercisePhoto.src = photoUrl;
+      else exercisePhoto.style.display = 'none';
       exercisePhoto.alt = ''; exercisePhoto.loading = 'lazy'; exercisePhoto.decoding = 'async';
       exercisePhoto.width = 52; exercisePhoto.height = 52;
       exercisePhoto.onerror = function() { this.style.display = 'none'; };
