@@ -3380,8 +3380,6 @@ body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
 .quarter-bar {display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 2px 16px;min-height:44px;}
 .quarter-bar label {display:flex;align-items:center;gap:10px;font:400 12px var(--font-body);color:var(--text-mid);}
 .quarter-bar select {min-width:54px;min-height:42px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:0 8px;font:500 16px var(--font-body);}
-.quarter-bar button {display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 2px;background:none;border:0;color:var(--text-mid);font:400 11px var(--font-body);cursor:pointer;}
-.quarter-bar button span {color:var(--gold);font-size:16px;}
 .quarter-bar :is(select,button):focus-visible {outline:2px solid var(--gold);outline-offset:3px;}
 .quarter-bar :disabled {opacity:.5;cursor:wait;}
 </style>
@@ -3787,7 +3785,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     <button class="home-progress-link" id="homeProgress">Ver mi progreso <span aria-hidden="true">↗</span></button>
   </main>
   <div id="view-registro" class="panel" style="display:none;">
-    <div class="quarter-bar"><label>Trimestre <select data-quarter-select aria-label="Trimestre de entrenamiento" disabled><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label><button type="button" data-quarter-renew disabled title="Abre el siguiente trimestre vacío y conserva el historial anterior">Renovar 3 meses <span aria-hidden="true">↗</span></button></div>
+    <div class="quarter-bar"><label>Trimestre <select data-quarter-select aria-label="Trimestre de entrenamiento" disabled><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label></div>
     <p class="register-mantra">El físico lo construyes serie a serie.</p>
     <!-- Selector compacto Mes / Semana -->
     <div class="nav-selector" id="navSelector">
@@ -3820,7 +3818,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   </div>
 
   <div id="view-progreso" class="panel" style="display:none;">
-    <div class="quarter-bar"><label>Trimestre <select data-quarter-select aria-label="Trimestre de entrenamiento" disabled><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label><button type="button" data-quarter-renew disabled title="Abre el siguiente trimestre vacío y conserva el historial anterior">Renovar 3 meses <span aria-hidden="true">↗</span></button></div>
+    <div class="quarter-bar"><label>Trimestre <select data-quarter-select aria-label="Trimestre de entrenamiento" disabled><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label></div>
 
     <div class="month-pills" id="monthPillsProgress"></div>
     <div class="week-summary" id="weekSummary"></div>
@@ -4368,7 +4366,8 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   var trainingMode = 'gimnasio';
   var trainingPlans = { gimnasio: {}, casa: {} };
   var QUARTERS_KEY = 'slab-training-trimesters';
-  var quarterCount = 3;
+  var MAX_QUARTERS = 3;
+  var quarterCount = MAX_QUARTERS; // Puede incluir trimestres antiguos archivados; el selector solo permite tres.
   var quarterPlans = { 1: trainingPlans };
   var quarterStartDates = {};
   var quarterDateCustom = {};
@@ -4382,17 +4381,16 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   function renderQuarterSelectors() {
     document.querySelectorAll('[data-quarter-select]').forEach(function(select) {
       select.replaceChildren();
-      for (var q = 1; q <= quarterCount; q++) {
+      for (var q = 1; q <= MAX_QUARTERS; q++) {
         var option = document.createElement('option'); option.value = q; option.textContent = q;
         select.appendChild(option);
       }
       select.value = STATE.quarter; select.disabled = false;
     });
-    document.querySelectorAll('[data-quarter-renew]').forEach(function(button) { button.disabled = false; });
   }
   function switchQuarter(next) {
     next = Number(next);
-    if (!Number.isInteger(next) || next < 1 || next > quarterCount || next === STATE.quarter) return;
+    if (!Number.isInteger(next) || next < 1 || next > MAX_QUARTERS || next === STATE.quarter) return;
     closeDropdowns(); clearTimeout(saveTimeout); saveData();
     trainingPlans[trainingMode] = STATE.data;
     STATE.quarter = next; trainingPlans = quarterPlans[next]; STATE.data = trainingPlans[trainingMode];
@@ -4411,22 +4409,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
       });
     });
   }
-  function renewQuarter() {
-    var next = STATE.quarter + 1;
-    // Una renovación nunca vacía un trimestre con datos.
-    while (next <= quarterCount && quarterHasData(quarterPlans[next])) next++;
-    if (next > 100) { showToast('No se puede añadir otro trimestre en este plan', 'warn'); return; }
-    if (next > quarterCount) {
-      quarterCount = next; quarterPlans[next] = { gimnasio: {}, casa: {} };
-      quarterStartDates[next] = addPlanDays(quarterStartDates[next - 1], 84);
-      slabSetItem(quarterStartKey(next), quarterStartDates[next]);
-    }
-    switchQuarter(next);
-    saveData();
-    showToast('Trimestre ' + next + ' listo · Meses ' + displayMonth(1) + '–' + displayMonth(3), 'ok', 3500);
-  }
   document.querySelectorAll('[data-quarter-select]').forEach(function(select) { select.onchange = function() { switchQuarter(this.value); }; });
-  document.querySelectorAll('[data-quarter-renew]').forEach(function(button) { button.onclick = renewQuarter; });
   function renderTrainingMode() {
     document.getElementById('trainingModeSelect').value = trainingMode;
   }
@@ -4578,7 +4561,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
       var registry = typeof raw === 'string' ? JSON.parse(raw) : raw;
       if (registry && registry.customStarts && typeof registry.customStarts === 'object') quarterDateCustom = registry.customStarts;
       if (registry && Number.isInteger(registry.count)) quarterCount = Math.max(3, Math.min(100, registry.count));
-      if (registry && Number.isInteger(registry.active) && registry.active >= 1 && registry.active <= quarterCount) STATE.quarter = registry.active;
+      if (registry && Number.isInteger(registry.active) && registry.active >= 1 && registry.active <= quarterCount) STATE.quarter = Math.min(MAX_QUARTERS, registry.active);
     } catch(e) {}
     for (var q = 1; q <= quarterCount; q++) {
       quarterPlans[q] = { gimnasio: {}, casa: {} };
@@ -7406,7 +7389,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
         if (allQuarters) {
           var meta = parsed.quarters;
           if (!meta || !Number.isInteger(meta.count) || meta.count < 1 || meta.count > 100 || !Number.isInteger(meta.active) || meta.active < 1 || meta.active > meta.count) throw new Error('Trimestres inválidos');
-          nextCount = Math.max(3, meta.count); nextActive = meta.active;
+          nextCount = Math.max(MAX_QUARTERS, meta.count); nextActive = Math.min(MAX_QUARTERS, meta.active);
           for (var q = 1; q <= nextCount; q++) {
             var plans = parsed.quarterPlans[q];
             if (q <= meta.count && (!plans || !validStoredPlan(plans.gimnasio) || !validStoredPlan(plans.casa) || !meta.starts || !validPlanDate(meta.starts[q]))) throw new Error('Datos de trimestre inválidos');
