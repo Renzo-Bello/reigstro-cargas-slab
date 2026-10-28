@@ -1704,6 +1704,7 @@
   }
   .start-date-row { display: flex; gap: 8px; align-items: center; }
   .start-date-input {
+    min-width: 0;
     flex: 1; background: var(--dark-2); border: 1px solid var(--border); border-radius: 6px;
     color: var(--text); font-family: var(--font-mono); font-size: 16px;
     padding: 9px 10px; outline: none; transition: border-color 0.15s;
@@ -3254,7 +3255,7 @@ body.light-mode .home-primary { background:#856329; color:#fff; }
     });
     var today = activeWeek && days.find(function(d) { return d.today; });
     var target = today ? today.position : state.position;
-    set('homeSession', state.mode + ' · Mes ' + target.month + ' / Semana ' + target.week);
+    set('homeSession', state.mode + ' · T' + (state.quarter || 1) + ' · Mes ' + (((state.quarter || 1) - 1) * 3 + target.month) + ' / Semana ' + target.week);
     document.getElementById('homeTrain').firstChild.textContent = today && today.done ? 'Revisar entrenamiento ' : 'Ir a entrenar ';
     document.getElementById('homeTrain').onclick = function() { navigate(target); };
     document.getElementById('homeProgress').onclick = function() { window.switchTab('progreso'); };
@@ -3375,6 +3376,14 @@ body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
 .home-editorial :is(button,a):focus-visible,.home-streak summary:focus-visible {outline:2px solid var(--gold);outline-offset:4px;}
 .editorial-sr {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 #view-registro .register-mantra {font:400 15px/1.5 var(--font-display);color:var(--text-mid);margin:0 4px 16px;letter-spacing:-.1px;}
+
+.quarter-bar {display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 2px 16px;min-height:44px;}
+.quarter-bar label {display:flex;align-items:center;gap:10px;font:400 12px var(--font-body);color:var(--text-mid);}
+.quarter-bar select {min-width:54px;min-height:42px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:0 8px;font:500 16px var(--font-body);}
+.quarter-bar button {display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 2px;background:none;border:0;color:var(--text-mid);font:400 11px var(--font-body);cursor:pointer;}
+.quarter-bar button span {color:var(--gold);font-size:16px;}
+.quarter-bar :is(select,button):focus-visible {outline:2px solid var(--gold);outline-offset:3px;}
+.quarter-bar :disabled {opacity:.5;cursor:wait;}
 </style>
 <style>
 /* Compact mobile register: half-height image and two-row set controls. */
@@ -3778,6 +3787,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     <button class="home-progress-link" id="homeProgress">Ver mi progreso <span aria-hidden="true">↗</span></button>
   </main>
   <div id="view-registro" class="panel" style="display:none;">
+    <div class="quarter-bar"><label>Trimestre <select data-quarter-select aria-label="Trimestre de entrenamiento" disabled><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label><button type="button" data-quarter-renew disabled title="Abre el siguiente trimestre vacío y conserva el historial anterior">Renovar 3 meses <span aria-hidden="true">↗</span></button></div>
     <p class="register-mantra">El físico lo construyes serie a serie.</p>
     <!-- Selector compacto Mes / Semana -->
     <div class="nav-selector" id="navSelector">
@@ -3810,6 +3820,8 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   </div>
 
   <div id="view-progreso" class="panel" style="display:none;">
+    <div class="quarter-bar"><label>Trimestre <select data-quarter-select aria-label="Trimestre de entrenamiento" disabled><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label><button type="button" data-quarter-renew disabled title="Abre el siguiente trimestre vacío y conserva el historial anterior">Renovar 3 meses <span aria-hidden="true">↗</span></button></div>
+
     <div class="month-pills" id="monthPillsProgress"></div>
     <div class="week-summary" id="weekSummary"></div>
 
@@ -3860,7 +3872,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
         Restaurar desde respaldo
         <input type="file" id="importInput" accept="application/json" style="display:none;">
       </label>
-      <p class="backup-hint">Toca "PDF" en cualquier semana para descargar solo ese reporte semanal. El reporte completo incluye todos los meses. El respaldo .json restaura todos tus datos.</p>
+      <p class="backup-hint">Toca "PDF" en cualquier semana para descargar solo ese reporte semanal. El PDF completo incluye el trimestre seleccionado. El respaldo .json incluye todos los trimestres y ambos modos.</p>
       <button id="showWelcomeBtn" class="backup-btn" style="margin-top:8px;">Ver guía de la app</button>
     </div>
 
@@ -3877,8 +3889,8 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
 
     <!-- Configuración de fecha de inicio -->
     <div class="start-date-section">
-      <div class="start-date-title">Fecha de inicio del plan</div>
-      <div class="start-date-desc">Indica el lunes en que empezaste el plan de entrenamiento. Esto define qué día corresponde al "Hoy" en el registro.</div>
+      <div class="start-date-title">Inicio del trimestre</div>
+      <div class="start-date-desc">Indica el lunes en que empieza el trimestre seleccionado. Cada trimestre conserva el formato de 12 semanas (tres bloques de cuatro semanas). Esto define qué día corresponde al "Hoy" en el registro.</div>
       <div class="start-date-row">
         <input type="date" class="start-date-input" id="startDateInput">
         <button class="start-date-btn" id="startDateSaveBtn">Guardar</button>
@@ -4332,7 +4344,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
      ESTADO Y STORAGE — IndexedDB
      (con migración automática desde localStorage)
   ══════════════════════════════════════ */
-  var STATE = { month: 1, week: 1, day: 1, progressMonth: 1, data: {}, pesoCorporal: 75 };
+  var STATE = { quarter: 1, month: 1, week: 1, day: 1, progressMonth: 1, data: {}, pesoCorporal: 75 };
   /* ── CONFIG IMÁGENES ── */
   var IMG_BASE_URL = 'https://renzo-bello.github.io/reigstro-cargas-slab/img/';
 
@@ -4355,7 +4367,66 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   var TRAINING_MODE_KEY = 'slab-training-mode';
   var trainingMode = 'gimnasio';
   var trainingPlans = { gimnasio: {}, casa: {} };
-  function trainingStorageKey(mode) { return mode === 'casa' ? STORAGE_KEY + '-casa' : STORAGE_KEY; }
+  var QUARTERS_KEY = 'slab-training-trimesters';
+  var quarterCount = 3;
+  var quarterPlans = { 1: trainingPlans };
+  var quarterStartDates = {};
+  var quarterDateCustom = {};
+  function trainingStorageKey(mode, quarter) {
+    quarter = quarter || STATE.quarter;
+    return STORAGE_KEY + (quarter > 1 ? '-t' + quarter : '') + (mode === 'casa' ? '-casa' : '');
+  }
+  function quarterStartKey(quarter) { return 'slab-start-date' + (quarter > 1 ? '-t' + quarter : ''); }
+  function displayMonth(month) { return (STATE.quarter - 1) * 3 + month; }
+  function persistQuarterSelection() { return slabSetItem(QUARTERS_KEY, { count: quarterCount, active: STATE.quarter, customStarts: quarterDateCustom }); }
+  function renderQuarterSelectors() {
+    document.querySelectorAll('[data-quarter-select]').forEach(function(select) {
+      select.replaceChildren();
+      for (var q = 1; q <= quarterCount; q++) {
+        var option = document.createElement('option'); option.value = q; option.textContent = q;
+        select.appendChild(option);
+      }
+      select.value = STATE.quarter; select.disabled = false;
+    });
+    document.querySelectorAll('[data-quarter-renew]').forEach(function(button) { button.disabled = false; });
+  }
+  function switchQuarter(next) {
+    next = Number(next);
+    if (!Number.isInteger(next) || next < 1 || next > quarterCount || next === STATE.quarter) return;
+    closeDropdowns(); clearTimeout(saveTimeout); saveData();
+    trainingPlans[trainingMode] = STATE.data;
+    STATE.quarter = next; trainingPlans = quarterPlans[next]; STATE.data = trainingPlans[trainingMode];
+    _startDateStr = quarterStartDates[next];
+    STATE.month = 1; STATE.week = 1; STATE.day = 1; STATE.progressMonth = 1;
+    ensureRecords(); persistQuarterSelection();
+    renderAll(); renderStartDateConfig();
+    if (document.getElementById('view-progreso').style.display !== 'none') renderProgress();
+    if (document.getElementById('view-records').style.display !== 'none') renderRecords();
+  }
+  function quarterHasData(plans) {
+    return ['gimnasio', 'casa'].some(function(mode) {
+      return Object.keys(plans[mode]).some(function(key) {
+        var value = plans[mode][key];
+        return Array.isArray(value) ? value.length > 0 : value && typeof value === 'object' && Object.values(value).some(Boolean);
+      });
+    });
+  }
+  function renewQuarter() {
+    var next = STATE.quarter + 1;
+    // Una renovación nunca vacía un trimestre con datos.
+    while (next <= quarterCount && quarterHasData(quarterPlans[next])) next++;
+    if (next > 100) { showToast('No se puede añadir otro trimestre en este plan', 'warn'); return; }
+    if (next > quarterCount) {
+      quarterCount = next; quarterPlans[next] = { gimnasio: {}, casa: {} };
+      quarterStartDates[next] = addPlanDays(quarterStartDates[next - 1], 84);
+      slabSetItem(quarterStartKey(next), quarterStartDates[next]);
+    }
+    switchQuarter(next);
+    saveData();
+    showToast('Trimestre ' + next + ' listo · Meses ' + displayMonth(1) + '–' + displayMonth(3), 'ok', 3500);
+  }
+  document.querySelectorAll('[data-quarter-select]').forEach(function(select) { select.onchange = function() { switchQuarter(this.value); }; });
+  document.querySelectorAll('[data-quarter-renew]').forEach(function(button) { button.onclick = renewQuarter; });
   function renderTrainingMode() {
     document.getElementById('trainingModeSelect').value = trainingMode;
   }
@@ -4470,12 +4541,22 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
 
   /* ── getItem / setItem universales (IndexedDB primero, localStorage fallback) ── */
   async function slabGetItem(key) {
+    // La copia local pendiente evita leer una versión antigua tras una recarga inmediata.
+    try { if (localStorage.getItem('slab-pending-' + key)) { var pending = localStorage.getItem(key); if (pending !== null) return pending; } } catch(e) {}
     try { var v = await idbGet(key); if (v !== undefined) return v; } catch(e) {}
-    return localStorage.getItem(key);
+    try { return localStorage.getItem(key); } catch(e) { return null; }
   }
   async function slabSetItem(key, value) {
-    try { await idbSet(key, value); } catch(e) {}
-    try { localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value)); } catch(e2) {}
+    var serialized = typeof value === 'string' ? value : JSON.stringify(value);
+    var localWritten = false, idbWritten = false;
+    var pendingKey = 'slab-pending-' + key;
+    try { localStorage.setItem(pendingKey, '1'); localStorage.setItem(key, serialized); localWritten = true; }
+    catch(e) { try { localStorage.removeItem(pendingKey); } catch(e2) {} }
+    try {
+      await idbSet(key, value); idbWritten = true;
+      if (localWritten && localStorage.getItem(key) === serialized) localStorage.removeItem(pendingKey);
+    } catch(e) {}
+    return localWritten || idbWritten;
   }
 
   function checkStorageQuota() {
@@ -4492,13 +4573,24 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
 
   async function loadData() {
     await migrateFromLocalStorage();
-    for (var mode of ['gimnasio', 'casa']) {
-      try {
-        var stored = await slabGetItem(trainingStorageKey(mode));
-        var data = typeof stored === 'string' ? JSON.parse(stored) : stored;
-        trainingPlans[mode] = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
-      } catch(e) { trainingPlans[mode] = {}; }
+    try {
+      var raw = await slabGetItem(QUARTERS_KEY);
+      var registry = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      if (registry && registry.customStarts && typeof registry.customStarts === 'object') quarterDateCustom = registry.customStarts;
+      if (registry && Number.isInteger(registry.count)) quarterCount = Math.max(3, Math.min(100, registry.count));
+      if (registry && Number.isInteger(registry.active) && registry.active >= 1 && registry.active <= quarterCount) STATE.quarter = registry.active;
+    } catch(e) {}
+    for (var q = 1; q <= quarterCount; q++) {
+      quarterPlans[q] = { gimnasio: {}, casa: {} };
+      for (var mode of ['gimnasio', 'casa']) {
+        try {
+          var stored = await slabGetItem(trainingStorageKey(mode, q));
+          var data = typeof stored === 'string' ? JSON.parse(stored) : stored;
+          quarterPlans[q][mode] = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+        } catch(e) { quarterPlans[q][mode] = {}; }
+      }
     }
+    trainingPlans = quarterPlans[STATE.quarter];
     trainingMode = await slabGetItem(TRAINING_MODE_KEY) === 'casa' ? 'casa' : 'gimnasio';
     STATE.data = trainingPlans[trainingMode];
     ensureRecords(); renderTrainingMode();
@@ -4511,7 +4603,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     var bar = document.getElementById('saveBar');
     if (bar) { bar.textContent = 'Guardando...'; bar.style.opacity = '0.5'; bar.classList.remove('saved'); }
     try {
-      await slabSetItem(saveKey, savePayload);
+      if (!(await slabSetItem(saveKey, savePayload))) throw new Error('No se pudo guardar');
       if (bar) {
         bar.textContent = 'Guardado ✓'; bar.classList.add('saved');
         bar.style.opacity = '1';
@@ -4691,7 +4783,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     var sub = document.getElementById('topbarSub');
     if (!sub) return;
     var name = (getClientName() || (STATE.clientName && STATE.clientName.trim()) || '').trim();
-    sub.textContent = (name || 'by @rennzolifts') + ' · ' + trainingMode.toUpperCase();
+    sub.textContent = (name || 'by @rennzolifts') + ' · ' + trainingMode.toUpperCase() + ' · T' + STATE.quarter;
     sub.style.opacity = name ? '1' : '0.45';
   }
 
@@ -4717,31 +4809,29 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   var START_KEY = 'slab-start-date';
   var _startDateStr = null;
 
-  async function loadStartDate() {
-    var stored = await slabGetItem(START_KEY);
-    if (stored && typeof stored === 'string') {
-      var d = new Date(stored);
-      if (!isNaN(d.getTime())) { _startDateStr = stored; return; }
-    }
-    var now = new Date();
-    var day = now.getDay();
-    var diff = day === 0 ? -6 : 1 - day;
-    var monday = new Date(now);
-    monday.setDate(now.getDate() + diff);
-    monday.setHours(0,0,0,0);
-    _startDateStr = monday.toISOString().slice(0,10);
-    slabSetItem(START_KEY, _startDateStr);
+  function localDateString(date) {
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
   }
-
+  function validPlanDate(value) { return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && !isNaN(new Date(value + 'T00:00:00').getTime()) && localDateString(new Date(value + 'T00:00:00')) === value; }
+  function addPlanDays(value, days) { var date = new Date(value + 'T00:00:00'); date.setDate(date.getDate() + days); return localDateString(date); }
+  function calendarDaysBetween(a, b) { return Math.round((Date.UTC(a.getFullYear(), a.getMonth(), a.getDate()) - Date.UTC(b.getFullYear(), b.getMonth(), b.getDate())) / 86400000); }
+  async function loadStartDate() {
+    for (var q = 1; q <= quarterCount; q++) {
+      var stored = await slabGetItem(quarterStartKey(q));
+      if (validPlanDate(stored)) quarterStartDates[q] = stored;
+      else {
+        if (q === 1) {
+          var now = new Date(), day = now.getDay(); now.setDate(now.getDate() + (day === 0 ? -6 : 1 - day));
+          quarterStartDates[q] = localDateString(now);
+        } else quarterStartDates[q] = addPlanDays(quarterStartDates[q - 1], 84);
+        await slabSetItem(quarterStartKey(q), quarterStartDates[q]);
+      }
+    }
+    _startDateStr = quarterStartDates[STATE.quarter];
+  }
   function getStartDate() {
-    if (_startDateStr) { var d = new Date(_startDateStr); if (!isNaN(d.getTime())) return d; }
-    var now = new Date();
-    var day = now.getDay();
-    var diff = day === 0 ? -6 : 1 - day;
-    var monday = new Date(now);
-    monday.setDate(now.getDate() + diff);
-    monday.setHours(0,0,0,0);
-    return monday;
+    if (validPlanDate(_startDateStr)) return new Date(_startDateStr + 'T00:00:00');
+    var now = new Date(), day = now.getDay(); now.setDate(now.getDate() + (day === 0 ? -6 : 1 - day)); now.setHours(0, 0, 0, 0); return now;
   }
 
   function setStartDate(dateStr) {
@@ -4749,7 +4839,16 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     if (isNaN(d.getTime())) { showToast('Fecha inválida', 'warn'); return false; }
     if (d.getDay() !== 1) { showToast('El plan debe comenzar un lunes', 'warn', 3000); return false; }
     _startDateStr = dateStr;
-    slabSetItem(START_KEY, dateStr);
+    quarterStartDates[STATE.quarter] = dateStr;
+    quarterDateCustom[STATE.quarter] = true;
+    slabSetItem(quarterStartKey(STATE.quarter), dateStr);
+    for (var q = STATE.quarter + 1; q <= quarterCount; q++) {
+      if (!quarterDateCustom[q] && !quarterHasData(quarterPlans[q])) {
+        quarterStartDates[q] = addPlanDays(quarterStartDates[q - 1], 84);
+        slabSetItem(quarterStartKey(q), quarterStartDates[q]);
+      }
+    }
+    persistQuarterSelection();
     return true;
   }
 
@@ -4761,13 +4860,13 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
 
   function renderStartDateConfig() {
     var start = getStartDate();
-    document.getElementById('startDateInput').value = start.toISOString().slice(0,10);
-    document.getElementById('startDateCurrent').textContent = 'Inicio actual: ' + formatDateDisplay(start);
+    document.getElementById('startDateInput').value = localDateString(start);
+    document.getElementById('startDateCurrent').textContent = 'Trimestre ' + STATE.quarter + ' · Inicio: ' + formatDateDisplay(start);
   }
 
   document.getElementById('startDateSaveBtn').onclick = function() {
     var val = document.getElementById('startDateInput').value;
-    if (setStartDate(val)) { renderStartDateConfig(); updateBtnHoy(); renderDayPills(); showToast('Fecha de inicio actualizada', 'ok'); }
+    if (setStartDate(val)) { renderStartDateConfig(); renderAll(); showToast('Fecha de inicio actualizada', 'ok'); }
   };
 
   // Peso corporal — se carga en init() vía loadPesoCorporal()
@@ -4792,8 +4891,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   function todayPlanPosition() {
     var start = getStartDate();
     var now = new Date(); now.setHours(0,0,0,0);
-    var diffMs = now - start;
-    var diffDays = Math.floor(diffMs / 86400000);
+    var diffDays = calendarDaysBetween(now, start);
     if (diffDays < 0) return null;
     var weekIdx = Math.floor(diffDays / 7);
     if (weekIdx >= 12) return null;
@@ -4812,8 +4910,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     var dw = now.getDay();
     var daysUntil = dw === 5 ? 3 : dw === 6 ? 2 : 1;
     var next = new Date(now); next.setDate(now.getDate() + daysUntil);
-    var diffMs = next - start;
-    var diffDays = Math.floor(diffMs / 86400000);
+    var diffDays = calendarDaysBetween(next, start);
     if (diffDays < 0) return null;
     var weekIdx = Math.floor(diffDays / 7);
     if (weekIdx >= 12) return null;
@@ -5264,7 +5361,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     var el = document.getElementById('dropMes'); el.innerHTML = '';
     for (var m = 1; m <= 3; m++) {
       var item = document.createElement('button'); item.type = 'button'; item.className = 'seg-dropdown-item' + (m === STATE.month ? ' item-active' : '');
-      item.innerHTML = 'Mes ' + m + (m === STATE.month ? ' <span class="item-check">✓</span>' : '');
+      item.innerHTML = 'Mes ' + displayMonth(m) + (m === STATE.month ? ' <span class="item-check">✓</span>' : '');
       item.onclick = (function(mm) { return function() {
         STATE.month = mm; STATE.week = 1; STATE.day = 1; closeDropdowns(); renderAll();
       }; })(m);
@@ -5285,7 +5382,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   }
 
   function renderNavSelector() {
-    document.getElementById('segMesVal').textContent = STATE.month;
+    document.getElementById('segMesVal').textContent = displayMonth(STATE.month);
     document.getElementById('segSemVal').textContent = STATE.week;
     var weekGlobal = ((STATE.month - 1) * 4) + STATE.week;
     var ctxEl = document.getElementById('ctxProgress');
@@ -6269,7 +6366,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     var exListEl = document.getElementById('sessionCompleteExList');
     var DAY_NAMES = ['Lunes','Martes','Miércoles','Jueves','Viernes'];
 
-    subtitle.textContent = 'M' + m + ' · S' + w + ' · ' + (DAY_NAMES[d-1] || 'Día ' + d);
+    subtitle.textContent = 'T' + STATE.quarter + ' · M' + displayMonth(m) + ' · S' + w + ' · ' + (DAY_NAMES[d-1] || 'Día ' + d);
     statsEl.innerHTML = '';
 
     function statCard(val, lbl) {
@@ -6572,7 +6669,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   function renderMonthPillsProgress() {
     var el = document.getElementById('monthPillsProgress'); el.innerHTML = '';
     for (var m = 1; m <= 3; m++) {
-      var btn = document.createElement('button'); btn.textContent = 'Mes ' + m;
+      var btn = document.createElement('button'); btn.textContent = 'Mes ' + displayMonth(m);
       if (m === STATE.progressMonth) btn.classList.add('active');
       btn.onclick = (function(mm) { return function() { STATE.progressMonth = mm; renderProgress(); }; })(m);
       el.appendChild(btn);
@@ -6860,7 +6957,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
 
     // Título reporte
     var reportTitle = (filterMonth && filterWeek)
-      ? 'Reporte semanal · Mes ' + filterMonth + '  Semana ' + filterWeek
+      ? 'T' + STATE.quarter + ' · Mes ' + displayMonth(filterMonth) + ' · Semana ' + filterWeek
       : 'Reporte completo de entrenamiento';
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
@@ -7053,7 +7150,7 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(12);
       doc.setTextColor(C.dark[0], C.dark[1], C.dark[2]);
-      doc.text('MES ' + m, margin, y);
+      doc.text('TRIMESTRE ' + STATE.quarter + ' · MES ' + displayMonth(m), margin, y);
       y += 5;
       hline(C.border, 0.8);
       y += 14;
@@ -7255,14 +7352,18 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     var todayStr = new Date().toISOString().slice(0, 10);
     var namePart = clientName ? (slugify(clientName) + '-') : '';
     var filename = (filterMonth && filterWeek)
-      ? 'slab-' + namePart + 'mes' + filterMonth + '-sem' + filterWeek + '-' + todayStr + '.pdf'
-      : 'slab-reporte-' + namePart + todayStr + '.pdf';
+      ? 'slab-' + namePart + 'mes' + displayMonth(filterMonth) + '-sem' + filterWeek + '-t' + STATE.quarter + '-' + trainingMode + '-' + todayStr + '.pdf'
+      : 'slab-reporte-' + namePart + 't' + STATE.quarter + '-' + trainingMode + '-' + todayStr + '.pdf';
     doc.save(filename);
   }
   document.getElementById('pdfReportBtn').onclick = function() { generatePDFReport(); };
   document.getElementById('exportBtn').onclick = async function() {
     try {
+      trainingPlans[trainingMode] = STATE.data;
       var exportObj = {
+        formatVersion: 3,
+        quarters: { count: quarterCount, active: STATE.quarter, starts: quarterStartDates, customStarts: quarterDateCustom },
+        quarterPlans: quarterPlans,
         data: STATE.data,
         trainingMode: trainingMode,
         trainingPlans: Object.assign({}, trainingPlans, { [trainingMode]: STATE.data }),
@@ -7274,44 +7375,87 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
       };
       var blob = new Blob([JSON.stringify(exportObj, null, 2)], {type:'application/json'});
       var url = URL.createObjectURL(blob), a = document.createElement('a');
-      a.href = url; a.download = 'respaldo-slab-ambos-modos-' + new Date().toISOString().slice(0,10) + '.json';
+      a.href = url; a.download = 'respaldo-slab-todos-los-trimestres-' + new Date().toISOString().slice(0,10) + '.json';
       document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
       showToast('Respaldo descargado', 'ok');
     } catch(e) { showToast('Error al exportar', 'error'); }
   };
+  function validStoredPlan(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+    return Object.keys(value).every(function(key) {
+      var item = value[key];
+      if (key === 'records') return Array.isArray(item);
+      if (/^m[1-3]w[1-4]d[1-5]$/.test(key)) return Array.isArray(item) && item.every(function(ex) { return ex && typeof ex === 'object' && typeof ex.nombre === 'string' && (ex.series === undefined || Array.isArray(ex.series)); });
+      if (/^m[1-3]w[1-4]d[1-5]_session$/.test(key)) return item && typeof item === 'object' && !Array.isArray(item);
+      return true; // Conserva metadatos de respaldos anteriores.
+    });
+  }
   document.getElementById('importInput').onchange = function(e) {
     var file = e.target.files[0]; if (!file) return;
-    if (!confirm('Esto reemplazará TODOS los datos actuales. ¿Deseas continuar?')) { e.target.value = ''; return; }
     var reader = new FileReader();
-    reader.onload = function(ev) {
+    reader.onload = async function(ev) {
       try {
         var parsed = JSON.parse(ev.target.result);
-        var importedProfile = parsed.profile ? validProfile(parsed.profile) : null;
-        // Respaldo con ambos modos; los respaldos anteriores se aplican al modo activo.
-        if (parsed.trainingPlans) {
-          if (!parsed.trainingPlans.gimnasio || !parsed.trainingPlans.casa ||
-              Array.isArray(parsed.trainingPlans.gimnasio) || Array.isArray(parsed.trainingPlans.casa) ||
-              typeof parsed.trainingPlans.gimnasio !== 'object' || typeof parsed.trainingPlans.casa !== 'object') throw new Error('Modos inválidos');
-          trainingPlans = parsed.trainingPlans;
-          trainingMode = parsed.trainingMode === 'casa' ? 'casa' : 'gimnasio';
-          STATE.data = trainingPlans[trainingMode];
-          parsed.data = STATE.data;
-          slabSetItem(trainingStorageKey('gimnasio'), trainingPlans.gimnasio);
-          slabSetItem(trainingStorageKey('casa'), trainingPlans.casa);
-          slabSetItem(TRAINING_MODE_KEY, trainingMode);
-        }
-        // Soporte para formato nuevo (con metadata) y antiguo (solo data)
-        if (parsed.data) {
-          STATE.data = parsed.data;
-          if (parsed.pesoCorporal) { STATE.pesoCorporal = parsed.pesoCorporal; slabSetItem('slab_peso_corporal', String(parsed.pesoCorporal)); document.getElementById('pesoCorporalInput').value = parsed.pesoCorporal; document.getElementById('pesoCorporalCurrent').textContent = 'Peso actual: ' + parsed.pesoCorporal + ' kg'; }
-          if (parsed.clientName) { _clientName = parsed.clientName; slabSetItem(CLIENT_NAME_KEY, parsed.clientName); }
-          if (parsed.startDate) { _startDateStr = parsed.startDate; slabSetItem(START_KEY, parsed.startDate); }
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Formato inválido');
+        if (parsed.formatVersion >= 3 && (!parsed.quarterPlans || !parsed.quarters)) throw new Error('Respaldo incompleto');
+        var allQuarters = !!parsed.quarterPlans;
+        if (allQuarters && (typeof parsed.quarterPlans !== 'object' || Array.isArray(parsed.quarterPlans))) throw new Error('Trimestres inválidos');
+        var nextCount = quarterCount, nextActive = STATE.quarter;
+        var nextPlans = {}, nextDates = {}, nextCustom = {};
+        var nextMode = parsed.trainingMode === 'casa' ? 'casa' : parsed.trainingMode === 'gimnasio' ? 'gimnasio' : trainingMode;
+        if (allQuarters) {
+          var meta = parsed.quarters;
+          if (!meta || !Number.isInteger(meta.count) || meta.count < 1 || meta.count > 100 || !Number.isInteger(meta.active) || meta.active < 1 || meta.active > meta.count) throw new Error('Trimestres inválidos');
+          nextCount = Math.max(3, meta.count); nextActive = meta.active;
+          for (var q = 1; q <= nextCount; q++) {
+            var plans = parsed.quarterPlans[q];
+            if (q <= meta.count && (!plans || !validStoredPlan(plans.gimnasio) || !validStoredPlan(plans.casa) || !meta.starts || !validPlanDate(meta.starts[q]))) throw new Error('Datos de trimestre inválidos');
+            nextPlans[q] = plans || { gimnasio: {}, casa: {} };
+            nextDates[q] = q <= meta.count ? meta.starts[q] : addPlanDays(nextDates[q - 1], 84);
+            nextCustom[q] = !!(meta.customStarts && meta.customStarts[q]);
+          }
         } else {
-          STATE.data = parsed; // formato antiguo
+          // Los respaldos anteriores solo reemplazan el trimestre seleccionado.
+          if (parsed.trainingPlans) {
+            if (!validStoredPlan(parsed.trainingPlans.gimnasio) || !validStoredPlan(parsed.trainingPlans.casa)) throw new Error('Modos inválidos');
+            nextPlans[nextActive] = parsed.trainingPlans;
+          } else {
+            var data = parsed.data || parsed;
+            if (!validStoredPlan(data)) throw new Error('Plan inválido');
+            nextPlans[nextActive] = Object.assign({}, quarterPlans[nextActive]);
+            nextPlans[nextActive][nextMode] = data;
+          }
+          if (parsed.startDate && !validPlanDate(parsed.startDate)) throw new Error('Fecha inválida');
+          nextDates[nextActive] = parsed.startDate || quarterStartDates[nextActive];
+          nextCustom[nextActive] = true;
         }
+        var question = allQuarters
+          ? 'Este respaldo reemplazará todos los trimestres y ambos modos. ¿Restaurarlo?'
+          : 'Este respaldo reemplazará los datos del trimestre ' + nextActive + '. Los demás trimestres se conservarán. ¿Restaurarlo?';
+        if (!confirm(question)) return;
+        clearTimeout(saveTimeout);
+        if (allQuarters) { quarterPlans = nextPlans; quarterStartDates = nextDates; quarterDateCustom = nextCustom; quarterCount = nextCount; }
+        else { quarterPlans[nextActive] = nextPlans[nextActive]; quarterStartDates[nextActive] = nextDates[nextActive]; quarterDateCustom[nextActive] = nextCustom[nextActive]; }
+        STATE.quarter = nextActive; trainingMode = nextMode; trainingPlans = quarterPlans[nextActive]; STATE.data = trainingPlans[nextMode];
+        _startDateStr = quarterStartDates[nextActive];
+        STATE.month = 1; STATE.week = 1; STATE.day = 1; STATE.progressMonth = 1;
         ensureRecords();
-        if (importedProfile) { personalProfile = importedProfile; slabSetItem(PROFILE_KEY, personalProfile); }
-        renderClientName(); renderTrainingMode(); saveData(); renderAll(); renderProgress();
+        var writes = [];
+        for (var key of Object.keys(nextPlans)) {
+          writes.push(slabSetItem(trainingStorageKey('gimnasio', Number(key)), quarterPlans[key].gimnasio));
+          writes.push(slabSetItem(trainingStorageKey('casa', Number(key)), quarterPlans[key].casa));
+          writes.push(slabSetItem(quarterStartKey(Number(key)), quarterStartDates[key]));
+        }
+        writes.push(persistQuarterSelection(), slabSetItem(TRAINING_MODE_KEY, trainingMode));
+        if (parsed.pesoCorporal) {
+          STATE.pesoCorporal = parsed.pesoCorporal; writes.push(slabSetItem('slab_peso_corporal', String(parsed.pesoCorporal)));
+          document.getElementById('pesoCorporalInput').value = parsed.pesoCorporal;
+          document.getElementById('pesoCorporalCurrent').textContent = 'Peso actual: ' + parsed.pesoCorporal + ' kg';
+        }
+        if (typeof parsed.clientName === 'string') { _clientName = parsed.clientName; STATE.clientName = parsed.clientName; writes.push(slabSetItem(CLIENT_NAME_KEY, parsed.clientName)); }
+        if (parsed.profile) { personalProfile = validProfile(parsed.profile); writes.push(slabSetItem(PROFILE_KEY, personalProfile)); }
+        await Promise.all(writes);
+        renderClientName(); renderTrainingMode(); renderAll(); renderProgress();
         showToast('Respaldo restaurado correctamente', 'ok', 3000);
       } catch(err) { showToast('Ese archivo no es un respaldo válido', 'error', 3000); }
     };
@@ -7321,8 +7465,8 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
   /* ══════════════════════════════════════
      TABS — orden: Registro, Progreso, Calcular RPE, Récords
   ══════════════════════════════════════ */
-  function renderHome() { renderPersonalProfile(); SLABHome.render({data: STATE.data, startDate: _startDateStr, name: getClientName(), mode: trainingMode === 'casa' ? 'Casa' : 'Gimnasio', position: {month: STATE.month, week: STATE.week, day: STATE.day}}, function(pos) { STATE.month = pos.month; STATE.week = pos.week; STATE.day = pos.day; renderAll(); switchTab('registro'); }); }
-  function renderAll() { renderHome(); renderNavSelector(); renderDayPills(); renderExercises(); updateBtnHoy(); renderTopbarSub(); }
+  function renderHome() { renderPersonalProfile(); SLABHome.render({data: STATE.data, startDate: _startDateStr, name: getClientName(), mode: trainingMode === 'casa' ? 'Casa' : 'Gimnasio', quarter: STATE.quarter, position: {month: STATE.month, week: STATE.week, day: STATE.day}}, function(pos) { STATE.month = pos.month; STATE.week = pos.week; STATE.day = pos.day; renderAll(); switchTab('registro'); }); }
+  function renderAll() { renderQuarterSelectors(); renderHome(); renderNavSelector(); renderDayPills(); renderExercises(); updateBtnHoy(); renderTopbarSub(); }
   var TAB_TITLES = {
     'inicio': 'INICIO',
     'registro': 'REGISTRO',
