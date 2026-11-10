@@ -3437,6 +3437,20 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
 .exercise-replacements p { margin:6px 12px 12px; font-size:11px; line-height:1.6; }
 body.light-mode .exercise-replacements summary { color:#765823; }
 
+
+/* Interacciones de sesión: el estado sigue perteneciendo al registro existente. */
+.session-journey {margin:0 0 20px;padding:16px;border:1px solid var(--border-hover);border-radius:16px;background:var(--dark-2);color:var(--text-mid);}
+.session-journey[hidden] {display:none;}
+.journey-heading {display:flex;align-items:center;justify-content:space-between;gap:12px;font:500 12px/1.5 var(--font-body);}
+#journeyPercent {font:600 22px var(--font-body);color:var(--gold);}
+.journey-track {height:5px;background:var(--border);border-radius:8px;margin:12px 0 14px;overflow:hidden;}
+#journeyFill {width:0;height:100%;background:var(--gold);border-radius:inherit;transition:width .4s ease;}
+#journeyNext {display:block;width:100%;min-height:44px;border:1px solid var(--border-hover);border-radius:10px;padding:10px 14px;background:var(--dark);color:var(--text);text-align:left;font:500 12px/1.5 var(--font-body);cursor:pointer;overflow-wrap:anywhere;transition:border-color .18s,background .18s;}
+#journeyNext:hover {border-color:var(--gold);background:var(--gold-glow);}
+#journeyNext:focus-visible {outline:2px solid var(--gold);outline-offset:3px;}
+.journey-complete {border-color:var(--gold);}
+body.light-mode #journeyPercent {color:#765823;}
+@media(prefers-reduced-motion:reduce) {#journeyFill,#journeyNext {transition:none;}}
 </style></head>
 <body>
 
@@ -3824,6 +3838,11 @@ body.light-mode .exercise-replacements summary { color:#765823; }
     <div class="seg-dropdown" id="dropMes"></div>
     <div class="seg-dropdown" id="dropSem"></div>
     <div id="storageBanner" class="storage-banner">⚠️ El espacio de almacenamiento está casi lleno. Descarga un respaldo (.json) desde la pestaña Progreso antes de continuar.</div>
+    <section id="sessionJourney" class="session-journey" aria-label="Avance de la sesión" hidden>
+      <div class="journey-heading"><span id="journeyLabel" role="status" aria-live="polite"></span><span id="journeyPercent" aria-hidden="true">0%</span></div>
+      <div id="journeyTrack" class="journey-track" role="progressbar" aria-label="Ejercicios completados" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="journeyFill"></div></div>
+      <button id="journeyNext" type="button">Continuar sesión</button>
+    </section>
     <div id="exerciseList"></div>
   </div>
 
@@ -5712,7 +5731,61 @@ body.light-mode .exercise-replacements summary { color:#765823; }
     host.appendChild(list);
   }
 
+
+  function slabMotionAllowed() {
+    return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+  function slabReveal(element, delay) {
+    if (!element || !element.animate || !slabMotionAllowed()) return;
+    element.animate(
+      [{opacity: 0, transform: 'translateY(8px)'}, {opacity: 1, transform: 'translateY(0)'}],
+      {duration: 240, delay: delay || 0, easing: 'ease-out'}
+    );
+  }
+  function sessionProgressState(arr) {
+    var named = arr.filter(function(ex) { return (ex.nombre || '').trim(); });
+    var done = named.filter(function(ex) { return ex.hecho; }).length;
+    var next = arr.findIndex(function(ex) { return (ex.nombre || '').trim() && !ex.hecho; });
+    return {total: named.length, done: done, next: next,
+      percent: named.length ? Math.round(done / named.length * 100) : 0};
+  }
+  function updateSessionJourney() {
+    var host = document.getElementById('sessionJourney');
+    if (!host) return;
+    var arr = ensureDay(STATE.month, STATE.week, STATE.day);
+    var progress = sessionProgressState(arr);
+    host.hidden = !progress.total;
+    var label = document.getElementById('journeyLabel');
+    var message = progress.done === progress.total && progress.total
+      ? 'Sesión completada · Buen trabajo'
+      : progress.done + ' de ' + progress.total + ' ejercicios completados';
+    if (label.textContent !== message) label.textContent = message;
+    document.getElementById('journeyPercent').textContent = progress.percent + '%';
+    var bar = document.getElementById('journeyTrack');
+    bar.setAttribute('aria-valuenow', String(progress.percent));
+    document.getElementById('journeyFill').style.width = progress.percent + '%';
+    var next = document.getElementById('journeyNext');
+    next.textContent = progress.next < 0 ? 'Ver balance de la sesión' : 'Entrenar: ' + arr[progress.next].nombre;
+    host.classList.toggle('journey-complete', !!progress.total && progress.done === progress.total);
+    next.onclick = function() {
+      // Recalcular al pulsar: el nombre o el estado pueden haber cambiado.
+      var current = ensureDay(STATE.month, STATE.week, STATE.day);
+      var pending = sessionProgressState(current).next;
+      if (pending >= 0) openFocusMode(pending);
+      else {
+        var review = document.querySelector('#exerciseList .session-card');
+        if (review) {
+          review.scrollIntoView({behavior: slabMotionAllowed() ? 'smooth' : 'auto', block: 'center'});
+          var control = review.querySelector('select');
+          if (control) control.focus({preventScroll: true});
+          slabReveal(review);
+        }
+      }
+    };
+  }
+
   function renderExercises() {
+    updateSessionJourney();
     var el = document.getElementById('exerciseList'); el.innerHTML = '';
     var arr = ensureDay(STATE.month, STATE.week, STATE.day);
     _lastDayKey = dayKey(STATE.month, STATE.week, STATE.day);
@@ -5820,6 +5893,9 @@ body.light-mode .exercise-replacements summary { color:#765823; }
       nameWrap.appendChild(muscleSummary);
       var replacements = document.createElement('details'); replacements.className = 'exercise-replacements';
       nameWrap.appendChild(replacements);
+      replacements.ontoggle = function() {
+        if (this.open) { slabReveal(this.querySelector('ul')); slabReveal(this.querySelector('p')); }
+      };
 
       // ── Botón de video técnica ──
       var dbEntry = EXERCISE_DB_INDEX[ex.nombre ? ex.nombre.toLowerCase().trim() : ''];
@@ -6190,12 +6266,12 @@ body.light-mode .exercise-replacements summary { color:#765823; }
           setTimeout(function() { card.classList.remove('complete-animate'); }, 500);
         } else { card.classList.remove('complete'); }
         doneWrap.className = 'done-toggle' + (ex.hecho ? ' on' : '');
-        doneLabel.textContent = ex.hecho ? '✓ Serie completada' : 'Marcar como completado';
+        doneLabel.textContent = ex.hecho ? '✓ Ejercicio completado' : 'Marcar como completado';
         renderDayPills(); updateExerciseHeader();
         checkSessionComplete(STATE.month, STATE.week, STATE.day);
       };
       var doneLabel = document.createElement('span');
-      doneLabel.textContent = ex.hecho ? '✓ Serie completada' : 'Marcar como completado';
+      doneLabel.textContent = ex.hecho ? '✓ Ejercicio completado' : 'Marcar como completado';
       doneWrap.appendChild(checkbox); doneWrap.appendChild(doneLabel);
       card.appendChild(doneWrap);
       el.appendChild(card);
@@ -6247,11 +6323,13 @@ body.light-mode .exercise-replacements summary { color:#765823; }
     ]));
 
     el.appendChild(sessionCard);
+    Array.from(el.querySelectorAll('.exercise-card')).slice(0, 5).forEach(function(item, index) { slabReveal(item, index * 35); });
 
     updateBtnHoy();
   }
 
   function updateExerciseHeader() {
+    updateSessionJourney();
     var arr = STATE.data[_lastDayKey] || [];
     var counts = getExercisesHeader(arr);
     var el = document.querySelector('#exerciseList .exercises-count');
@@ -7917,7 +7995,7 @@ body.light-mode .exercise-replacements summary { color:#765823; }
     var activeView = document.getElementById('view-' + tab);
     if (activeTab) { activeTab.classList.add('active'); activeTab.setAttribute('aria-current', 'page'); }
     if (tab === 'inicio') renderHome();
-    if (activeView) { activeView.style.display = ''; window.scrollTo({top: 0, left: 0, behavior: 'instant'}); }
+    if (activeView) { activeView.style.display = ''; window.scrollTo({top: 0, left: 0, behavior: 'instant'}); slabReveal(activeView); }
     var titleEl = document.getElementById('pageTitle');
     if (titleEl) titleEl.textContent = TAB_TITLES[tab] || tab.toUpperCase();
     if (tab === 'progreso') { STATE.progressMonth = STATE.month; renderProgress(); }
@@ -8636,6 +8714,7 @@ body.light-mode .exercise-replacements summary { color:#765823; }
       ex.hecho = !ex.hecho;
       scheduleSave();
       renderFocusMode();
+      updateSessionJourney();
       checkSessionComplete(STATE.month, STATE.week, STATE.day);
     };
 
