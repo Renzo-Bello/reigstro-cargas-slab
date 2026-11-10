@@ -3427,6 +3427,16 @@ body.light-mode #view-registro .serie-hevy-input.inp-peso {color:#765823; }
 #view-registro .register-weight>span {display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
 #view-registro .weight-icon {flex-shrink:0;color:var(--gold);}
 body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-registro .weight-icon {color:#765823;}
+
+.exercise-replacements { margin-top:10px; border:1px solid var(--border-hover); border-radius:10px; background:var(--dark-2); font:400 12px/1.6 var(--font-body); color:var(--text-mid); }
+.exercise-replacements[hidden] { display:none; }
+.exercise-replacements summary { padding:10px 12px; cursor:pointer; color:var(--gold); font-weight:600; }
+.exercise-replacements summary:focus-visible { outline:2px solid var(--gold); outline-offset:2px; border-radius:8px; }
+.exercise-replacements ul { margin:0; padding:0 14px 4px 28px; }
+.exercise-replacements li { margin:4px 0; overflow-wrap:anywhere; }
+.exercise-replacements p { margin:6px 12px 12px; font-size:11px; line-height:1.6; }
+body.light-mode .exercise-replacements summary { color:#765823; }
+
 </style></head>
 <body>
 
@@ -5423,7 +5433,242 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
 
   var _lastDayKey = null;
 
+
+  // Alternativas orientativas por movimiento; no modifican el plan ni los registros.
+  var EXERCISE_REPLACEMENT_GROUPS = [
+  [
+    "Sentadilla",
+    "Sentadilla con barra",
+    "Sentadilla en Smith",
+    "Sentadilla hack",
+    "Sentadilla pendular",
+    "Sentadilla belt squat",
+    "Prensa de piernas",
+    "Sentadilla goblet"
+  ],
+  [
+    "Sentadilla búlgara",
+    "Sentadilla búlgara con barra",
+    "Zancadas"
+  ],
+  [
+    "Peso muerto",
+    "Peso muerto rumano",
+    "Peso muerto con mancuernas"
+  ],
+  [
+    "Hiperextensiones",
+    "Hiperextensiones en banco a 45°"
+  ],
+  [
+    "Extensión de cuádriceps",
+    "Extensión de cuádriceps unilateral"
+  ],
+  [
+    "Curl femoral",
+    "Curl femoral sentado",
+    "Curl femoral acostado"
+  ],
+  [
+    "Hip thrust en máquina",
+    "Hip thrust en barra",
+    "Puente de glúteos con carga"
+  ],
+  [
+    "Elevación de talones",
+    "Elevación de talones en máquina",
+    "Elevación de talones en prensa"
+  ],
+  [
+    "Elevación de piernas en barra",
+    "Elevación de piernas en fonderas",
+    "Elevación de rodillas en fonderas"
+  ],
+  [
+    "Aductor",
+    "Aducción de cadera en polea"
+  ],
+  [
+    "Abductor",
+    "Abducción de cadera en polea"
+  ],
+  [
+    "Dominadas",
+    "Dominadas contra liga",
+    "Jalón al pecho",
+    "Jalón al pecho en máquina"
+  ],
+  [
+    "Dominadas supinas",
+    "Jalón al pecho agarre supino"
+  ],
+  [
+    "Dominadas australianas",
+    "Remo invertido en TRX"
+  ],
+  [
+    "Mantención isométrica de dominadas",
+    "Mantención isométrica de dominadas con banda"
+  ],
+  [
+    "Dominadas pin",
+    "Dominadas con pausa"
+  ],
+  [
+    "Jalón al pecho unilateral",
+    "Jalón unilateral en máquina"
+  ],
+  [
+    "Remo en máquina",
+    "Remo con mancuerna",
+    "Remo con barra",
+    "Remo sentado en polea"
+  ],
+  [
+    "Pull over",
+    "Pull over en polea",
+    "Pull over en máquina"
+  ],
+  [
+    "Muscle up",
+    "Muscle up asistido con banda"
+  ],
+  [
+    "Face pull",
+    "Face pull con banda"
+  ],
+  [
+    "Peck deck",
+    "Aperturas pecho",
+    "Cruce de poleas"
+  ],
+  [
+    "Press banca",
+    "Press banca con mancuernas",
+    "Press pecho en máquina"
+  ],
+  [
+    "Press banca inclinado",
+    "Press banca inclinado con mancuernas",
+    "Press inclinado en Smith",
+    "Press inclinado en máquina"
+  ],
+  [
+    "Fondos",
+    "Fondos en paralelas",
+    "Fondos asistidos en máquina"
+  ],
+  [
+    "Press militar",
+    "Press militar con mancuernas",
+    "Press militar en máquina",
+    "Press militar unilateral"
+  ],
+  [
+    "Vuelos laterales en polea",
+    "Vuelos laterales con mancuernas",
+    "Elevaciones laterales en máquina"
+  ],
+  [
+    "Curl bíceps",
+    "Curl bíceps en barra",
+    "Curl bíceps con mancuernas",
+    "Curl bíceps en polea"
+  ],
+  [
+    "Curl martillo",
+    "Curl martillo con cuerda en polea"
+  ],
+  [
+    "Curl bíceps banco inclinado",
+    "Curl bíceps Bayesian"
+  ],
+  [
+    "Curl bíceps predicador",
+    "Curl predicador en máquina"
+  ],
+  [
+    "Extensión tríceps",
+    "Tríceps en máquina de fondos",
+    "Extensión de tríceps con cuerda"
+  ],
+  [
+    "JM Press",
+    "Press banca con agarre cerrado"
+  ],
+  [
+    "Katana de tríceps",
+    "Press francés",
+    "Extensión de tríceps sobre la cabeza en polea"
+  ],
+  [
+    "Patada de glúteo",
+    "Patada de glúteo en polea",
+    "Patada de glúteo en máquina"
+  ],
+  [
+    "Plancha",
+    "Plancha con antebrazos sobre banco"
+  ],
+  [
+    "Crunch abdominal con mancuerna",
+    "Crunch abdominal en polea",
+    "Crunch abdominal en máquina"
+  ]
+];
+  function replacementKey(name) {
+    return (name || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+  }
+  function getExerciseReplacements(name) {
+    var key = replacementKey(name);
+    var aliases = {
+      'press banca plano': 'press banca',
+      'press de banca': 'press banca',
+      'remo unilateral en maquina': 'remo en maquina',
+      'remo con mancuernas': 'remo con mancuerna',
+      'extension de triceps': 'extension triceps',
+      'extension de triceps en polea': 'extension triceps',
+      'extension triceps en polea': 'extension triceps'
+    };
+    key = aliases[key] || key;
+    var group = EXERCISE_REPLACEMENT_GROUPS.find(function(items) {
+      return items.some(function(item) { return replacementKey(item) === key; });
+    });
+    if (!group) return [];
+    var options = group.filter(function(item) { return replacementKey(item) !== key; });
+    if (key === 'jalon al pecho') options = ['Jalón al pecho en máquina', 'Dominadas contra liga'];
+    return options.slice(0, 3);
+  }
+  function renderExerciseReplacements(card, name) {
+    var host = card.querySelector('.exercise-replacements');
+    if (!host) return;
+    var wasOpen = host.open;
+    host.replaceChildren();
+    host.hidden = !(name || '').trim();
+    if (host.hidden) return;
+    var options = getExerciseReplacements(name);
+    var summary = document.createElement('summary');
+    summary.textContent = 'Sugerencias de reemplazo';
+    host.appendChild(summary);
+    if (options.length) {
+      var list = document.createElement('ul');
+      options.forEach(function(option) {
+        var item = document.createElement('li');
+        item.textContent = option;
+        list.appendChild(item);
+      });
+      host.appendChild(list);
+    }
+    var note = document.createElement('p');
+    note.textContent = options.length
+      ? 'Alternativas orientativas: el equipo, el recorrido y el énfasis pueden variar. Ajusta la carga al RPE objetivo; los kilos no se transfieren directamente.'
+      : 'Este ejercicio personalizado aún no tiene un reemplazo definido. Consulta con tu coach para elegir una variante.';
+    host.appendChild(note);
+    host.open = wasOpen;
+  }
+
   function renderExerciseMuscles(card, name) {
+    renderExerciseReplacements(card, name);
     var host = card.querySelector('.exercise-muscles');
     if (!host) return;
     host.replaceChildren();
@@ -5573,6 +5818,8 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
       nameWrap.appendChild(autoEl);
       var muscleSummary = document.createElement('div'); muscleSummary.className = 'exercise-muscles';
       nameWrap.appendChild(muscleSummary);
+      var replacements = document.createElement('details'); replacements.className = 'exercise-replacements';
+      nameWrap.appendChild(replacements);
 
       // ── Botón de video técnica ──
       var dbEntry = EXERCISE_DB_INDEX[ex.nombre ? ex.nombre.toLowerCase().trim() : ''];
@@ -8885,3 +9132,4 @@ body.light-mode #view-registro .exercise-muscles strong,body.light-mode #view-re
     <section class="rir-distinction" aria-labelledby="rir-zero-heading"><span class="rir-guide-kicker">LA DIFERENCIA IMPORTANTE</span><h3 id="rir-zero-heading">RIR 0 ≠ fallo</h3><div class="rir-comparison"><div><span>RIR 0</span><p>Terminas la última repetición. Estimas que no podrías completar otra con buena técnica.</p></div><div><span>FALLO</span><p>Intentas una repetición adicional y no logras completarla.</p></div></div></section>
     <div class="rir-guide-footer"><span aria-hidden="true">↳</span><p><strong>Llévalo a tu entrenamiento.</strong> Cambia entre RPE y RIR desde “Modo intensidad” en cada ejercicio y sigue el objetivo de tu rutina.</p></div>
   </div>
+
