@@ -4478,7 +4478,8 @@ body.light-mode #journeyPercent {color:#765823;}
   function ensureDay(m, w, d) {
     var key = dayKey(m, w, d);
     if (!STATE.data[key]) STATE.data[key] = [];
-    STATE.data[key] = STATE.data[key].map(migrateExercise);
+    // Los controles conservan esta lista: migrar sin reemplazar su identidad.
+    STATE.data[key].forEach(migrateExercise);
     return STATE.data[key];
   }
   function ensureSession(m, w, d) {
@@ -4520,15 +4521,23 @@ body.light-mode #journeyPercent {color:#765823;}
     });
   }
 
+  var idbWriteQueue = Promise.resolve();
   function idbSet(key, value) {
-    return openDB().then(function(db) {
+    // Congelar el valor y mantener el orden aunque abrir IndexedDB tarde.
+    var snapshot = JSON.parse(JSON.stringify(value));
+    var write = idbWriteQueue.then(function() { return openDB(); }).then(function(db) {
       return new Promise(function(resolve, reject) {
         var tx = db.transaction(IDB_STORE, 'readwrite');
-        var req = tx.objectStore(IDB_STORE).put(value, key);
-        req.onsuccess = function() { resolve(); };
+        var req = tx.objectStore(IDB_STORE).put(snapshot, key);
+        // El request puede tener éxito y la transacción abortar después.
+        tx.oncomplete = function() { resolve(); };
+        tx.onabort = function() { reject(tx.error || new Error('Guardado cancelado')); };
+        tx.onerror = function() { reject(tx.error); };
         req.onerror = function() { reject(req.error); };
       });
     });
+    idbWriteQueue = write.catch(function() {});
+    return write;
   }
 
   /* ── Migración desde localStorage ── */
@@ -4629,7 +4638,28 @@ body.light-mode #journeyPercent {color:#765823;}
       showToast('Error al guardar los datos', 'error', 3000);
     }
   }
-  function scheduleSave() { clearTimeout(saveTimeout); saveTimeout = setTimeout(saveData, 800); }
+  var hasPendingSave = false;
+  function scheduleSave() {
+    hasPendingSave = true;
+    // Copia síncrona antes de que el móvil suspenda la página.
+    var key = trainingStorageKey(trainingMode);
+    try {
+      localStorage.setItem(key, JSON.stringify(STATE.data));
+      localStorage.setItem('slab-pending-' + key, '1');
+    } catch(e) {}
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(flushPendingSave, 800);
+  }
+  function flushPendingSave() {
+    if (!hasPendingSave) return;
+    clearTimeout(saveTimeout);
+    hasPendingSave = false;
+    saveData();
+  }
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') flushPendingSave();
+  });
+  window.addEventListener('pagehide', flushPendingSave);
 
   /* ══════════════════════════════════════
      1RM ESTIMADO — FÓRMULA EPLEY
@@ -6052,20 +6082,11 @@ body.light-mode #journeyPercent {color:#765823;}
         var numInner = document.createElement('div');
         numInner.className = 'num-inner';
         numInner.textContent = isWarmup ? 'W' : (sIdx + 1);
-        numInner.title = 'Mantén para eliminar · Doble clic para warmup';
+        numInner.title = 'Doble clic para warmup';
         numCell.appendChild(numInner);
         row.appendChild(numCell);
 
-        // Long-press → eliminar; doble clic → toggle warmup
-        var _lpTimer = null;
-        numInner.addEventListener('touchstart', function() {
-          _lpTimer = setTimeout(function() {
-            if (ex.series.length <= 1) { showToast('Mínimo 1 serie', 'warn'); return; }
-            ex.series.splice(sIdx, 1); scheduleSave(); rebuildSeriesRows();
-          }, 650);
-        }, { passive:true });
-        numInner.addEventListener('touchend',  function() { clearTimeout(_lpTimer); }, { passive:true });
-        numInner.addEventListener('touchmove', function() { clearTimeout(_lpTimer); }, { passive:true });
+        // Eliminar solo mediante el botón explícito y con confirmación.
         numInner.addEventListener('dblclick', function() {
           serie.warmup = !serie.warmup; scheduleSave(); rebuildSeriesRows();
         });
@@ -6189,12 +6210,12 @@ body.light-mode #journeyPercent {color:#765823;}
         delBtn.innerHTML = '×';
         delBtn.setAttribute('aria-label', 'Eliminar serie');
         delBtn.onclick = function() {
+          var currentIndex = ex.series.indexOf(serie);
+          if (currentIndex < 0) return;
           if (ex.series.length <= 1) { showToast('Mínimo 1 serie', 'warn'); return; }
-          row.style.transition = 'opacity 0.18s, transform 0.18s';
-          row.style.opacity = '0'; row.style.transform = 'translateX(8px)';
-          setTimeout(function() {
-            ex.series.splice(sIdx, 1); scheduleSave(); rebuildSeriesRows();
-          }, 170);
+          if (!confirm('¿Eliminar la serie ' + (currentIndex + 1) + '?')) return;
+          ex.series.splice(currentIndex, 1);
+          scheduleSave(); rebuildSeriesRows();
         };
         row.appendChild(delBtn);
 
