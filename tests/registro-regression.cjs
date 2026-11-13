@@ -19,6 +19,45 @@ function element() {
 test('all inline scripts parse', () => {
   for (const m of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) new vm.Script(m[1]);
 });
+test('all 12 weeks and 60 training days accept independent exercises and series', () => {
+  const dropdown = element();
+  const c = vm.createContext({STATE:{data:{},month:1,week:1,day:1},
+    document:{getElementById:()=>dropdown,createElement:element}, closeDropdowns(){},renderAll(){} });
+  vm.runInContext(section('  function dayKey(', '  function ensureRecords(') +
+    section('  function buildDropSem(', '  function renderNavSelector('), c);
+  c.buildDropSem(); assert.equal(dropdown.children.length,12);
+  const keys = new Set();
+  dropdown.children.forEach((button,index)=>{
+    button.onclick();
+    assert.equal((c.STATE.month-1)*4+c.STATE.week,index+1);
+    for(let day=1;day<=5;day++) {
+      const list=c.ensureDay(c.STATE.month,c.STATE.week,day);
+      list.push({nombre:'Sentadilla',series:[{peso:String(index+1),reps:'8'}]});
+      c.ensureDay(c.STATE.month,c.STATE.week,day);
+      list[0].series.push({peso:'90',reps:'6'});
+      keys.add(c.dayKey(c.STATE.month,c.STATE.week,day));
+    }
+  });
+  const reloaded=JSON.parse(JSON.stringify(c.STATE.data));
+  assert.equal(keys.size,60);
+  for(const key of keys) assert.equal(reloaded[key][0].series.length,2);
+});
+test('Today opens registration even when the calendar has no matching training day', () => {
+  for(const pos of [null,{month:3,week:4,day:5}]) {
+    const button={}; let tab;
+    const c=vm.createContext({STATE:{month:2,week:3,day:2},todayPlanPosition:()=>pos,
+      document:{getElementById:()=>button},renderAll(){},switchTab:t=>tab=t,showToast(){} });
+    vm.runInContext(section("  document.getElementById('btnHoy').onclick", '  /* ═'),c);
+    button.onclick(); assert.equal(tab,'registro');
+    assert.equal(c.STATE.month,pos ? 3 : 2);
+    assert.equal(c.STATE.week,pos ? 4 : 3);
+  }
+});
+test('blocked localStorage does not prevent initialization migration from returning', async () => {
+  const c=vm.createContext({localStorage:{getItem(){throw Error('Access denied');}}});
+  vm.runInContext(section('  async function migrateFromLocalStorage(', '  /* ── getItem'),c);
+  await c.migrateFromLocalStorage();
+});
 test('progress refresh preserves the day list used by add/delete controls', () => {
   const c = vm.createContext({ STATE: {data: {}, month: 1, week: 1, day: 1},
     document: {getElementById: () => element()} });

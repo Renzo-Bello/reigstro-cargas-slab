@@ -3811,6 +3811,7 @@ body.light-mode #journeyPercent {color:#765823;}
   <div id="view-registro" class="panel" style="display:none;">
     <div class="quarter-bar"><label>Trimestre <select data-quarter-select aria-label="Trimestre de entrenamiento" disabled><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label></div>
     <p class="register-mantra">El físico lo construyes serie a serie.</p>
+    <p style="margin:0 18px 12px;color:var(--text-mid);font-size:12px;line-height:1.5;">Tus 12 semanas están siempre disponibles. Elige una semana y un día para registrar o editar, incluso si entrenas en otra fecha.</p>
     <!-- Selector compacto Mes / Semana -->
     <div class="nav-selector" id="navSelector">
       <div class="ctx-breadcrumb">
@@ -4543,8 +4544,8 @@ body.light-mode #journeyPercent {color:#765823;}
   /* ── Migración desde localStorage ── */
   async function migrateFromLocalStorage() {
     var MIGRATED_KEY = 'slab-idb-migrated';
-    if (localStorage.getItem(MIGRATED_KEY)) return;
     try {
+      if (localStorage.getItem(MIGRATED_KEY)) return;
       var raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         var parsed = JSON.parse(raw);
@@ -4977,16 +4978,9 @@ body.light-mode #journeyPercent {color:#765823;}
   document.getElementById('btnHoy').onclick = function() {
     var pos = todayPlanPosition();
     if (!pos) {
-      var dw = new Date().getDay();
-      var next = nextTrainingDay();
-      if (next) {
-        var msg = dw === 0
-          ? 'Hoy es domingo — el próximo entrenamiento es mañana (M' + next.month + ' S' + next.week + ' D' + next.day + ')'
-          : dw === 6
-            ? 'Hoy es sábado — el próximo entrenamiento es el lunes (M' + next.month + ' S' + next.week + ' D' + next.day + ')'
-            : 'El próximo entrenamiento es M' + next.month + ' S' + next.week + ' D' + next.day;
-        showToast(msg, 'warn', 4000);
-      } else { showToast('Hoy no hay entrenamiento programado', 'warn', 3000); }
+      // El calendario orienta, pero nunca impide acceder al registro.
+      renderAll(); switchTab('registro');
+      showToast('Puedes registrar en cualquiera de tus 12 semanas', 'ok', 4000);
       return;
     }
     STATE.month = pos.month; STATE.week = pos.week; STATE.day = pos.day;
@@ -5416,11 +5410,14 @@ body.light-mode #journeyPercent {color:#765823;}
 
   function buildDropSem() {
     var el = document.getElementById('dropSem'); el.innerHTML = '';
-    for (var w = 1; w <= 4; w++) {
-      var item = document.createElement('button'); item.type = 'button'; item.className = 'seg-dropdown-item' + (w === STATE.week ? ' item-active' : '');
-      item.innerHTML = 'Semana ' + w + (w === STATE.week ? ' <span class="item-check">✓</span>' : '');
+    var selectedWeek = (STATE.month - 1) * 4 + STATE.week;
+    for (var w = 1; w <= 12; w++) {
+      var item = document.createElement('button'); item.type = 'button'; item.className = 'seg-dropdown-item' + (w === selectedWeek ? ' item-active' : '');
+      item.innerHTML = 'Semana ' + w + (w === selectedWeek ? ' <span class="item-check">✓</span>' : '');
       item.onclick = (function(ww) { return function() {
-        STATE.week = ww; STATE.day = 1; closeDropdowns(); renderAll();
+        STATE.month = Math.floor((ww - 1) / 4) + 1;
+        STATE.week = ((ww - 1) % 4) + 1;
+        STATE.day = 1; closeDropdowns(); renderAll();
       }; })(w);
       el.appendChild(item);
     }
@@ -5428,8 +5425,8 @@ body.light-mode #journeyPercent {color:#765823;}
 
   function renderNavSelector() {
     document.getElementById('segMesVal').textContent = displayMonth(STATE.month);
-    document.getElementById('segSemVal').textContent = STATE.week;
     var weekGlobal = ((STATE.month - 1) * 4) + STATE.week;
+    document.getElementById('segSemVal').textContent = weekGlobal;
     var ctxEl = document.getElementById('ctxProgress');
     if (ctxEl) ctxEl.textContent = 'S' + weekGlobal + ' de 12';
     buildDropMes();
