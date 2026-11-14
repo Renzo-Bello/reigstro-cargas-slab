@@ -31,6 +31,8 @@
   <meta name="apple-mobile-web-app-title" content="StrengthLab">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Registro de Entrenamientos | SLAB</title>
+<link rel="stylesheet" href="assets/progress.css?v=20261113">
+<script src="assets/progress.js?v=20261113"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -3848,50 +3850,41 @@ body.light-mode #journeyPercent {color:#765823;}
   </div>
 
   <div id="view-progreso" class="panel" style="display:none;">
+    <header class="progress-intro"><div class="progress-eyebrow">STRENGTHLAB / TU EVOLUCIÓN</div><h2>El esfuerzo deja huella.</h2><p>Tus cargas, tu constancia y tu peso. Una mirada clara a lo que estás construyendo.</p></header>
     <div class="quarter-bar"><label>Trimestre <select data-quarter-select aria-label="Trimestre de entrenamiento" disabled><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label></div>
 
     <div class="month-pills" id="monthPillsProgress"></div>
     <div class="week-summary" id="weekSummary"></div>
 
-    <!-- GRÁFICAS -->
-    <div id="chartsSection" style="padding:0 16px 8px;">
-      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-top:8px;">Análisis del mes</div>
+    <div id="chartsSection">
+      <section class="insight-card insight-featured" aria-labelledby="chartCargaTitle">
+        <div class="insight-heading"><div><div class="insight-kicker">RENDIMIENTO</div><h3 id="chartCargaTitle">Tu fuerza, en perspectiva.</h3></div><span class="insight-index" aria-hidden="true">01</span></div>
+        <label class="insight-select-label" for="chartExSelect">Ejercicio</label>
+        <select id="chartExSelect" class="insight-select"><option value="">Elige un ejercicio</option></select>
+        <div class="insight-toolbar">
+          <div class="insight-segments" id="chartCargaModeToggle" aria-label="Métrica de carga"><button type="button" class="active" data-mode="peso" aria-pressed="true">Carga máxima</button><button type="button" data-mode="orm" aria-pressed="false">1RM estimado</button></div>
+          <div class="insight-segments" id="chartCargaRange" aria-label="Período del gráfico"><button type="button" data-range="month" aria-pressed="false">Mes</button><button type="button" class="active" data-range="quarter" aria-pressed="true">12 sem.</button></div>
+        </div>
+        <div class="insight-stats" aria-live="polite"><div class="insight-stat"><small>Última semana registrada</small><strong><span id="loadLatest">—</span><em>kg</em></strong></div><div class="insight-stat"><small>Mejor marca</small><strong><span id="loadBest">—</span><em>kg</em></strong></div><div class="insight-stat"><small>Cambio del período</small><strong><span id="loadChange">—</span><em>kg</em></strong></div></div>
+        <div class="insight-legend"><span id="loadLegend">Mejor carga semanal</span></div>
+        <div class="insight-chart" id="chartCargaWrap"><canvas id="chartCarga" role="img" aria-label="Evolución semanal de la carga del ejercicio seleccionado"></canvas></div>
+        <div id="chartCargaEmpty" class="insight-empty" hidden><strong>Tu próxima marca empieza aquí.</strong>Registra un ejercicio y marca sus series como completadas para ver tu evolución.</div>
+        <p class="insight-caption" id="loadCaption">Solo series completadas, sin calentamientos. Las semanas sin registros quedan vacías.</p>
+      </section>
+      <section class="insight-card insight-featured" aria-labelledby="weightTitle">
+      <div class="insight-heading"><div><div class="insight-kicker">COMPOSICIÓN CORPORAL</div><h3 id="weightTitle">Tu peso, con contexto.</h3></div><span class="insight-index" aria-hidden="true">02</span></div>
+      <div class="insight-toolbar"><span style="font-size:11px;color:var(--text-mid)">Historial personal · Todos los trimestres</span><div class="insight-segments" id="weightRange" aria-label="Período del peso"><button type="button" data-range="30" aria-pressed="false">30 días</button><button type="button" class="active" data-range="all" aria-pressed="true">Todo</button></div></div>
+      <div class="insight-stats" aria-live="polite"><div class="insight-stat"><small id="weightLastDate">Último registro</small><strong><span id="weightLatest">—</span><em>kg</em></strong></div><div class="insight-stat"><small>Primer registro</small><strong><span id="weightInitial">—</span><em>kg</em></strong></div><div class="insight-stat"><small>Cambio del período</small><strong><span id="weightChange">—</span><em>kg</em></strong></div></div>
+      <div id="weightGraph" hidden></div><div id="weightEmpty" class="insight-empty"><strong>Un registro. Un punto de partida.</strong>Guarda tu peso para empezar la curva de evolución.<br>Si elegiste 30 días, prueba también la vista «Todo».</div>
+      <form id="weightForm" class="weight-form"><label for="weightDate">Fecha<input type="date" id="weightDate" required></label><label for="weightValue">Peso corporal · kg<input id="weightValue" type="text" inputmode="decimal" placeholder="Ej. 75,5" autocomplete="off" required></label><button id="weightSave" type="submit">Guardar peso</button></form>
+      <p id="weightFeedback" class="weight-feedback" role="status" aria-live="polite"></p>
+      <p class="insight-caption">Compara registros tomados en condiciones similares. Observa la evolución, no un valor aislado. El historial se guarda en este navegador y se incluye en tu respaldo JSON.</p>
+      <details class="weight-history"><summary id="weightHistoryCount">Historial · 0 registros</summary><div class="weight-list" id="weightList"></div></details>
+      </section>
 
-      <!-- Volumen por semana -->
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;">
-        <div style="font-family:var(--font-mono);font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">Volumen semanal (series totales)</div>
-        <div style="position:relative;height:160px;">
-          <canvas id="chartVolumen"></canvas>
-        </div>
-      </div>
-
-      <!-- Carga por ejercicio -->
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div style="font-family:var(--font-mono);font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;" id="chartCargaTitle">Evolución de carga (kg)</div>
-          <select id="chartExSelect" style="background:var(--dark-2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-mono);font-size:16px;padding:4px 8px;outline:none;max-width:140px;">
-            <option value="">— Ejercicio —</option>
-          </select>
-        </div>
-        <div class="rpe-mode-toggle" id="chartCargaModeToggle" style="margin-bottom:10px;">
-          <button type="button" class="active" data-mode="peso">Peso máximo</button>
-          <button type="button" data-mode="orm">1RM estimado</button>
-        </div>
-        <div style="position:relative;height:160px;">
-          <canvas id="chartCarga"></canvas>
-        </div>
-        <div id="chartCargaEmpty" style="display:none;text-align:center;padding:40px 0;font-family:var(--font-mono);font-size:10px;color:var(--text-dim);">Selecciona un ejercicio arriba</div>
-      </div>
-
-      <!-- RPE promedio por semana -->
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;">
-        <div style="font-family:var(--font-mono);font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">RPE promedio de sesión por semana</div>
-        <div style="position:relative;height:130px;">
-          <canvas id="chartRpe"></canvas>
-        </div>
-      </div>
+      <section class="insight-card" aria-labelledby="volumeTitle"><div class="insight-heading"><div><div class="insight-kicker">CONSTANCIA</div><h3 id="volumeTitle">Cada serie cuenta.</h3></div><span class="insight-index" aria-hidden="true">03</span></div><div class="insight-chart" style="height:170px"><canvas id="chartVolumen" role="img" aria-label="Series completadas por semana del mes"></canvas></div><p class="insight-caption">Series de trabajo completadas en el mes seleccionado.</p></section>
+      <section class="insight-card" aria-labelledby="effortTitle"><div class="insight-heading"><div><div class="insight-kicker">INTENSIDAD</div><h3 id="effortTitle">Cómo se sintió.</h3></div><span class="insight-index" aria-hidden="true">04</span></div><div class="insight-chart" style="height:150px"><canvas id="chartRpe" role="img" aria-label="Promedio semanal del esfuerzo de sesión"></canvas></div><p class="insight-caption">RPE promedio de las sesiones registradas en el mes seleccionado.</p></section>
     </div>
-
     <div class="progress-section" id="progressContent"></div>
     <div class="backup-section">
       <button id="pdfReportBtn" class="backup-btn" style="background:var(--gold);color:var(--dark);border-color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Descargar reporte completo (PDF)</button>
@@ -6793,46 +6786,28 @@ body.light-mode #journeyPercent {color:#765823;}
   };
 
   function chartBaseOptions(yLabel) {
+    var light = document.body.classList.contains('light-mode');
+    var ink = light ? '#736A5D' : '#A69D8E';
     return {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#171717',
-          borderColor: '#C9A96E',
-          borderWidth: 1,
-          titleColor: '#C9A96E',
-          bodyColor: '#F5F0E8',
-          titleFont: { family: 'DM Mono', size: 10 },
-          bodyFont: { family: 'DM Mono', size: 11 }
-        }
-      },
-      scales: {
-        x: {
-          grid: { color: CHART_DEFAULTS.gridColor, drawBorder: false },
-          ticks: { color: CHART_DEFAULTS.textColor, font: { family: CHART_DEFAULTS.font, size: 9 } }
-        },
-        y: {
-          grid: { color: CHART_DEFAULTS.gridColor, drawBorder: false },
-          ticks: { color: CHART_DEFAULTS.textColor, font: { family: CHART_DEFAULTS.font, size: 9 } },
-          beginAtZero: true,
-          title: yLabel ? { display: true, text: yLabel, color: CHART_DEFAULTS.textColor, font: { family: CHART_DEFAULTS.font, size: 9 } } : undefined
-        }
-      }
+      responsive:true, maintainAspectRatio:false,
+      animation: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? false : {duration:450},
+      interaction:{mode:'index',intersect:false},
+      layout:{padding:{top:12,right:8}},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:light?'#F7F4EE':'#22201B',borderColor:'#A8895A',borderWidth:1,cornerRadius:10,padding:12,displayColors:false,titleColor:ink,bodyColor:light?'#1A1814':'#F5F0E8',titleFont:{family:'Inter',size:10},bodyFont:{family:'DM Mono',size:12}}},
+      scales:{x:{border:{display:false},grid:{display:false},ticks:{color:ink,maxRotation:0,autoSkip:true,maxTicksLimit:6,font:{family:'DM Mono',size:9}}},y:{border:{display:false,dash:[3,5]},grid:{color:light?'rgba(0,0,0,.07)':'rgba(255,255,255,.065)',drawTicks:false},ticks:{color:ink,padding:10,maxTicksLimit:5,font:{family:'DM Mono',size:9}},beginAtZero:true,title:yLabel?{display:true,text:yLabel,color:ink,font:{family:'DM Mono',size:9}}:undefined}}
     };
   }
 
   function renderChartVolumen(month) {
     destroyChart('volumen');
-    var labels = ['Sem 1','Sem 2','Sem 3','Sem 4'];
+    var labels = [1,2,3,4].map(function(w){return 'S'+((month-1)*4+w);});
     var data = [];
     for (var w = 1; w <= 4; w++) {
       var totalSets = 0;
       for (var d = 1; d <= 5; d++) {
         var arr = STATE.data[dayKey(month, w, d)] || [];
         arr.forEach(function(ex) {
-          if (ex.nombre.trim() && ex.hecho) totalSets += (ex.series && ex.series.length) || 0;
+          if (ex.nombre.trim()) totalSets += (ex.series || []).filter(function(serie){return !serie.warmup && (serie.done || ex.hecho);}).length;
         });
       }
       data.push(totalSets);
@@ -6849,105 +6824,87 @@ body.light-mode #journeyPercent {color:#765823;}
           backgroundColor: ['rgba(201,169,110,0.25)','rgba(201,169,110,0.4)','rgba(201,169,110,0.6)','rgba(201,169,110,0.85)'],
           borderColor: '#C9A96E',
           borderWidth: 1.5,
-          borderRadius: 5
+          borderRadius: 7,
+          maxBarThickness: 32
         }]
       },
       options: opts
     });
-  }
-
-  function buildExerciseSelectForMonth(month) {
-    var names = {};
-    for (var w = 1; w <= 4; w++) for (var d = 1; d <= 5; d++) {
-      var arr = STATE.data[dayKey(month, w, d)] || [];
-      arr.forEach(function(ex) { if (ex.nombre.trim() && ex.series && ex.series.some(function(s){return s.peso;})) names[ex.nombre.trim()] = true; });
-    }
-    var sel = document.getElementById('chartExSelect');
-    var prev = sel.value;
-    sel.innerHTML = '<option value="">— Ejercicio —</option>';
-    Object.keys(names).sort().forEach(function(n) {
-      var opt = document.createElement('option'); opt.value = n; opt.textContent = n;
-      sel.appendChild(opt);
-    });
-    if (prev && names[prev]) sel.value = prev;
-    renderChartCarga(month, sel.value);
   }
 
   var _chartCargaMode = 'peso';
+  var _chartCargaRange = 'quarter';
   var _chartCargaLastArgs = null;
-
-  function renderChartCarga(month, ejercicio) {
-    _chartCargaLastArgs = [month, ejercicio];
-    destroyChart('carga');
-    var emptyEl = document.getElementById('chartCargaEmpty');
-    var canvas = document.getElementById('chartCarga');
-    var titleEl = document.getElementById('chartCargaTitle');
-    if (titleEl) titleEl.textContent = _chartCargaMode === 'orm' ? 'Evolución de 1RM estimado (kg)' : 'Evolución de carga (kg)';
-    if (!ejercicio) {
-      canvas.style.display = 'none'; emptyEl.style.display = 'block'; return;
-    }
-    canvas.style.display = 'block'; emptyEl.style.display = 'none';
-
-    var labels = [], data = [];
-    for (var w = 1; w <= 4; w++) {
-      var weekBest = null;
-      for (var d = 1; d <= 5; d++) {
-        var arr = STATE.data[dayKey(month, w, d)] || [];
-        arr.forEach(function(ex) {
-          if (ex.nombre.trim() === ejercicio && ex.series) {
-            ex.series.forEach(function(s) {
-              var val = _chartCargaMode === 'orm'
-                ? calcOrm1RM(s.peso, s.reps)
-                : (s.peso ? (function(){ var p = parseFloat(String(s.peso).replace(',','.')); return isNaN(p) ? null : p; })() : null);
-              if (val !== null && (weekBest === null || val > weekBest)) weekBest = val;
-            });
-          }
+  function loadChartData(plan, month, ejercicio, mode, range) {
+    var labels = [], data = [], start = range === 'quarter' ? 1 : (month-1)*4+1;
+    var end = range === 'quarter' ? 12 : start+3;
+    for(var week=start;week<=end;week++) {
+      var m=Math.floor((week-1)/4)+1, w=(week-1)%4+1, best=null;
+      for(var day=1;day<=5;day++) (plan[dayKey(m,w,day)]||[]).forEach(function(ex) {
+        if(ex.nombre.trim()!==ejercicio)return;
+        (ex.series||[]).forEach(function(serie) {
+          if(serie.warmup || !(serie.done || ex.hecho))return;
+          var value=mode==='orm'?calcOrm1RM(serie.peso,serie.reps):Number(String(serie.peso).trim().replace(',','.'));
+          if(serie.peso === '' || serie.peso == null || !Number.isFinite(value) || value<0)return;
+          if(best===null || value>best)best=value;
         });
-      }
-      if (weekBest !== null) { labels.push('S' + w); data.push(weekBest); }
+      });
+      labels.push('S'+week);data.push(best);
     }
-
-    if (data.length === 0) {
-      canvas.style.display = 'none'; emptyEl.style.display = 'block'; return;
-    }
-
-    var ctx = canvas.getContext('2d');
-    var gradient = ctx.createLinearGradient(0, 0, 0, 160);
-    gradient.addColorStop(0, 'rgba(201,169,110,0.3)');
-    gradient.addColorStop(1, 'rgba(201,169,110,0)');
-
-    var opts = chartBaseOptions('kg');
-    var lblSuffix = _chartCargaMode === 'orm' ? ' kg (1RM est.)' : ' kg';
-    opts.plugins.tooltip.callbacks = { label: function(c) { return c.raw + lblSuffix; } };
-    opts.elements = { point: { radius: 5, hoverRadius: 7, backgroundColor: '#C9A96E', borderColor: '#0D0D0D', borderWidth: 2 } };
-    _charts['carga'] = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: data,
-          borderColor: '#C9A96E',
-          borderWidth: 2,
-          backgroundColor: gradient,
-          fill: true,
-          tension: 0.35
-        }]
-      },
-      options: opts
-    });
+    return {labels:labels,data:data};
   }
-
-  document.getElementById('chartCargaModeToggle').addEventListener('click', function(e) {
-    var btn = e.target.closest('button[data-mode]');
-    if (!btn) return;
-    _chartCargaMode = btn.getAttribute('data-mode');
-    this.querySelectorAll('button').forEach(function(b) { b.classList.toggle('active', b === btn); });
-    if (_chartCargaLastArgs) renderChartCarga(_chartCargaLastArgs[0], _chartCargaLastArgs[1]);
+  function buildExerciseSelectForMonth(month) {
+    var names = {};
+    var start = _chartCargaRange==='quarter'?1:month, end=_chartCargaRange==='quarter'?3:month;
+    for(var m=start;m<=end;m++) for(var w=1;w<=4;w++) for(var d=1;d<=5;d++) {
+      (STATE.data[dayKey(m,w,d)]||[]).forEach(function(ex){if(ex.nombre.trim())names[ex.nombre.trim()]=true;});
+    }
+    var sel=document.getElementById('chartExSelect'),prev=sel.value;
+    sel.innerHTML='<option value="">Elige un ejercicio</option>';
+    Object.keys(names).sort().forEach(function(name){var option=document.createElement('option');option.value=name;option.textContent=name;sel.appendChild(option);});
+    sel.value=prev && names[prev]?prev:(Object.keys(names).sort()[0]||'');
+    renderChartCarga(month,sel.value);
+  }
+  function renderChartCarga(month, ejercicio) {
+    _chartCargaLastArgs=[month,ejercicio];destroyChart('carga');
+    var result=loadChartData(STATE.data,month,ejercicio,_chartCargaMode,_chartCargaRange);
+    var values=result.data.filter(function(v){return v!==null;}), last=values[values.length-1];
+    var fmt=function(v){return Number(v).toLocaleString('es-CL',{maximumFractionDigits:1});};
+    document.getElementById('loadLatest').textContent=values.length?fmt(last):'—';
+    document.getElementById('loadBest').textContent=values.length?fmt(Math.max.apply(null,values)):'—';
+    var change=values.length>1?last-values[0]:null;
+    document.getElementById('loadChange').textContent=change===null?'—':(change>0?'+':'')+fmt(change);
+    document.getElementById('loadLegend').textContent=_chartCargaMode==='orm'?'Mejor 1RM estimado semanal':'Mejor carga semanal';
+    document.getElementById('loadCaption').textContent=(_chartCargaMode==='orm'?'Estimación de Epley, no una prueba de 1RM. ':'')+'Solo series completadas, sin calentamientos. Las semanas sin registros quedan vacías.';
+    var unavailable=typeof Chart==='undefined';
+    document.getElementById('chartCargaWrap').hidden=!values.length || unavailable;
+    document.getElementById('chartCargaEmpty').hidden=!!values.length && !unavailable;
+    if(unavailable) {document.getElementById('chartCargaEmpty').textContent='No se pudo cargar el gráfico. Tus registros siguen guardados; recarga cuando tengas conexión.';return;}
+    if(!values.length)return;
+    var canvas=document.getElementById('chartCarga');
+    canvas.setAttribute('aria-label',(ejercicio||'Ejercicio')+'. '+result.labels.map(function(label,i){return label+': '+(result.data[i]===null?'sin registro':fmt(result.data[i])+' kg');}).join('. '));
+    var ctx=canvas.getContext('2d'), gradient=ctx.createLinearGradient(0,0,0,216);
+    gradient.addColorStop(0,'rgba(201,169,110,.25)');gradient.addColorStop(1,'rgba(201,169,110,0)');
+    var opts=chartBaseOptions('kg');opts.scales.y.beginAtZero=false;opts.scales.y.grace='15%';
+    opts.plugins.tooltip.callbacks={title:function(items){return 'Semana '+items[0].label.slice(1);},label:function(c){return fmt(c.raw)+' kg'+(_chartCargaMode==='orm'?' · estimado':'');}};
+    _charts.carga=new Chart(ctx,{type:'line',data:{labels:result.labels,datasets:[{data:result.data,borderColor:'#C9A96E',borderWidth:2.5,backgroundColor:gradient,fill:true,tension:.2,spanGaps:false,pointRadius:4,pointHoverRadius:7,pointHitRadius:18,pointBackgroundColor:'#C9A96E',pointBorderColor:document.body.classList.contains('light-mode')?'#FFFFFF':'#171717',pointBorderWidth:2}]},options:opts});
+  }
+  document.getElementById('chartCargaModeToggle').addEventListener('click',function(event){
+    var button=event.target.closest('button[data-mode]');if(!button)return;
+    _chartCargaMode=button.dataset.mode;
+    this.querySelectorAll('button').forEach(function(b){b.classList.toggle('active',b===button);b.setAttribute('aria-pressed',b===button?'true':'false');});
+    if(_chartCargaLastArgs)renderChartCarga(_chartCargaLastArgs[0],_chartCargaLastArgs[1]);
+  });
+  document.getElementById('chartCargaRange').addEventListener('click',function(event){
+    var button=event.target.closest('button[data-range]');if(!button)return;
+    _chartCargaRange=button.dataset.range;
+    this.querySelectorAll('button').forEach(function(b){b.classList.toggle('active',b===button);b.setAttribute('aria-pressed',b===button?'true':'false');});
+    buildExerciseSelectForMonth(STATE.progressMonth);
   });
 
   function renderChartRpe(month) {
     destroyChart('rpe');
-    var labels = ['Sem 1','Sem 2','Sem 3','Sem 4'];
+    var labels = [1,2,3,4].map(function(w){return 'S'+((month-1)*4+w);});
     var data = [];
     for (var w = 1; w <= 4; w++) {
       var rpeVals = [];
@@ -6982,9 +6939,9 @@ body.light-mode #journeyPercent {color:#765823;}
   }
 
   function renderCharts(month) {
+    buildExerciseSelectForMonth(month);
     if (typeof Chart === 'undefined') return;
     renderChartVolumen(month);
-    buildExerciseSelectForMonth(month);
     renderChartRpe(month);
   }
 
@@ -7005,6 +6962,7 @@ body.light-mode #journeyPercent {color:#765823;}
     }
   }
   function renderProgress() {
+    SLABProgress.render();
     renderMonthPillsProgress();
     renderStartDateConfig();
     renderClientName();
@@ -7690,7 +7648,8 @@ body.light-mode #journeyPercent {color:#765823;}
     try {
       trainingPlans[trainingMode] = STATE.data;
       var exportObj = {
-        formatVersion: 3,
+        formatVersion: 4,
+        bodyWeightHistory: SLABProgress.exportHistory(),
         quarters: { count: quarterCount, active: STATE.quarter, starts: quarterStartDates, customStarts: quarterDateCustom },
         quarterPlans: quarterPlans,
         data: STATE.data,
@@ -7727,6 +7686,7 @@ body.light-mode #journeyPercent {color:#765823;}
         var parsed = JSON.parse(ev.target.result);
         if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Formato inválido');
         if (parsed.formatVersion >= 3 && (!parsed.quarterPlans || !parsed.quarters)) throw new Error('Respaldo incompleto');
+        var nextWeightHistory = parsed.bodyWeightHistory === undefined ? null : SLABProgress.validate(parsed.bodyWeightHistory);
         var allQuarters = !!parsed.quarterPlans;
         if (allQuarters && (typeof parsed.quarterPlans !== 'object' || Array.isArray(parsed.quarterPlans))) throw new Error('Trimestres inválidos');
         var nextCount = quarterCount, nextActive = STATE.quarter;
@@ -7784,6 +7744,7 @@ body.light-mode #journeyPercent {color:#765823;}
         if (typeof parsed.clientName === 'string') { _clientName = parsed.clientName; STATE.clientName = parsed.clientName; writes.push(slabSetItem(CLIENT_NAME_KEY, parsed.clientName)); }
         if (parsed.profile) { personalProfile = validProfile(parsed.profile); writes.push(slabSetItem(PROFILE_KEY, personalProfile)); }
         await Promise.all(writes);
+        if (nextWeightHistory !== null) await SLABProgress.restore(nextWeightHistory);
         renderClientName(); renderTrainingMode(); renderAll(); renderProgress();
         showToast('Respaldo restaurado correctamente', 'ok', 3000);
       } catch(err) { showToast('Ese archivo no es un respaldo válido', 'error', 3000); }
@@ -9011,6 +8972,12 @@ body.light-mode #journeyPercent {color:#765823;}
     // Cargar todo desde IndexedDB (con migración automática desde localStorage)
     await loadData();
     await Promise.all([loadClientName(), loadStartDate(), loadPesoCorporal(), loadPersonalProfile()]);
+    await SLABProgress.init({get:slabGetItem, set:slabSetItem, onWeight:async function(weight) {
+      STATE.pesoCorporal = weight;
+      document.getElementById('pesoCorporalInput').value = weight;
+      document.getElementById('pesoCorporalCurrent').textContent = 'Peso actual: ' + weight + ' kg';
+      await slabSetItem('slab_peso_corporal', String(weight));
+    }});
     // Welcome modal
     var seenWelcome = await slabGetItem(WELCOME_KEY);
     if (!seenWelcome) {
