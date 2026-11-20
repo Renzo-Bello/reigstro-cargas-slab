@@ -274,3 +274,69 @@ nav.tabs button.active {background:linear-gradient(145deg,rgba(210,180,119,.17),
 #drawer {
   padding-bottom: calc(96px + env(safe-area-inset-bottom));
 }
+
+
+/* Practical RIR guidance */
+.rir-practical { margin: 24px 0; }
+.rir-practical h3 { margin: 0 0 12px; font-size: 15px; font-weight: 650; }
+.rir-steps { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; counter-reset: rir-step; }
+.rir-steps li {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 14px 15px;
+  color: var(--text-mid);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  font-size: 12px;
+  line-height: 1.65;
+}
+.rir-steps li::before {
+  counter-increment: rir-step;
+  content: counter(rir-step, decimal-leading-zero);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: var(--gold);
+  background: var(--gold-glow);
+  border: 1px solid rgba(201,169,110,.18);
+  border-radius: 9px;
+  font: 500 10px var(--font-mono);
+}
+.rir-steps strong, .rir-example strong { color: var(--text); }
+.rir-example {
+  margin-top: 12px;
+  padding: 17px 18px;
+  background: linear-gradient(120deg, var(--gold-glow), rgba(201,169,110,.025));
+  border: 1px solid rgba(201,169,110,.2);
+  border-left: 3px solid var(--gold);
+  border-radius: 14px;
+}
+.rir-example-label { display:block; margin-bottom:7px; color:var(--gold); font:500 9px var(--font-mono); letter-spacing:.8px; text-transform:uppercase; }
+.rir-example p, .rir-estimate-note p { margin:0; color:var(--text-mid); font-size:12px; line-height:1.7; }
+.rir-estimate-note {
+  display:grid;
+  grid-template-columns:20px minmax(0,1fr);
+  gap:10px;
+  margin:14px 0 24px;
+  padding:14px 15px;
+  background:var(--dark-2);
+  border:1px solid var(--border);
+  border-radius:14px;
+}
+.rir-estimate-note > span { color:var(--gold); font-size:16px; line-height:1.4; }
+.rir-source-link { display:inline-block; margin-top:8px; color:var(--gold); font-size:10px; text-decoration:underline; text-underline-offset:3px; }
+.rir-distinction .rir-comparison>div:first-child { padding-right:4px; }
+.rir-distinction .rir-comparison>div+div { border-left-color:var(--border); }
+.rir-guide-footer { margin-bottom:14px; }
+@media(max-width:480px) {
+  .rir-guide-intro { padding-top:23px; }
+  .rir-guide-row { grid-template-columns:36px minmax(0,1fr) 42px; gap:9px; padding:14px 11px; }
+  .rir-guide-rpe { font-size:8px; }
+  .rir-practical { margin:20px 0; }
+  .rir-distinction { padding:17px; }
+  .rir-distinction h3 { font-size:23px; }
+}
