@@ -133,3 +133,16 @@ html,body {width:100%;min-width:0;overflow-x:hidden}
 @keyframes serieDone {from{background:rgba(201,169,110,.18)}to{background:rgba(201,169,110,.07)}}
 #view-progreso .week-summary {grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));}
 @media(prefers-reduced-motion:reduce) {.install-nudge,.serie-hevy-row.serie-done {animation:none}}
+
+/* Exercise card: compact image at upper-right opens form tips */
+#view-registro .ex-head-top {grid-template-columns:30px minmax(0,1fr) 76px!important;align-items:center;gap:10px!important;padding:14px 14px 10px!important}
+#view-registro .ex-head-top>div {min-width:0}
+#view-registro .ex-head-img {grid-column:3!important;grid-row:1!important;align-self:center;width:72px!important;height:72px!important;min-width:72px;padding:0!important;margin:0!important;border-radius:15px!important;border:1px solid rgba(201,169,110,.32)!important;background:#fff!important;overflow:hidden;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.18)!important}
+#view-registro .ex-head-img img {width:100%;height:100%;object-fit:contain!important;padding:4px;box-sizing:border-box}
+#view-registro .ex-head-img::after {content:'VER TIPS ↗';position:absolute;left:0;right:0;bottom:0;background:rgba(13,13,13,.82);color:#f5f0e8;font:600 7px var(--font-mono);letter-spacing:.55px;text-align:center;padding:4px 1px}
+#view-registro .ex-head-img.no-img {display:none}
+#view-registro .ex-head-top:has(.ex-head-img.no-img) {grid-template-columns:30px minmax(0,1fr)!important}
+@media(max-width:520px) {
+  #view-registro .ex-head-top {grid-template-columns:28px minmax(0,1fr) 64px!important;gap:8px!important;padding:12px 12px 8px!important}
+  #view-registro .ex-head-img {grid-column:3!important;width:62px!important;height:62px!important;min-width:62px}
+}
