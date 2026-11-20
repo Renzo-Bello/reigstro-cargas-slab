@@ -1,8 +1,8 @@
-const CACHE_NAME = 'strengthlab-shell-v3';
+const CACHE_NAME = 'strengthlab-shell-v4';
 const APP_SHELL = [
   './',
   './index.html',
-  './assets/app-enhancements.css?v=20261120-whatsapp-contact',
+  './assets/app-enhancements.css?v=20261120-whatsapp-contact2',
   './assets/app-enhancements.js?v=20261120-navfix',
   './assets/progress.css?v=20261113',
   './assets/progress.js?v=20261113',
