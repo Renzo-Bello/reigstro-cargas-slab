@@ -3,6 +3,11 @@
   'use strict';
   var splash = document.getElementById('slabSplash');
   var start = Date.now();
+  document.addEventListener('DOMContentLoaded', function () {
+    var app = document.getElementById('app');
+    var technique = document.getElementById('view-tecnica');
+    if (app && technique && technique.parentElement !== app) app.appendChild(technique);
+  }, { once: true });
   function hideSplash() {
     if (!splash || splash.dataset.dismissed) return;
     splash.dataset.dismissed = 'true';
