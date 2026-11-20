@@ -7,6 +7,7 @@ const APP_SHELL = [
   './assets/progress.css?v=20261113',
   './assets/progress.js?v=20261113',
   './favicon-32.png',
+  './app-icon.svg',
   './favicon.png',
   './manifest.webmanifest'
 ];
