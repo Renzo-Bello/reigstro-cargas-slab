@@ -3,7 +3,7 @@ const APP_SHELL = [
   './',
   './index.html',
   './assets/app-enhancements.css?v=20261120-navfix',
-  './assets/app-enhancements.js?v=20261120-appfeel',
+  './assets/app-enhancements.js?v=20261120-navfix',
   './assets/progress.css?v=20261113',
   './assets/progress.js?v=20261113',
   './favicon-32.png',
