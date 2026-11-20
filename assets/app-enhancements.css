@@ -70,3 +70,51 @@ html,body {width:100%;min-width:0;overflow-x:hidden}
   .topbar .hamburger-btn {flex:0 0 40px}
   .topbar .btn-hoy {flex:0 0 auto}
 }
+
+/* Progress fills the viewport and uses a responsive card grid */
+#view-progreso {width:100%;max-width:none;min-width:0;padding-bottom:12px}
+#view-progreso .progress-intro {max-width:none;padding:clamp(18px,3vw,34px) clamp(12px,2vw,24px) 12px}
+#view-progreso .progress-intro p {max-width:640px}
+#view-progreso .quarter-bar,#view-progreso .month-pills,#view-progreso .week-summary {margin-left:clamp(12px,2vw,24px);margin-right:clamp(12px,2vw,24px)}
+#view-progreso #chartsSection {padding:0 clamp(12px,2vw,24px) 16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+#view-progreso #chartsSection > .insight-card {min-width:0;margin:0}
+#view-progreso #chartsSection > .insight-card:first-child {grid-column:1/-1}
+#view-progreso .insight-chart {height:clamp(230px,32vw,380px)}
+#view-progreso .weight-section {padding:0 clamp(12px,2vw,24px)}
+#view-progreso .weight-section .insight-card {max-width:none}
+#view-progreso #weightGraph {width:100%}
+@media(max-width:720px) {
+  #view-progreso #chartsSection {grid-template-columns:minmax(0,1fr)}
+  #view-progreso #chartsSection > .insight-card:first-child {grid-column:auto}
+  #view-progreso .insight-chart {height:260px}
+}
+@media(min-width:1100px) {
+  #view-progreso #chartsSection > .insight-card:first-child {grid-column:1/-1}
+}
+
+/* Compact set entry and highlight the first work set with a medal */
+.serie-hevy-row {min-height:46px!important;padding-top:2px!important;padding-bottom:2px!important}
+.serie-hevy-input {height:34px!important;font-size:14px!important;padding:4px 3px!important}
+.serie-hevy-header,.serie-hevy-row {gap:2px!important;padding-left:6px!important;padding-right:6px!important}
+.serie-hevy-num .num-inner {width:25px;height:25px}
+.serie-hevy-row.serie-first-work .num-inner {width:27px;height:27px;background:rgba(201,169,110,.15);color:var(--gold);border:1px solid rgba(201,169,110,.45);border-radius:50%}
+.serie-hevy-row.serie-first-work .num-inner svg {width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.focus-serie-row {padding:7px 9px!important;gap:7px!important}
+.focus-inp {font-size:18px!important;padding:6px 4px!important}
+.focus-serie-num {width:29px!important;height:29px!important}
+
+/* Rest timer docks above the navigation instead of covering the whole workout */
+#restTimerOverlay {align-items:flex-end!important;justify-content:center!important;padding:0 0 calc(82px + env(safe-area-inset-bottom))!important;background:linear-gradient(transparent 35%,rgba(0,0,0,.38))!important}
+#restTimerBox {width:min(560px,calc(100vw - 24px))!important;max-width:none!important;padding:18px 20px 16px!important;border-radius:20px!important;box-sizing:border-box;animation:restDockIn .24s cubic-bezier(.22,1,.36,1)}
+#restTimerCount {font-size:clamp(52px,9vw,68px)!important}
+#restTimerExercise {margin-bottom:12px!important}
+#restTimerProgress {margin-bottom:14px!important}
+.rest-timer-presets {margin-top:10px!important}
+@keyframes restDockIn {from{transform:translateY(18px);opacity:.6}to{transform:translateY(0);opacity:1}}
+@media(max-width:520px) {
+  #restTimerOverlay {padding-bottom:calc(82px + env(safe-area-inset-bottom))!important}
+  #restTimerBox {padding:16px 14px 14px!important}
+  .rest-timer-btns {gap:7px}
+  .rest-timer-btn {padding:9px 12px}
+}
+@media(prefers-reduced-motion:reduce) {#restTimerBox {animation:none}}
