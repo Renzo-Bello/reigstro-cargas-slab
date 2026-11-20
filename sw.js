@@ -2,7 +2,7 @@ const CACHE_NAME = 'strengthlab-shell-v2';
 const APP_SHELL = [
   './',
   './index.html',
-  './assets/app-enhancements.css?v=20261120-navfix',
+  './assets/app-enhancements.css?v=20261120-imgtips',
   './assets/app-enhancements.js?v=20261120-navfix',
   './assets/progress.css?v=20261113',
   './assets/progress.js?v=20261113',
