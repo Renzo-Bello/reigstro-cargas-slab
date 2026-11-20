@@ -6069,9 +6069,11 @@ body.light-mode #journeyPercent {color:#765823;}
         var prevS = prevSeries[sIdx] || null;
 
         var row = document.createElement('div');
+        var isFirstWorkSet = !isWarmup && (ex.series || []).slice(0, sIdx).every(function(item) { return !!item.warmup; });
         row.className = 'serie-hevy-row' +
           (isDone   ? ' serie-done'   : '') +
-          (isWarmup ? ' serie-warmup' : '');
+          (isWarmup ? ' serie-warmup' : '') +
+          (isFirstWorkSet ? ' serie-first-work' : '');
 
         // ── Col 1: badge número/tipo ──
         var numCell = document.createElement('div');
@@ -6079,6 +6081,11 @@ body.light-mode #journeyPercent {color:#765823;}
         var numInner = document.createElement('div');
         numInner.className = 'num-inner';
         numInner.textContent = isWarmup ? 'W' : (sIdx + 1);
+        if (isFirstWorkSet) {
+          numInner.textContent = '';
+          numInner.setAttribute('aria-label', 'Primera serie');
+          numInner.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5v2a3 3 0 0 0 3 3M16 6h3v2a3 3 0 0 1-3 3M12 13v4M8 21h8M10 17h4v4h-4z"/></svg>';
+        }
         numInner.title = 'Doble clic para warmup';
         numCell.appendChild(numInner);
         row.appendChild(numCell);
