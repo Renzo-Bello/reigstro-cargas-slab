@@ -146,3 +146,86 @@ html,body {width:100%;min-width:0;overflow-x:hidden}
   #view-registro .ex-head-top {grid-template-columns:28px minmax(0,1fr) 64px!important;gap:8px!important;padding:12px 12px 8px!important}
   #view-registro .ex-head-img {grid-column:3!important;width:62px!important;height:62px!important;min-width:62px}
 }
+
+/* StrengthLab visual system polish */
+:root {
+  --dark:#0b0c0b;
+  --dark-2:#111210;
+  --card:#151613;
+  --card-alt:#1b1c18;
+  --border:#292a25;
+  --border-hover:#3b3c34;
+  --gold:#d2b477;
+  --gold-dim:#a88d59;
+  --gold-glow:rgba(210,180,119,.12);
+  --text:#f4f0e8;
+  --text-mid:#a7a195;
+  --text-dim:#777368;
+  --shadow-card:0 10px 30px rgba(0,0,0,.18);
+}
+html,body {background-color:var(--dark);background-image:radial-gradient(ellipse at 12% 0%,rgba(201,169,110,.055),transparent 35%),radial-gradient(ellipse at 92% 38%,rgba(122,105,70,.035),transparent 32%)}
+#app {background:transparent}
+#app .topbar {background:rgba(11,12,11,.84)!important;border-bottom:1px solid rgba(210,180,119,.13)!important;box-shadow:0 8px 30px rgba(0,0,0,.14);backdrop-filter:blur(20px)!important;-webkit-backdrop-filter:blur(20px)!important}
+.topbar .slab-brand-mark {background:linear-gradient(145deg,rgba(210,180,119,.22),rgba(210,180,119,.04));box-shadow:0 0 22px rgba(210,180,119,.12)}
+.topbar #pageTitle {letter-spacing:1.3px!important}
+#app > .panel {animation:slabPanelIn .32s cubic-bezier(.22,1,.36,1) both}
+@keyframes slabPanelIn {from{opacity:.45;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.home-greeting {padding-top:28px!important}
+.home .home-kicker {letter-spacing:1.8px!important;color:var(--gold)!important}
+.home-greeting h1 {font-size:clamp(28px,4vw,42px)!important;letter-spacing:-1.6px!important}
+.home-profile {position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 100% 0%,rgba(210,180,119,.11),transparent 42%),linear-gradient(145deg,#1a1b17,#121310)!important;border-color:rgba(210,180,119,.28)!important;box-shadow:0 18px 50px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.025)}
+.home-profile:after {content:"";position:absolute;z-index:-1;right:-30px;top:-58px;width:170px;height:170px;border:1px solid rgba(210,180,119,.07);border-radius:50%;box-shadow:0 0 0 22px rgba(210,180,119,.018),0 0 0 46px rgba(210,180,119,.012)}
+.home-profile .profile-avatar {box-shadow:0 0 0 4px rgba(210,180,119,.08)}
+.home .home-profile-goal {font-size:clamp(22px,3vw,30px)!important;line-height:1.35!important}
+.home .home-primary {box-shadow:0 8px 22px rgba(210,180,119,.12);transition:transform .18s,box-shadow .18s,filter .18s}
+.home .home-primary:hover {transform:translateY(-2px);box-shadow:0 12px 28px rgba(210,180,119,.2);filter:brightness(1.04)}
+.home-week {background:linear-gradient(140deg,rgba(255,255,255,.018),transparent 60%),rgba(16,17,15,.72)!important;border-color:rgba(255,255,255,.09)!important;box-shadow:var(--shadow-card)}
+.home .home-card-heading h2 {font-size:16px!important;font-weight:600!important;letter-spacing:-.25px}
+.home .home-day {border:1px solid rgba(255,255,255,.055)!important;border-radius:13px!important;transition:transform .18s,border-color .18s,background .18s}
+.home .home-day:hover {transform:translateY(-2px);border-color:rgba(210,180,119,.3)!important;background:rgba(210,180,119,.06)!important}
+.home .home-day.day-today,.home .home-day.active {border-color:var(--gold-dim)!important;background:rgba(210,180,119,.08)!important}
+.home .home-progress-link {border-radius:12px;transition:background .18s,color .18s}
+.home .home-progress-link:hover {background:rgba(210,180,119,.07);color:var(--gold)}
+#view-registro .quarter-bar {display:flex;justify-content:flex-end;margin:0 2px 14px}
+#view-registro .quarter-bar label {display:inline-flex;align-items:center;gap:10px;padding:7px 12px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.025);font:500 10px var(--font-mono);letter-spacing:.7px;color:var(--text-mid)}
+#view-registro .register-mantra {font:600 15px/1.5 var(--font-display);color:var(--text);letter-spacing:.1px}
+#view-registro .nav-selector {padding:5px!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:15px!important;background:linear-gradient(135deg,rgba(255,255,255,.035),rgba(255,255,255,.012))!important;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+#view-registro .nav-segment {border-radius:10px;transition:background .18s,color .18s,transform .18s}
+#view-registro .nav-segment:hover {background:rgba(210,180,119,.09);color:var(--gold)}
+#view-registro .day-strip {background:rgba(255,255,255,.018)!important;border-color:rgba(255,255,255,.08)!important}
+#view-registro .day-btn {transition:transform .18s,background .18s,border-color .18s,box-shadow .18s!important}
+#view-registro .day-btn.day-active {background:linear-gradient(145deg,#e0c58d,#c7a66b)!important;box-shadow:0 6px 16px rgba(210,180,119,.18)!important}
+#view-registro .session-journey,#view-registro #sessionJourney {border-color:rgba(210,180,119,.2)!important;background:linear-gradient(120deg,rgba(210,180,119,.055),rgba(255,255,255,.015))!important;box-shadow:var(--shadow-card)}
+#view-registro .exercise-card {border-color:rgba(255,255,255,.09)!important;border-radius:19px!important;background:linear-gradient(155deg,rgba(255,255,255,.026),transparent 45%),var(--card)!important;box-shadow:0 12px 32px rgba(0,0,0,.2)!important}
+#view-registro .exercise-card:hover {border-color:rgba(210,180,119,.22)!important;box-shadow:0 16px 38px rgba(0,0,0,.24)!important}
+#view-registro .ex-head {background:linear-gradient(115deg,rgba(210,180,119,.045),transparent 70%),var(--card)!important}
+#view-registro .ex-head-img {transition:transform .2s,box-shadow .2s,border-color .2s!important}
+#view-registro .ex-head-img:hover {transform:translateY(-2px);border-color:var(--gold)!important;box-shadow:0 8px 20px rgba(0,0,0,.24)!important}
+#view-registro .serie-hevy-input,#view-registro .focus-inp {transition:border-color .18s,box-shadow .18s,background .18s}
+#view-registro .serie-hevy-input:focus,#view-registro .focus-inp:focus {border-color:var(--gold-dim)!important;box-shadow:0 0 0 3px rgba(210,180,119,.1)!important;outline:none}
+#view-progreso .progress-intro h2 {font-size:clamp(34px,5vw,52px)!important;letter-spacing:-1.5px!important}
+#view-progreso .progress-intro p {font-size:13px!important;max-width:520px!important}
+#view-progreso .month-pills button {transition:transform .18s,box-shadow .18s,background .18s}
+#view-progreso .month-pills button.active {background:linear-gradient(145deg,#e0c58d,#c7a66b)!important;box-shadow:0 6px 18px rgba(210,180,119,.16)}
+#view-progreso .week-summary .stat {border-color:rgba(255,255,255,.075)!important;background:linear-gradient(145deg,rgba(255,255,255,.028),rgba(255,255,255,.008))!important;box-shadow:0 8px 20px rgba(0,0,0,.12)}
+#view-progreso #chartsSection > .insight-card {border-color:rgba(210,180,119,.13)!important;background:radial-gradient(ellipse at 100% 0%,rgba(210,180,119,.055),transparent 38%),linear-gradient(145deg,#171814,#121310)!important;box-shadow:0 16px 40px rgba(0,0,0,.18)}
+#view-progreso .insight-heading h3 {font-size:clamp(23px,3vw,30px)!important}
+#view-progreso .insight-select,#view-progreso .weight-form input {border-color:rgba(255,255,255,.1)!important;background:rgba(8,9,8,.68)!important}
+#view-progreso .insight-select:focus,#view-progreso .weight-form input:focus {border-color:var(--gold-dim)!important;box-shadow:0 0 0 3px rgba(210,180,119,.1)}
+#view-tecnica .tecnica-row {border-color:rgba(255,255,255,.07)!important;background:linear-gradient(140deg,rgba(255,255,255,.026),rgba(255,255,255,.008))!important;transition:transform .18s,border-color .18s,background .18s,box-shadow .18s!important}
+#view-tecnica .tecnica-row:hover {transform:translateY(-2px);border-color:rgba(210,180,119,.28)!important;background:rgba(210,180,119,.045)!important;box-shadow:0 10px 24px rgba(0,0,0,.18)}
+nav.tabs {border-color:rgba(210,180,119,.22)!important;background:rgba(17,18,16,.92)!important;box-shadow:0 16px 44px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.035)!important}
+nav.tabs button {transition:background .18s,color .18s,transform .18s!important}
+nav.tabs button:active {transform:scale(.96)}
+nav.tabs button.active {background:linear-gradient(145deg,rgba(210,180,119,.17),rgba(210,180,119,.08))!important;box-shadow:inset 0 0 0 1px rgba(210,180,119,.2),0 5px 14px rgba(0,0,0,.12)!important}
+.install-nudge {border-color:rgba(210,180,119,.26)!important;background:rgba(17,18,16,.97)!important}
+#slabSplash {background:radial-gradient(ellipse at 50% 35%,rgba(210,180,119,.1),transparent 38%),#0b0c0b!important}
+@media(max-width:700px) {
+  .home-greeting {padding-top:20px!important}
+  .home-profile {padding:17px!important}
+  #view-registro .register-mantra {font-size:14px}
+  #view-progreso .progress-intro h2 {font-size:34px!important}
+}
+@media(prefers-reduced-motion:reduce) {
+  #app > .panel,.home .home-primary,.home .home-day,#view-tecnica .tecnica-row {animation:none!important;transition:none!important}
+}
