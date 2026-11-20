@@ -3457,7 +3457,7 @@ body.light-mode .exercise-replacements summary { color:#765823; }
 body.light-mode #journeyPercent {color:#765823;}
 @media(prefers-reduced-motion:reduce) {#journeyFill,#journeyNext {transition:none;}}
 </style>
-<link rel="stylesheet" href="assets/app-enhancements.css?v=20261120-whatsapp-contact2">
+<link rel="stylesheet" href="assets/app-enhancements.css?v=20261120-rir-guide">
 </head>
 <body>
 <div id="slabSplash" role="status" aria-label="Cargando StrengthLab"><div class="slab-splash-inner"><div class="slab-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12v8M9 9v14M23 9v14M27 12v8M9 16h14"/><path d="m13 12 3-3 3 3"/></svg></div><div class="slab-splash-name">StrengthLab</div><div class="slab-splash-caption">Entrenamiento en progreso</div><div class="slab-loader" aria-hidden="true"></div></div></div>
@@ -6577,7 +6577,7 @@ body.light-mode #journeyPercent {color:#765823;}
       for (var v = 4; v >= 0; v--) {
         var opt = document.createElement('option');
         opt.value = v.toString();
-        opt.textContent = v === 0 ? 'RIR 0 (fallo)' : 'RIR ' + v;
+        opt.textContent = v === 0 ? 'RIR 0 (sin reps extra)' : 'RIR ' + v;
         select.appendChild(opt);
       }
     } else {
@@ -9220,12 +9220,60 @@ body.light-mode #journeyPercent {color:#765823;}
   <div id="view-rir" class="panel" style="display:none;">
     <a class="rir-video-card" href="https://youtube.com/shorts/DDsx0NaF9gE" target="_blank" rel="noopener noreferrer" aria-label="Ver explicación de RIR de @rennzolifts en YouTube, abre en otra pestaña">
       <span class="rir-video-top"><span class="rir-guide-kicker">LA GUÍA DE TU COACH</span><span class="rir-info-badge">INFO</span></span>
-      <span class="rir-video-title">RIR: Mide la intensidad<br><em>de tu serie.</em></span>
+      <span class="rir-video-title">RIR: mide la intensidad<br><em>de tu serie.</em></span>
       <span class="rir-video-bottom"><span class="rir-video-play" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><span><strong>Haz clic para ver el video explicativo</strong><small>@rennzolifts · YouTube</small></span><span class="rir-video-arrow" aria-hidden="true">↗</span></span>
     </a>
-    <section class="rir-guide-intro" aria-labelledby="rir-guide-heading"><span class="rir-guide-kicker">ENTRENA CON CRITERIO</span><h2 id="rir-guide-heading">¿Qué es el RIR?</h2><p>RIR significa <strong>repeticiones en reserva</strong>: cuántas repeticiones más podrías completar al terminar una serie, manteniendo una buena técnica.</p></section>
-    <section aria-labelledby="rir-scale-heading"><div class="rir-section-heading"><h3 id="rir-scale-heading">Tu escala de esfuerzo</h3><span>RIR 4 → 0</span></div><div class="rir-guide-scale"><div class="rir-guide-row"><span class="rir-guide-value"><small>RIR</small>4</span><div><strong>4 repeticiones en reserva</strong><p>Podrías completar 4 repeticiones más con buena técnica.</p></div><span class="rir-guide-rpe">RPE 6</span></div><div class="rir-guide-row"><span class="rir-guide-value"><small>RIR</small>3</span><div><strong>3 repeticiones en reserva</strong><p>Podrías completar 3 repeticiones más con buena técnica.</p></div><span class="rir-guide-rpe">RPE 7</span></div><div class="rir-guide-row"><span class="rir-guide-value"><small>RIR</small>2</span><div><strong>2 repeticiones en reserva</strong><p>Podrías completar 2 repeticiones más con buena técnica.</p></div><span class="rir-guide-rpe">RPE 8</span></div><div class="rir-guide-row"><span class="rir-guide-value"><small>RIR</small>1</span><div><strong>1 repetición en reserva</strong><p>Podrías completar 1 repetición más con buena técnica.</p></div><span class="rir-guide-rpe">RPE 9</span></div><div class="rir-guide-row"><span class="rir-guide-value"><small>RIR</small>0</span><div><strong>Sin repeticiones en reserva</strong><p>Completas la última repetición posible con buena técnica.</p></div><span class="rir-guide-rpe">RPE 10</span></div></div><p class="rir-scale-note">A menor RIR, menos repeticiones en reserva. El RPE expresa ese esfuerzo en la escala inversa.</p></section>
-    <section class="rir-distinction" aria-labelledby="rir-zero-heading"><span class="rir-guide-kicker">LA DIFERENCIA IMPORTANTE</span><h3 id="rir-zero-heading">RIR 0 ≠ fallo</h3><div class="rir-comparison"><div><span>RIR 0</span><p>Terminas la última repetición. Estimas que no podrías completar otra con buena técnica.</p></div><div><span>FALLO</span><p>Intentas una repetición adicional y no logras completarla.</p></div></div></section>
-    <div class="rir-guide-footer"><span aria-hidden="true">↳</span><p><strong>Llévalo a tu entrenamiento.</strong> Cambia entre RPE y RIR desde “Modo intensidad” en cada ejercicio y sigue el objetivo de tu rutina.</p></div>
+
+    <section class="rir-guide-intro" aria-labelledby="rir-guide-heading">
+      <span class="rir-guide-kicker">ENTRENA CON CRITERIO</span>
+      <h2 id="rir-guide-heading">¿Qué es el RIR?</h2>
+      <p>RIR significa <strong>repeticiones en reserva</strong>: cuántas repeticiones más podrías hacer al terminar una serie <strong>sin perder el rango, el control ni la técnica que pide el ejercicio</strong>. No cuentes repeticiones que solo saldrían con impulso, rebotes o acortando el recorrido.</p>
+    </section>
+
+    <section aria-labelledby="rir-scale-heading">
+      <div class="rir-section-heading"><h3 id="rir-scale-heading">Tu escala de esfuerzo</h3><span>RIR 4 → 0</span></div>
+      <div class="rir-guide-scale">
+        <div class="rir-guide-row"><span class="rir-guide-value"><small>RIR</small>4</span><div><strong>4 repeticiones en reserva</strong><p>Podrías completar 4 repeticiones más con la misma técnica.</p></div><span class="rir-guide-rpe">RPE 6</span></div>
+        <div class="rir-guide-row"><span class="rir-guide-value"><small>RIR</small>3</span><div><strong>3 repeticiones en reserva</strong><p>Podrías completar 3 repeticiones más con la misma técnica.</p></div><span class="rir-guide-rpe">RPE 7</span></div>
+        <div class="rir-guide-row"><span class="rir-guide-value"><small>RIR</small>2</span><div><strong>2 repeticiones en reserva</strong><p>Podrías completar 2 repeticiones más con la misma técnica.</p></div><span class="rir-guide-rpe">RPE 8</span></div>
+        <div class="rir-guide-row"><span class="rir-guide-value"><small>RIR</small>1</span><div><strong>1 repetición en reserva</strong><p>Te quedaría 1 repetición más con la misma técnica.</p></div><span class="rir-guide-rpe">RPE 9</span></div>
+        <div class="rir-guide-row"><span class="rir-guide-value"><small>RIR</small>0</span><div><strong>0 repeticiones en reserva</strong><p>Has completado la última repetición que estimas posible con buena técnica.</p></div><span class="rir-guide-rpe">RPE 10</span></div>
+      </div>
+      <p class="rir-scale-note">En esta escala, <strong>RPE = 10 − RIR</strong>: a menor RIR, más cerca estás del límite de repeticiones que podrías completar con buena técnica.</p>
+    </section>
+
+    <section class="rir-practical" aria-labelledby="rir-howto-heading">
+      <h3 id="rir-howto-heading">¿Cómo lo calculo al terminar?</h3>
+      <ol class="rir-steps">
+        <li><span><strong>Termina la serie indicada</strong> en tu rutina; no agregues repeticiones solo para comprobar tu límite.</span></li>
+        <li><span>Pregúntate: <strong>“¿Cuántas repeticiones más habrían salido con el mismo recorrido y control?”</strong></span></li>
+        <li><span>Elige ese número como RIR. Si el objetivo de tu serie era RIR 2, detente cuando calcules que aún te quedan unas 2 repeticiones limpias.</span></li>
+      </ol>
+      <div class="rir-example">
+        <span class="rir-example-label">Ejemplo rápido</span>
+        <p>Haces <strong>10 repeticiones</strong> y sientes que podrías haber hecho <strong>2 más</strong> con buena técnica: registras <strong>RIR 2</strong>, equivalente a <strong>RPE 8</strong>. El RIR no es cuántas repeticiones hiciste; es cuántas te quedaban.</p>
+      </div>
+    </section>
+
+    <aside class="rir-estimate-note" aria-label="Consejo sobre la estimación">
+      <span aria-hidden="true">i</span>
+      <div><p><strong>Es una estimación, no una medición exacta.</strong> Al principio es normal que cueste calcularlo. Usa la técnica y el recorrido como referencia, registra tu percepción y compárala con las siguientes sesiones. No tienes que llegar al fallo para aprender a estimarlo.</p>
+        <a class="rir-source-link" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5712461/" target="_blank" rel="noopener noreferrer">Estudio sobre la precisión al estimar repeticiones ↗</a>
+      </div>
+    </aside>
+
+    <section class="rir-distinction" aria-labelledby="rir-zero-heading">
+      <span class="rir-guide-kicker">LA DIFERENCIA IMPORTANTE</span>
+      <h3 id="rir-zero-heading">RIR 0 no exige fallar una repetición</h3>
+      <div class="rir-comparison">
+        <div><span>RIR 0</span><p>Terminas la última repetición que puedes completar con la técnica prevista. Estimas que no queda otra repetición limpia.</p></div>
+        <div><span>FALLO</span><p>Intentas la siguiente repetición y no consigues completarla. No necesitas hacer ese intento para registrar RIR 0.</p></div>
+      </div>
+    </section>
+
+    <div class="rir-guide-footer">
+      <span aria-hidden="true">↳</span>
+      <p><strong>Sigue la indicación de tu rutina.</strong> Si te pide RIR 2, no conviertas cada serie en RIR 0. En la serie, cambia entre RPE y RIR desde “Modo intensidad” y registra el esfuerzo real.</p>
+    </div>
   </div>
 
