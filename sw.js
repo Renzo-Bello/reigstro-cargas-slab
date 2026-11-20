@@ -1,11 +1,11 @@
-const CACHE_NAME = 'strengthlab-shell-v1';
+const CACHE_NAME = 'strengthlab-shell-v2';
 const APP_SHELL = [
   './',
   './index.html',
-  './assets/app-enhancements.css',
-  './assets/app-enhancements.js',
-  './assets/progress.css',
-  './assets/progress.js',
+  './assets/app-enhancements.css?v=20261120-appfeel',
+  './assets/app-enhancements.js?v=20261120-appfeel',
+  './assets/progress.css?v=20261113',
+  './assets/progress.js?v=20261113',
   './favicon-32.png',
   './favicon.png',
   './manifest.webmanifest'
