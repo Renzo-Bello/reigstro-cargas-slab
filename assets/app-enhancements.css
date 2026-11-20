@@ -42,3 +42,9 @@ body.light-mode nav.tabs {background:rgba(255,255,255,.94);box-shadow:0 12px 38p
 @media(prefers-reduced-motion:reduce) {
   #slabSplash,.slab-loader:after {transition:none;animation:none}
 }
+
+nav.tabs button {display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+nav.tabs button svg {width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.78}
+nav.tabs button span {font:500 10px var(--font-body);line-height:1}
+nav.tabs button.active svg {opacity:1}
+@media(max-width:520px) {nav.tabs button {min-width:0;flex:1 1 25%;padding:6px 3px}nav.tabs button span {font-size:10px}}
