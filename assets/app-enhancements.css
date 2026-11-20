@@ -1,0 +1,44 @@
+/* StrengthLab app polish — bottom navigation, brand mark and loading screen */
+#slabSplash {
+  position:fixed; inset:0; z-index:10050; display:grid; place-items:center;
+  background:#0D0D0D; color:#F5F0E8;
+  transition:opacity .42s cubic-bezier(.22,1,.36,1),visibility .42s;
+}
+#slabSplash.is-leaving {opacity:0;visibility:hidden;pointer-events:none}
+.slab-splash-inner {display:flex;flex-direction:column;align-items:center;gap:18px}
+.slab-mark {
+  width:54px;height:54px;border:1px solid rgba(201,169,110,.48);border-radius:17px;
+  display:grid;place-items:center;color:#C9A96E;
+  background:linear-gradient(145deg,rgba(201,169,110,.18),rgba(201,169,110,.035));
+  box-shadow:0 10px 38px rgba(201,169,110,.12);
+}
+.slab-mark svg {width:31px;height:31px}
+.slab-splash-name {font:600 19px var(--font-display);letter-spacing:.2px}
+.slab-splash-caption {font:500 9px var(--font-mono);letter-spacing:2.4px;text-transform:uppercase;color:var(--text-mid)}
+.slab-loader {width:112px;height:2px;background:#242424;overflow:hidden;border-radius:9px}
+.slab-loader:after {content:"";display:block;width:42%;height:100%;background:#C9A96E;border-radius:9px;animation:slabLoad 1s ease-in-out infinite}
+@keyframes slabLoad {from{transform:translateX(-110%)}to{transform:translateX(260%)}}
+.topbar .slab-brand-mark {width:34px;height:34px;flex:0 0 34px;border-radius:11px;margin-right:11px}
+.topbar .slab-brand-mark svg {width:22px;height:22px}
+.topbar-left {display:flex;align-items:center}
+nav.tabs {
+  position:fixed;z-index:900;left:50%;bottom:max(12px,env(safe-area-inset-bottom));
+  transform:translateX(-50%);width:min(760px,calc(100% - 28px));box-sizing:border-box;
+  display:flex;gap:5px;padding:7px;overflow-x:auto;overscroll-behavior-x:contain;
+  scrollbar-width:none;background:rgba(20,20,20,.94);border:1px solid rgba(201,169,110,.18);
+  border-radius:17px;box-shadow:0 12px 38px rgba(0,0,0,.48);backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+nav.tabs::-webkit-scrollbar {display:none}
+nav.tabs button {flex:1 0 auto;min-width:76px;min-height:48px;padding:8px 11px;border-radius:11px;white-space:nowrap}
+nav.tabs button.active {background:rgba(201,169,110,.15);color:var(--gold);box-shadow:inset 0 0 0 1px rgba(201,169,110,.16)}
+#app {padding-bottom:100px}
+body.light-mode nav.tabs {background:rgba(255,255,255,.94);box-shadow:0 12px 38px rgba(30,24,16,.18)}
+@media(max-width:520px) {
+  nav.tabs {left:12px;right:12px;bottom:max(10px,env(safe-area-inset-bottom));transform:none;width:auto;max-width:none}
+  nav.tabs button {min-width:69px;min-height:46px;padding:7px 9px;font-size:11px}
+  #app {padding-bottom:92px}
+}
+@media(prefers-reduced-motion:reduce) {
+  #slabSplash,.slab-loader:after {transition:none;animation:none}
+}
