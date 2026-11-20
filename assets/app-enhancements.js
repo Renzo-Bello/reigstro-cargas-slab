@@ -5,8 +5,13 @@
   var start = Date.now();
   document.addEventListener('DOMContentLoaded', function () {
     var app = document.getElementById('app');
-    var technique = document.getElementById('view-tecnica');
-    if (app && technique && technique.parentElement !== app) app.appendChild(technique);
+    var panels = [
+      document.getElementById('view-tecnica'),
+      document.getElementById('view-rir')
+    ];
+    panels.forEach(function (panel) {
+      if (app && panel && panel.parentElement !== app) app.appendChild(panel);
+    });
   }, { once: true });
   function hideSplash() {
     if (!splash || splash.dataset.dismissed) return;
