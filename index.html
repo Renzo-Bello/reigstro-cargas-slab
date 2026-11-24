@@ -3458,6 +3458,15 @@ body.light-mode #journeyPercent {color:#765823;}
 @media(prefers-reduced-motion:reduce) {#journeyFill,#journeyNext {transition:none;}}
 </style>
 <link rel="stylesheet" href="assets/app-enhancements.css?v=20261120-rir-guide">
+<style>
+.home .home-nutrition {margin-top:18px;}
+.home .home-nutrition .home-card-heading {margin-bottom:10px;}
+.home .home-nutrition h2 {color:var(--gold);font-size:16px;letter-spacing:.8px;}
+.home .home-nutrition p {font-size:16px;line-height:1.6;}
+.home .home-nutrition-link {display:flex;flex-direction:column;gap:5px;align-items:flex-start;justify-content:center;margin-top:18px;padding:14px 16px;font:500 16px/1.5 var(--font-body);text-decoration:none;}
+.home .home-nutrition-link:hover {border-color:var(--gold);}
+.home .home-nutrition-hint {font-size:12px;font-weight:400;color:var(--text-mid);}
+</style>
 </head>
 <body>
 <div id="slabSplash" role="status" aria-label="Cargando StrengthLab"><div class="slab-splash-inner"><div class="slab-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12v8M9 9v14M23 9v14M27 12v8M9 16h14"/><path d="m13 12 3-3 3 3"/></svg></div><div class="slab-splash-name">StrengthLab</div><div class="slab-splash-caption">Entrenamiento en progreso</div><div class="slab-loader" aria-hidden="true"></div></div></div>
@@ -3819,6 +3828,11 @@ body.light-mode #journeyPercent {color:#765823;}
     </section>
     <section class="home-card home-week" aria-labelledby="homeWeekTitle"><div class="home-card-heading"><h2 id="homeWeekTitle">Esta semana</h2><span id="homeWeekCount"></span></div><div id="homeWeekDays" class="home-days"></div>
       <details class="home-streak"><summary><span class="streak-mark" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3c1 5-5 5-3 10 1-1 2-2 2-4 4 3 6 6 4 9a6 6 0 01-10-1C3 12 8 8 13 3z"/></svg></span><span>Racha semanal</span><strong id="homeStreakValue">0 semanas</strong><span class="streak-info" aria-hidden="true">i</span></summary><p>Semanas seguidas del plan, en el modo seleccionado, con al menos una sesión completada. La semana actual puede estar pendiente sin romper la racha. Se usan las fechas programadas; los entrenamientos futuros no suman.</p></details>
+    </section>
+    <section class="home-card home-nutrition" aria-labelledby="homeNutritionTitle">
+      <div class="home-card-heading"><h2 id="homeNutritionTitle">ALIMENTACIÓN</h2></div>
+      <p>Registra tus comidas y revisa tu diario de alimentación en NutriChat StrengthLab.</p>
+      <a class="home-secondary home-nutrition-link" href="https://renzo-bello.github.io/nutrichat-strengthlab/?v=604c83ff#diary" target="_blank" rel="noopener noreferrer">Abrir mi diario de alimentación<span class="home-nutrition-hint">Se abre en una nueva pestaña</span></a>
     </section>
     <section class="home-editorial" aria-label="Inspiración y aprendizaje">
       <div class="editorial-nav"><div class="editorial-tabs" role="tablist" aria-label="Contenido para ti"><button type="button" id="editorialQuoteTab" role="tab" aria-selected="true" aria-controls="editorialQuotePanel">Inspírate</button><button type="button" id="editorialFactTab" role="tab" aria-selected="false" aria-controls="editorialFactPanel" tabindex="-1">Aprende</button></div><button type="button" id="editorialNext" class="editorial-next" aria-label="Ver otra frase">→</button></div>
