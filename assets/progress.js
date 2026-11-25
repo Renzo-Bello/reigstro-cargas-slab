@@ -75,7 +75,41 @@
     if(data.length>1) svg.appendChild(svgNode('text',{x:330,y:198,'text-anchor':'end'},dateLabel(data[data.length-1].date)));
     host.appendChild(svg);
   }
+  function renderWorkoutAchievements() {
+    var host=el('workoutAchievements');
+    if(!host)return;
+    var stats=adapter && typeof adapter.getWorkoutStats==='function' ? adapter.getWorkoutStats() : {workouts:0,longestStreak:0};
+    var workouts=Math.max(0,Number(stats.workouts)||0), weeks=Math.max(0,Number(stats.longestStreak)||0);
+    var items=[
+      {icon:'✦',title:'Primer entreno',detail:'Completa tu primera sesión',value:workouts,goal:1},
+      {icon:'⚡',title:'10 entrenos',detail:'Diez sesiones completadas',value:workouts,goal:10},
+      {icon:'▦',title:'Semana completa',detail:'3 o más entrenos en una semana',value:weeks>0?3:0,goal:3,unlocked:weeks>=1},
+      {icon:'✧',title:'4 semanas seguidas',detail:'Mantén 3 entrenos por semana',value:Math.min(weeks,4),goal:4}
+    ];
+    host.replaceChildren();
+    var header=document.createElement('div');header.className='achievement-heading';
+    var title=document.createElement('div');title.innerHTML='<div class="insight-kicker">CONSTANCIA</div><h3>Logros de entrenamiento</h3>';
+    var count=document.createElement('span');count.className='achievement-total';
+    var unlocked=items.filter(function(item){return item.unlocked || item.value>=item.goal;}).length;
+    count.textContent=unlocked+' / '+items.length;header.append(title,count);host.appendChild(header);
+    var grid=document.createElement('div');grid.className='achievement-grid';
+    items.forEach(function(item){
+      var isUnlocked=item.unlocked || item.value>=item.goal;
+      var progress=Math.min(100,Math.round(item.value/item.goal*100));
+      var card=document.createElement('article');card.className='achievement-card'+(isUnlocked?' is-unlocked':'');
+      var icon=document.createElement('span');icon.className='achievement-icon';icon.textContent=item.icon;icon.setAttribute('aria-hidden','true');
+      var content=document.createElement('div');content.className='achievement-copy';
+      var name=document.createElement('strong');name.textContent=item.title;
+      var desc=document.createElement('small');desc.textContent=item.detail;
+      var bar=document.createElement('div');bar.className='achievement-track';bar.setAttribute('role','progressbar');bar.setAttribute('aria-valuemin','0');bar.setAttribute('aria-valuemax',String(item.goal));bar.setAttribute('aria-valuenow',String(Math.min(item.value,item.goal)));
+      var fill=document.createElement('span');fill.style.width=progress+'%';bar.appendChild(fill);
+      var status=document.createElement('small');status.className='achievement-status';status.textContent=isUnlocked?'Conseguido':(item.value+' / '+item.goal);
+      content.append(name,desc,bar,status);card.append(icon,content);grid.appendChild(card);
+    });
+    host.appendChild(grid);
+  }
   function render() {
+    renderWorkoutAchievements();
     if (!el('weightGraph')) return;
     var data = selectedEntries(), last = data[data.length-1], first=data[0];
     el('weightLatest').textContent = last ? format(last.weight) : '—';
