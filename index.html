@@ -33,9 +33,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
 <title>Registro de Entrenamientos | SLAB</title>
-<link rel="stylesheet" href="assets/progress.css?v=20261113">
+<link rel="stylesheet" href="assets/progress.css?v=20261125-achievements">
 
-<script src="assets/progress.js?v=20261113"></script>
+<script src="assets/progress.js?v=20261125-achievements"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -3457,7 +3457,7 @@ body.light-mode .exercise-replacements summary { color:#765823; }
 body.light-mode #journeyPercent {color:#765823;}
 @media(prefers-reduced-motion:reduce) {#journeyFill,#journeyNext {transition:none;}}
 </style>
-<link rel="stylesheet" href="assets/app-enhancements.css?v=20261125-rest-dock-center">
+<link rel="stylesheet" href="assets/app-enhancements.css?v=20261125-exercise-actions">
 <style>
 .home .home-nutrition {margin-top:18px;}
 .home .home-nutrition .home-card-heading {margin-bottom:10px;}
@@ -3887,6 +3887,7 @@ body.light-mode #journeyPercent {color:#765823;}
 
     <div class="month-pills" id="monthPillsProgress"></div>
     <div class="week-summary" id="weekSummary"></div>
+    <section id="workoutAchievements" class="workout-achievements" aria-live="polite"></section>
 
     <div id="chartsSection">
       <section class="insight-card insight-featured" aria-labelledby="chartCargaTitle">
@@ -5708,7 +5709,7 @@ body.light-mode #journeyPercent {color:#765823;}
     if (!group) return [];
     var options = group.filter(function(item) { return replacementKey(item) !== key; });
     if (key === 'jalon al pecho') options = ['Jalón al pecho en máquina', 'Dominadas contra liga'];
-    return options.slice(0, 3);
+    return options.slice(0, 6);
   }
   function renderExerciseReplacements(card, name) {
     var host = card.querySelector('.exercise-replacements');
@@ -5836,6 +5837,91 @@ body.light-mode #journeyPercent {color:#765823;}
     };
   }
 
+
+  function ensureExerciseActionModal() {
+    var modal = document.getElementById('exerciseActionModal');
+    if (modal) return modal;
+    modal = document.createElement('div');
+    modal.id = 'exerciseActionModal'; modal.className = 'exercise-action-modal';
+    modal.setAttribute('role','dialog'); modal.setAttribute('aria-modal','true'); modal.setAttribute('aria-labelledby','exerciseActionTitle');
+    modal.innerHTML = '<div class="exercise-action-sheet"><button type="button" class="exercise-action-close" aria-label="Cerrar">×</button><div class="progress-eyebrow">STRENGTHLAB / EJERCICIO</div><h2 id="exerciseActionTitle"></h2><div class="exercise-action-start"><button type="button" data-action="technique"><span>01</span><strong>Cómo se hace</strong><small>Técnica, consejos y errores frecuentes</small></button><button type="button" data-action="variant"><span>02</span><strong>Cambiar por una variante</strong><small>Elige una alternativa y registra el motivo</small></button></div><div class="exercise-variant-panel" hidden></div></div>';
+    document.body.appendChild(modal);
+    var close = function() { modal.classList.remove('open'); modal.querySelector('.exercise-variant-panel').hidden = true; modal.querySelector('.exercise-action-start').hidden = false; };
+    modal.querySelector('.exercise-action-close').onclick = close;
+    modal.addEventListener('click', function(event) { if (event.target === modal) close(); });
+    modal.querySelector('[data-action="technique"]').onclick = function() {
+      var ctx = modal._exerciseContext; if (!ctx) return; close();
+      var entry = EXERCISE_DB_INDEX[(ctx.exercise.nombre || '').toLowerCase().trim()];
+      openTecnicaDetail({nombre:ctx.exercise.nombre,musculo:entry ? entry.musculo : '',svg:entry ? entry.svg : '',videoUrl:entry ? entry.videoUrl : ''});
+    };
+    modal.querySelector('[data-action="variant"]').onclick = function() {
+      var ctx = modal._exerciseContext; if (!ctx) return;
+      var panel = modal.querySelector('.exercise-variant-panel');
+      modal.querySelector('.exercise-action-start').hidden = true; panel.hidden = false; panel.replaceChildren();
+      var heading = document.createElement('h3'); heading.textContent = 'Elige la variante';
+      var intro = document.createElement('p'); intro.textContent = 'Las series y cargas anteriores no se trasladan. Registra una carga adecuada para esta variante.';
+      var variantLabel = document.createElement('label'); variantLabel.textContent = 'Ejercicio alternativo';
+      var variantInput = document.createElement('input'); variantInput.type = 'text'; variantInput.setAttribute('list','exerciseVariantOptions'); variantInput.placeholder = 'Busca o escribe un ejercicio'; variantInput.autocomplete = 'off';
+      var dataList = document.createElement('datalist'); dataList.id = 'exerciseVariantOptions';
+      var suggestions = getExerciseReplacements(ctx.exercise.nombre);
+      EXERCISE_DB.forEach(function(item) { if (item && item.nombre && item.nombre !== ctx.exercise.nombre && !suggestions.some(function(x){return replacementKey(x)===replacementKey(item.nombre);})) suggestions.push(item.nombre); });
+      suggestions.forEach(function(value){var option=document.createElement('option');option.value=value;dataList.appendChild(option);});
+      var reasonLabel = document.createElement('label'); reasonLabel.textContent = '¿Por qué la cambias?';
+      var reason = document.createElement('select');
+      [['','Selecciona un motivo'],['sin-maquina','No estaba la máquina o el equipo'],['ocupada','La máquina estaba ocupada'],['otro-lugar','Estaba en otro gimnasio o lugar'],['molestia','Me molesta hacerlo'],['otro','Otro motivo']].forEach(function(pair){var option=document.createElement('option');option.value=pair[0];option.textContent=pair[1];reason.appendChild(option);});
+      var detail = document.createElement('textarea'); detail.placeholder = 'Detalle opcional para Renzo'; detail.rows = 2; detail.hidden = true;
+      reason.onchange = function(){detail.hidden = !(reason.value==='otro'||reason.value==='molestia');};
+      var feedback = document.createElement('p'); feedback.className = 'exercise-variant-feedback'; feedback.setAttribute('aria-live','polite');
+      var actions = document.createElement('div'); actions.className = 'exercise-variant-actions';
+      var back = document.createElement('button'); back.type='button'; back.textContent='Volver'; back.onclick=function(){panel.hidden=true;modal.querySelector('.exercise-action-start').hidden=false;};
+      var apply = document.createElement('button'); apply.type='button'; apply.className='exercise-variant-confirm'; apply.textContent='Usar variante';
+      apply.onclick = function() {
+        var nextName = variantInput.value.trim();
+        if (!nextName || !reason.value) { feedback.textContent='Elige una variante y el motivo del cambio.'; return; }
+        if (replacementKey(nextName) === replacementKey(ctx.exercise.nombre)) { feedback.textContent='Elige un ejercicio distinto al actual.'; return; }
+        ctx.exercise.cambioVariante = { anterior:ctx.exercise.nombre, nueva:nextName, motivo:reason.options[reason.selectedIndex].text, detalle:detail.value.trim(), fecha:new Date().toISOString() };
+        ctx.exercise.seriesAnterioresVariante = (ctx.exercise.series || []).map(function(serie){return Object.assign({},serie);});
+        ctx.exercise.nombre = nextName; ctx.exercise.series = [emptySerie()]; ctx.exercise.hecho = false; ctx.input.value = nextName;
+        scheduleSave(); renderExercises(); renderDayPills(); close();
+        showToast('Variante guardada. Registra la carga desde cero.', 'ok', 3000);
+      };
+      actions.append(back,apply);
+      panel.append(heading,intro,variantLabel,variantInput,dataList,reasonLabel,reason,detail,feedback,actions);
+      variantInput.focus();
+    };
+    return modal;
+  }
+  function openExerciseActions(exercise, card, input) {
+    if (!exercise.nombre || !exercise.nombre.trim()) { input.focus(); return; }
+    var modal = ensureExerciseActionModal();
+    modal._exerciseContext = {exercise:exercise,card:card,input:input};
+    modal.querySelector('#exerciseActionTitle').textContent = exercise.nombre;
+    modal.querySelector('.exercise-variant-panel').hidden = true; modal.querySelector('.exercise-action-start').hidden = false;
+    modal.classList.add('open'); modal.querySelector('.exercise-action-close').focus();
+  }
+
+  function getWorkoutAchievementStats() {
+    var completed = {};
+    Object.keys(quarterPlans).forEach(function(qKey) {
+      var q = Number(qKey), plan = quarterPlans[q] || {};
+      ['gimnasio','casa'].forEach(function(mode) {
+        var data = plan[mode] || {};
+        for (var m=1;m<=3;m++) for (var w=1;w<=4;w++) {
+          var weekIndex=(q-1)*12+(m-1)*4+(w-1), count=0;
+          for (var d=1;d<=5;d++) {
+            var exercises=data[dayKey(m,w,d)] || [];
+            var named=exercises.filter(function(ex){return ex && ex.nombre && ex.nombre.trim();});
+            if (named.length && named.every(function(ex){return !!ex.hecho;})) completed['q'+q+'w'+weekIndex+'d'+d]=true;
+          }
+        }
+      });
+    });
+    var weeks={}, total=0;
+    Object.keys(completed).forEach(function(key){total++;var match=key.match(/^q(\d+)w(\d+)d/);if(match){var week=Number(match[2]);weeks[week]=(weeks[week]||0)+1;}});
+    var streak=0,longestStreak=0;
+    for(var i=0;i<36;i++){if((weeks[i]||0)>=3){streak++;longestStreak=Math.max(longestStreak,streak);}else streak=0;}
+    return {workouts:total,longestStreak:longestStreak};
+  }
   function renderExercises() {
     updateSessionJourney();
     var el = document.getElementById('exerciseList'); el.innerHTML = '';
@@ -6024,12 +6110,23 @@ body.light-mode #journeyPercent {color:#765823;}
       // Fila inferior: acciones
       var actRow = document.createElement('div');
       actRow.className = 'ex-head-actions';
+      var exerciseOptionsBtn = document.createElement('button');
+      exerciseOptionsBtn.type = 'button'; exerciseOptionsBtn.className = 'ex-options-btn';
+      exerciseOptionsBtn.textContent = '⋯'; exerciseOptionsBtn.setAttribute('aria-label','Opciones para ' + (ex.nombre || 'este ejercicio'));
+      exerciseOptionsBtn.title = 'Cómo se hace o cambiar variante';
+      exerciseOptionsBtn.onclick = function(){ openExerciseActions(ex,card,nameInput); };
+      actRow.appendChild(exerciseOptionsBtn);
       if (videoUrl) actRow.appendChild(videoBtn);
       actRow.appendChild(rpeBtn);
       actRow.appendChild(delExBtn);
       head.appendChild(actRow);
 
       card.appendChild(head);
+      if (ex.cambioVariante) {
+        var variationNote = document.createElement('div'); variationNote.className = 'exercise-variant-note';
+        variationNote.textContent = 'Variante de ' + ex.cambioVariante.anterior + ' · ' + ex.cambioVariante.motivo + (ex.cambioVariante.detalle ? ' — ' + ex.cambioVariante.detalle : '');
+        card.appendChild(variationNote);
+      }
       renderExerciseMuscles(card, ex.nombre);
 
       // Inline picker — se expande cuando el nombre está vacío
@@ -9017,7 +9114,7 @@ body.light-mode #journeyPercent {color:#765823;}
     // Cargar todo desde IndexedDB (con migración automática desde localStorage)
     await loadData();
     await Promise.all([loadClientName(), loadStartDate(), loadPesoCorporal(), loadPersonalProfile()]);
-    await SLABProgress.init({get:slabGetItem, set:slabSetItem, onWeight:async function(weight) {
+    await SLABProgress.init({get:slabGetItem, set:slabSetItem, getWorkoutStats:function(){ return getWorkoutAchievementStats(); }, onWeight:async function(weight) {
       STATE.pesoCorporal = weight;
       document.getElementById('pesoCorporalInput').value = weight;
       document.getElementById('pesoCorporalCurrent').textContent = 'Peso actual: ' + weight + ' kg';
