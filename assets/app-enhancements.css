@@ -430,3 +430,33 @@ nav.tabs button.active {background:linear-gradient(145deg,rgba(210,180,119,.17),
 .exercise-variant-note {margin:8px 14px 0;padding:9px 11px;border-left:2px solid var(--gold);border-radius:0 8px 8px 0;background:var(--dark-2);color:var(--text-mid);font-size:11px;line-height:1.5}
 body.light-mode .exercise-action-sheet {background:var(--card);color:var(--text)}
 @media (min-width:700px) {.exercise-action-modal {align-items:center}.exercise-action-sheet {border-radius:24px}}
+
+/* Referencias y grupos musculares en la biblioteca de técnica */
+.tecnica-group {margin:0 0 10px}
+.tecnica-group-toggle {width:100%;min-height:56px;display:flex;align-items:center;gap:12px;padding:12px 15px;border:1px solid var(--border);border-radius:14px;background:var(--card);color:var(--text);text-align:left;cursor:pointer;transition:border-color .2s ease,background .2s ease}
+.tecnica-group-toggle:hover,.tecnica-group-toggle:focus-visible,.tecnica-group-toggle.is-open {border-color:rgba(201,169,110,.5);outline:none}
+.tecnica-group-toggle.is-open {border-radius:14px 14px 0 0;background:var(--dark-2)}
+.tecnica-group-toggle .tecnica-group-title {flex:1;font:600 13px var(--font-body);letter-spacing:.02em;color:var(--text);text-transform:none;white-space:normal}
+.tecnica-group-toggle .tecnica-group-count {font:500 10px var(--font-mono);color:var(--text-dim)}
+.tecnica-group-chevron {display:grid;place-items:center;width:26px;height:26px;border:1px solid var(--border);border-radius:50%;color:var(--gold);font-size:17px;line-height:1;transition:transform .2s ease}
+.tecnica-group-toggle.is-open .tecnica-group-chevron {transform:rotate(45deg)}
+.tecnica-group-content {padding:16px;border:1px solid rgba(201,169,110,.5);border-top:0;border-radius:0 0 14px 14px;background:var(--card)}
+.tecnica-group-content[hidden] {display:none}
+.tecnica-muscle-reference {display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,.75fr);align-items:center;gap:18px;padding:4px 0 12px}
+.tecnica-reference-kicker {font:500 9px var(--font-mono);letter-spacing:1.5px;color:var(--gold)}
+.tecnica-muscle-copy h3 {margin:7px 0;font:600 22px/1.2 var(--font-display)}
+.tecnica-muscle-copy p {margin:0;color:var(--text-mid);font-size:12px;line-height:1.65}
+.tecnica-muscle-photo {height:150px;overflow:hidden;border:1px solid var(--border);border-radius:12px;background:var(--dark-2)}
+.tecnica-muscle-photo img {width:100%;height:100%;display:block;object-fit:cover}
+.tecnica-muscle-photo .tecnica-row-img-fallback {width:100%;height:100%;display:grid;place-items:center}
+.tecnica-muscle-photo .tecnica-row-img-fallback svg {width:80px;height:80px}
+.tecnica-group-content>small {display:block;margin:0 0 10px;color:var(--text-dim);font-size:10px}
+.tecnica-group-content .tecnica-list {border-top:1px solid var(--border)}
+.tecnica-group-content .tecnica-row {width:100%;border:0;border-bottom:1px solid var(--border);background:transparent;color:var(--text);font:inherit;text-align:left}
+.tecnica-group-content .tecnica-row:focus-visible {outline:2px solid var(--gold);outline-offset:-2px;border-radius:8px}
+.exercise-variant-panel select:disabled {opacity:.7;cursor:not-allowed}
+@media(max-width:560px) {
+  .tecnica-muscle-reference {grid-template-columns:1fr;gap:12px}
+  .tecnica-muscle-photo {height:180px}
+  .tecnica-group-content {padding:13px}
+}
