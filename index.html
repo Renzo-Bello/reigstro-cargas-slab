@@ -33,7 +33,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
 <title>Registro de Entrenamientos | SLAB</title>
-<link rel="stylesheet" href="assets/progress.css?v=20261125-achievements">
+<link rel="stylesheet" href="assets/progress.css?v=20261125-organized">
 
 <script src="assets/progress.js?v=20261125-achievements"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -3882,16 +3882,21 @@ body.light-mode #journeyPercent {color:#765823;}
   </div>
 
   <div id="view-progreso" class="panel" style="display:none;">
-    <header class="progress-intro"><div class="progress-eyebrow">STRENGTHLAB / TU EVOLUCIÓN</div><h2>El esfuerzo deja huella.</h2><p>Tus cargas, tu constancia y tu peso. Una mirada clara a lo que estás construyendo.</p></header>
+    <header class="progress-intro"><div class="progress-eyebrow">STRENGTHLAB / TU EVOLUCIÓN</div><h2>Tu progreso, en orden.</h2><p>Revisa tus sesiones, marcas y tendencias del período seleccionado.</p></header>
     <div class="quarter-bar"><label>Trimestre <select data-quarter-select aria-label="Trimestre de entrenamiento" disabled><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label></div>
 
-    <div class="month-pills" id="monthPillsProgress"></div>
-    <div class="week-summary" id="weekSummary"></div>
-    <section id="workoutAchievements" class="workout-achievements" aria-live="polite"></section>
+    <section class="progress-overview" aria-labelledby="progressOverviewTitle">
+      <div class="progress-block-heading"><div><div class="insight-kicker">RESUMEN DEL PERÍODO</div><h3 id="progressOverviewTitle">Actividad y constancia</h3></div><span class="progress-block-tag">Mes seleccionado</span></div>
+      <div class="month-pills" id="monthPillsProgress"></div>
+      <div class="week-summary-heading"><h4>Sesiones por semana</h4><span>Completadas / planificadas</span></div>
+      <div class="week-summary" id="weekSummary"></div>
+      <section id="workoutAchievements" class="workout-achievements" aria-live="polite"></section>
+    </section>
 
-    <div id="chartsSection">
+    <section class="progress-analytics" aria-labelledby="progressAnalyticsTitle"><div class="progress-block-heading"><div><div class="insight-kicker">ANÁLISIS</div><h3 id="progressAnalyticsTitle">Fuerza, volumen y peso</h3></div></div>
+    <div id="chartsSection" class="progress-chart-grid">
       <section class="insight-card insight-featured" aria-labelledby="chartCargaTitle">
-        <div class="insight-heading"><div><div class="insight-kicker">RENDIMIENTO</div><h3 id="chartCargaTitle">Tu fuerza, en perspectiva.</h3></div><span class="insight-index" aria-hidden="true">01</span></div>
+        <div class="insight-heading"><div><div class="insight-kicker">RENDIMIENTO</div><h3 id="chartCargaTitle">Evolución de carga</h3></div><span class="insight-index" aria-hidden="true">01</span></div>
         <label class="insight-select-label" for="chartExSelect">Ejercicio</label>
         <select id="chartExSelect" class="insight-select"><option value="">Elige un ejercicio</option></select>
         <div class="insight-toolbar">
@@ -3899,26 +3904,29 @@ body.light-mode #journeyPercent {color:#765823;}
           <div class="insight-segments" id="chartCargaRange" aria-label="Período del gráfico"><button type="button" data-range="month" aria-pressed="false">Mes</button><button type="button" class="active" data-range="quarter" aria-pressed="true">12 sem.</button></div>
         </div>
         <div class="insight-stats" aria-live="polite"><div class="insight-stat"><small>Última semana registrada</small><strong><span id="loadLatest">—</span><em>kg</em></strong></div><div class="insight-stat"><small>Mejor marca</small><strong><span id="loadBest">—</span><em>kg</em></strong></div><div class="insight-stat"><small>Cambio del período</small><strong><span id="loadChange">—</span><em>kg</em></strong></div></div>
-        <div class="insight-legend"><span id="loadLegend">Mejor carga semanal</span></div>
+        <div class="insight-legend"><span id="loadLegend">Mejor carga registrada por semana</span></div>
         <div class="insight-chart" id="chartCargaWrap"><canvas id="chartCarga" role="img" aria-label="Evolución semanal de la carga del ejercicio seleccionado"></canvas></div>
         <div id="chartCargaEmpty" class="insight-empty" hidden><strong>Tu próxima marca empieza aquí.</strong>Registra un ejercicio y marca sus series como completadas para ver tu evolución.</div>
-        <p class="insight-caption" id="loadCaption">Solo series completadas, sin calentamientos. Las semanas sin registros quedan vacías.</p>
+        <p class="insight-caption" id="loadCaption">Cuenta solo las series completadas; excluye calentamientos. Los espacios vacíos indican semanas sin registros.</p>
       </section>
+      
+
+      <section class="insight-card" aria-labelledby="volumeTitle"><div class="insight-heading"><div><div class="insight-kicker">CONSTANCIA</div><h3 id="volumeTitle">Series completadas</h3></div><span class="insight-index" aria-hidden="true">02</span></div><div class="insight-chart" style="height:170px"><canvas id="chartVolumen" role="img" aria-label="Series completadas por semana del mes"></canvas></div><p class="insight-caption">Total de series de trabajo completadas por semana del mes seleccionado.</p></section>
+      <section class="insight-card" aria-labelledby="effortTitle"><div class="insight-heading"><div><div class="insight-kicker">INTENSIDAD</div><h3 id="effortTitle">Esfuerzo de sesión</h3></div><span class="insight-index" aria-hidden="true">03</span></div><div class="insight-chart" style="height:150px"><canvas id="chartRpe" role="img" aria-label="Promedio semanal del esfuerzo de sesión"></canvas></div><p class="insight-caption">Promedio de RPE de las sesiones registradas cada semana.</p></section>
       <section class="insight-card insight-featured" aria-labelledby="weightTitle">
-      <div class="insight-heading"><div><div class="insight-kicker">COMPOSICIÓN CORPORAL</div><h3 id="weightTitle">Tu peso, con contexto.</h3></div><span class="insight-index" aria-hidden="true">02</span></div>
+      <div class="insight-heading"><div><div class="insight-kicker">COMPOSICIÓN CORPORAL</div><h3 id="weightTitle">Evolución de peso corporal</h3></div><span class="insight-index" aria-hidden="true">04</span></div>
       <div class="insight-toolbar"><span style="font-size:11px;color:var(--text-mid)">Historial personal · Todos los trimestres</span><div class="insight-segments" id="weightRange" aria-label="Período del peso"><button type="button" data-range="30" aria-pressed="false">30 días</button><button type="button" class="active" data-range="all" aria-pressed="true">Todo</button></div></div>
       <div class="insight-stats" aria-live="polite"><div class="insight-stat"><small id="weightLastDate">Último registro</small><strong><span id="weightLatest">—</span><em>kg</em></strong></div><div class="insight-stat"><small>Primer registro</small><strong><span id="weightInitial">—</span><em>kg</em></strong></div><div class="insight-stat"><small>Cambio del período</small><strong><span id="weightChange">—</span><em>kg</em></strong></div></div>
       <div id="weightGraph" hidden></div><div id="weightEmpty" class="insight-empty"><strong>Un registro. Un punto de partida.</strong>Guarda tu peso para empezar la curva de evolución.<br>Si elegiste 30 días, prueba también la vista «Todo».</div>
       <form id="weightForm" class="weight-form"><label for="weightDate">Fecha<input type="date" id="weightDate" required></label><label for="weightValue">Peso corporal · kg<input id="weightValue" type="text" inputmode="decimal" placeholder="Ej. 75,5" autocomplete="off" required></label><button id="weightSave" type="submit">Guardar peso</button></form>
       <p id="weightFeedback" class="weight-feedback" role="status" aria-live="polite"></p>
-      <p class="insight-caption">Compara registros tomados en condiciones similares. Observa la evolución, no un valor aislado. El historial se guarda en este navegador y se incluye en tu respaldo JSON.</p>
+      <p class="insight-caption">Compara registros tomados en condiciones similares. El historial se guarda en este navegador y se incluye en tu respaldo JSON.</p>
       <details class="weight-history"><summary id="weightHistoryCount">Historial · 0 registros</summary><div class="weight-list" id="weightList"></div></details>
       </section>
-
-      <section class="insight-card" aria-labelledby="volumeTitle"><div class="insight-heading"><div><div class="insight-kicker">CONSTANCIA</div><h3 id="volumeTitle">Cada serie cuenta.</h3></div><span class="insight-index" aria-hidden="true">03</span></div><div class="insight-chart" style="height:170px"><canvas id="chartVolumen" role="img" aria-label="Series completadas por semana del mes"></canvas></div><p class="insight-caption">Series de trabajo completadas en el mes seleccionado.</p></section>
-      <section class="insight-card" aria-labelledby="effortTitle"><div class="insight-heading"><div><div class="insight-kicker">INTENSIDAD</div><h3 id="effortTitle">Cómo se sintió.</h3></div><span class="insight-index" aria-hidden="true">04</span></div><div class="insight-chart" style="height:150px"><canvas id="chartRpe" role="img" aria-label="Promedio semanal del esfuerzo de sesión"></canvas></div><p class="insight-caption">RPE promedio de las sesiones registradas en el mes seleccionado.</p></section>
     </div>
-    <div class="progress-section" id="progressContent"></div>
+    </section>
+    <section class="progress-history" aria-labelledby="progressHistoryTitle"><div class="progress-block-heading"><div><div class="insight-kicker">REGISTRO</div><h3 id="progressHistoryTitle">Detalle semanal</h3><p>Abre una semana para revisar ejercicios, series y esfuerzo.</p></div></div><div class="progress-section" id="progressContent"></div></section>
+    <details class="progress-tools"><summary><span>Respaldo y ajustes</span><small>PDF, datos personales y configuración del trimestre</small></summary><div class="progress-tools-content">
     <div class="backup-section">
       <button id="pdfReportBtn" class="backup-btn" style="background:var(--gold);color:var(--dark);border-color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Descargar reporte completo (PDF)</button>
       <button id="exportBtn" class="backup-btn">Descargar respaldo (.json)</button>
@@ -3963,6 +3971,7 @@ body.light-mode #journeyPercent {color:#765823;}
       </div>
       <div class="start-date-current" id="pesoCorporalCurrent"></div>
     </div>
+    </div></details>
   </div>
 
   <!-- CALCULADORA RPE (ahora 3er tab) -->
@@ -7137,7 +7146,7 @@ body.light-mode #journeyPercent {color:#765823;}
       }
 
       var block = document.createElement('div');
-      block.className = 'prog-week-block' + (wb === 1 && weekHas ? ' open' : '');
+      block.className = 'prog-week-block';
 
       // Contar días completados para badge
       var wDone = 0, wTotal = 0;
