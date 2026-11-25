@@ -6094,15 +6094,7 @@ body.light-mode #journeyPercent {color:#765823;}
       else { imgWrap.classList.add('no-img'); }
       imgWrap.addEventListener('click', function(e) {
         e.stopPropagation();
-        var entry = EXERCISE_DB_INDEX[ex.nombre.toLowerCase().trim()];
-        if (typeof openTecnicaDetail === 'function') {
-          openTecnicaDetail({
-            nombre: ex.nombre,
-            musculo: entry ? entry.musculo : '',
-            svg: entry ? entry.svg : '',
-            videoUrl: entry ? entry.videoUrl : ''
-          });
-        }
+        openExerciseActions(ex, card, nameInput);
       });
       topRow.appendChild(imgWrap);
       head.appendChild(topRow);
