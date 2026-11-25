@@ -485,3 +485,36 @@ body.light-mode .exercise-action-sheet {background:var(--card);color:var(--text)
   #tecnicaList .tecnica-group-toggle {grid-template-columns:90px minmax(0,1fr) 24px;min-height:114px;gap:11px;padding:10px}
   #tecnicaList .tecnica-group-art {width:90px;height:100px}
 }
+
+/* Generado para StrengthLab: sprite con referencias anatómicas de ocho grupos */
+#tecnicaList .tecnica-group-art {width:112px;height:112px;aspect-ratio:1/1;border-radius:13px}
+#tecnicaList .muscle-atlas-image {display:block;width:100%;height:100%;background-color:#151619;background-image:var(--slab-muscle-atlas);background-repeat:no-repeat;background-size:400% 200%}
+#tecnicaList .atlas-cell-1 {background-position:0 0}
+#tecnicaList .atlas-cell-2 {background-position:33.333333% 0}
+#tecnicaList .atlas-cell-3 {background-position:66.666667% 0}
+#tecnicaList .atlas-cell-4 {background-position:100% 0}
+#tecnicaList .atlas-cell-5 {background-position:0 100%}
+#tecnicaList .atlas-cell-6 {background-position:33.333333% 100%}
+#tecnicaList .atlas-cell-7 {background-position:66.666667% 100%}
+#tecnicaList .atlas-cell-8 {background-position:100% 100%}
+#tecnicaList .atlas-cell-other {background:radial-gradient(circle at 50% 42%,rgba(201,169,110,.2),transparent 55%),#151619}
+#tecnicaList .atlas-cell-other::after {content:'◎';display:grid;place-items:center;width:100%;height:100%;color:var(--gold);font-size:36px}
+.tecnica-detail-modal.open {align-items:flex-end}
+.tecnica-detail-sheet {width:calc(100% - 20px);max-width:760px;max-height:92dvh;border-bottom:1px solid var(--border);border-radius:24px 24px 0 0;padding:22px 22px calc(24px + env(safe-area-inset-bottom,0px))}
+.tecnica-detail-head {width:100%;margin-bottom:22px}
+.tecnica-detail-img-wrap {width:100%;height:clamp(230px,38vh,360px);border-radius:18px;border:1px solid var(--border);background:#151619;box-shadow:0 12px 36px rgba(0,0,0,.24)}
+.tecnica-detail-img-wrap img {object-fit:contain}
+.tecnica-detail-img-wrap .tecnica-detail-img-fallback svg {width:min(65%,220px);height:min(70%,250px)}
+.tecnica-detail-name {font-size:clamp(22px,3vw,30px);margin-top:16px}
+@media(min-width:700px) {
+  .tecnica-detail-modal.open {align-items:center;padding:20px}
+  .tecnica-detail-sheet {border-bottom:1px solid var(--border);border-radius:24px}
+  .tecnica-detail-head {display:grid;grid-template-columns:minmax(260px,1.2fr) minmax(180px,.8fr);gap:24px;text-align:left}
+  .tecnica-detail-head-info {text-align:left}
+}
+@media(max-width:420px) {
+  #tecnicaList .tecnica-group-toggle {grid-template-columns:90px minmax(0,1fr) 24px;min-height:110px}
+  #tecnicaList .tecnica-group-art {width:90px;height:90px}
+  .tecnica-detail-sheet {width:100%;max-height:93dvh;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px))}
+  .tecnica-detail-img-wrap {height:clamp(220px,35vh,310px)}
+}
