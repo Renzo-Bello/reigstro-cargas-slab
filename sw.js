@@ -1,4 +1,4 @@
-const CACHE_NAME = 'strengthlab-shell-v14';
+const CACHE_NAME = 'strengthlab-shell-v15';
 const APP_SHELL = [
   './',
   './index.html',
@@ -7,6 +7,7 @@ const APP_SHELL = [
   './assets/progress.css?v=20261125-progress-tabs',
   './assets/progress.js?v=20261125-achievements',
   './assets/muscle-atlas-data.js?v=20261125-atlas',
+  './assets/home-content.js',
   './favicon-32.png',
   './app-icon.svg',
   './favicon.png',
