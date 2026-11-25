@@ -3457,7 +3457,7 @@ body.light-mode .exercise-replacements summary { color:#765823; }
 body.light-mode #journeyPercent {color:#765823;}
 @media(prefers-reduced-motion:reduce) {#journeyFill,#journeyNext {transition:none;}}
 </style>
-<link rel="stylesheet" href="assets/app-enhancements.css?v=20261125-muscle-atlas-v2">
+<link rel="stylesheet" href="assets/app-enhancements.css?v=20261125-generated-muscles-v1">
 <style>
 .home .home-nutrition {margin-top:18px;}
 .home .home-nutrition .home-card-heading {margin-bottom:10px;}
@@ -4275,6 +4275,7 @@ body.light-mode #journeyPercent {color:#765823;}
   </div>
 </div>
 
+<script src="assets/muscle-atlas-data.js?v=20261125-atlas"></script>
 <script>
   /* ── MODAL IMAGEN EJERCICIO ── */
   window.openExImg = function(imgUrl, nombre, musculo) {
@@ -8872,20 +8873,10 @@ body.light-mode #journeyPercent {color:#765823;}
   ══════════════════════════════════════ */
   var _tecnicaRendered = false;
   function muscleGroupAnatomy(group) {
-    var isBack = ['Espalda','Glúteos','Tríceps'].indexOf(group)>=0;
-    var suffix = replacementKey(group).replace(/[^a-z0-9]+/g,'-');
-    var body = '<ellipse cx="100" cy="26" rx="13" ry="16"/><path d="M91 40 Q100 45 109 40 L111 53 Q126 55 137 64 L145 80 L137 95 L128 87 L128 118 Q124 135 116 144 L118 161 L133 214 Q136 226 130 230 L119 232 L105 177 L100 165 L95 177 L81 232 L70 230 Q64 226 67 214 L82 161 L84 144 Q76 135 72 118 L72 87 L63 95 L55 80 L63 64 Q74 55 89 53 Z"/><path d="M62 68 Q54 76 52 90 L47 121 Q46 130 53 132 Q59 132 61 123 L68 92 M138 68 Q146 76 148 90 L153 121 Q154 130 147 132 Q141 132 139 123 L132 92" opacity=".92"/>';
-    var target = '';
-    if(group==='Espalda') target='<path d="M88 58 Q100 64 112 58 L121 71 L116 99 L109 119 L100 127 L91 119 L84 99 L79 71 Z"/><path d="M77 72 Q68 72 65 83 L69 111 L82 128 L91 121 L85 96 Z"/><path d="M123 72 Q132 72 135 83 L131 111 L118 128 L109 121 L115 96 Z"/>';
-    else if(group==='Pectoral') target='<path d="M79 67 Q89 61 98 68 L98 91 Q88 94 77 87 Q73 78 79 67 Z"/><path d="M121 67 Q111 61 102 68 L102 91 Q112 94 123 87 Q127 78 121 67 Z"/>';
-    else if(group==='Pierna') target='<path d="M82 153 Q89 151 97 157 L92 190 L85 211 L75 211 L77 183 Z"/><path d="M118 153 Q111 151 103 157 L108 190 L115 211 L125 211 L123 183 Z"/><path d="M74 211 L85 211 L81 225 L70 226 Z"/><path d="M126 211 L115 211 L119 225 L130 226 Z"/>';
-    else if(group==='Glúteos') target='<path d="M83 126 Q91 120 99 126 L99 151 Q91 156 82 147 Q77 138 83 126 Z"/><path d="M117 126 Q109 120 101 126 L101 151 Q109 156 118 147 Q123 138 117 126 Z"/>';
-    else if(group==='Tríceps') target='<path d="M60 72 Q54 77 54 91 L50 117 Q53 122 58 119 L66 93 L71 80 Z"/><path d="M140 72 Q146 77 146 91 L150 117 Q147 122 142 119 L134 93 L129 80 Z"/>';
-    else if(group==='Bíceps') target='<path d="M62 74 Q57 80 57 91 L54 109 Q58 114 62 108 L69 88 L71 79 Z"/><path d="M138 74 Q143 80 143 91 L146 109 Q142 114 138 108 L131 88 L129 79 Z"/>';
-    else if(group==='Hombros') target='<path d="M76 58 Q67 57 61 66 L57 77 L68 87 L81 76 L88 62 Z"/><path d="M124 58 Q133 57 139 66 L143 77 L132 87 L119 76 L112 62 Z"/>';
-    else if(group==='Abdomen') target='<path d="M88 94 Q93 91 98 94 L98 103 L88 104 Z"/><path d="M102 94 Q107 91 112 94 L112 104 L102 103 Z"/><path d="M87 108 Q93 106 98 108 L98 118 L87 118 Z"/><path d="M102 108 Q107 106 113 108 L113 118 L102 118 Z"/><path d="M88 122 Q93 120 98 122 L98 131 L90 132 Z"/><path d="M102 122 Q107 120 112 122 L110 132 L102 131 Z"/>';
-    var lines=isBack?'<path d="M82 58 Q100 76 118 58 M100 64 L100 140 M81 76 Q73 90 84 103 Q91 101 96 91 M119 76 Q127 90 116 103 Q109 101 104 91 M81 108 Q90 118 98 120 M119 108 Q110 118 102 120 M82 132 Q100 139 118 132 M82 161 Q100 168 118 161" fill="none" stroke="#282a2d" stroke-width="1.5" opacity=".78"/>':'<path d="M89 54 Q100 62 111 54 M79 68 Q88 62 98 70 M121 68 Q112 62 102 70 M100 69 L100 133 M84 96 Q100 101 116 96 M84 108 Q100 113 116 108 M86 121 Q100 126 114 121 M82 161 Q100 167 118 161" fill="none" stroke="#282a2d" stroke-width="1.5" opacity=".78"/>';
-    return '<svg class="muscle-anatomy-svg '+(isBack?'back':'front')+'" viewBox="0 0 200 250" role="img" aria-label="Ilustración anatómica de '+group+'"><defs><linearGradient id="atlasBase-'+suffix+'" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#85878a"/><stop offset="1" stop-color="#62666a"/></linearGradient><radialGradient id="atlasGlow-'+suffix+'"><stop offset="0" stop-color="#d3ad68" stop-opacity=".2"/><stop offset="1" stop-color="#d3ad68" stop-opacity="0"/></radialGradient></defs><rect x="2" y="2" width="196" height="246" rx="18" fill="#151619"/><circle cx="100" cy="112" r="82" fill="url(#atlasGlow-'+suffix+')"/><g fill="url(#atlasBase-'+suffix+')" stroke="#b6b8ba" stroke-width="1.2" stroke-linejoin="round">'+body+'</g><g fill="#d3ad68" stroke="#e3c78e" stroke-width="1" stroke-linejoin="round">'+target+'</g><g fill="none" stroke="#222428" stroke-width="1.25" opacity=".85">'+lines+'</g><path d="M89 42 Q100 48 111 42 M92 234 L89 243 M108 234 L111 243" fill="none" stroke="#c8c9ca" stroke-width="1.4" stroke-linecap="round"/></svg>';
+    var cells={'Espalda':1,'Pectoral':2,'Pierna':3,'Glúteos':4,'Tríceps':5,'Bíceps':6,'Hombros':7,'Abdomen':8};
+    var cell=cells[group]||'other';
+    var label='Referencia anatómica de '+group+', con la zona muscular destacada';
+    return '<span class="muscle-atlas-image atlas-cell-'+cell+'" role="img" aria-label="'+label+'"></span>';
   }
 
   window.renderTecnica = function renderTecnica(filter) {
