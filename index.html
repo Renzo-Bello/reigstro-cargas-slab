@@ -3457,7 +3457,7 @@ body.light-mode .exercise-replacements summary { color:#765823; }
 body.light-mode #journeyPercent {color:#765823;}
 @media(prefers-reduced-motion:reduce) {#journeyFill,#journeyNext {transition:none;}}
 </style>
-<link rel="stylesheet" href="assets/app-enhancements.css?v=20261125-exercise-actions">
+<link rel="stylesheet" href="assets/app-enhancements.css?v=20261125-muscle-guides-v2">
 <style>
 .home .home-nutrition {margin-top:18px;}
 .home .home-nutrition .home-card-heading {margin-bottom:10px;}
@@ -5860,12 +5860,12 @@ body.light-mode #journeyPercent {color:#765823;}
       modal.querySelector('.exercise-action-start').hidden = true; panel.hidden = false; panel.replaceChildren();
       var heading = document.createElement('h3'); heading.textContent = 'Elige la variante';
       var intro = document.createElement('p'); intro.textContent = 'Las series y cargas anteriores no se trasladan. Registra una carga adecuada para esta variante.';
-      var variantLabel = document.createElement('label'); variantLabel.textContent = 'Ejercicio alternativo';
-      var variantInput = document.createElement('input'); variantInput.type = 'text'; variantInput.setAttribute('list','exerciseVariantOptions'); variantInput.placeholder = 'Busca o escribe un ejercicio'; variantInput.autocomplete = 'off';
-      var dataList = document.createElement('datalist'); dataList.id = 'exerciseVariantOptions';
+      var variantLabel = document.createElement('label'); variantLabel.textContent = 'Variante cercana';
+      var variantSelect = document.createElement('select');
       var suggestions = getExerciseReplacements(ctx.exercise.nombre);
-      EXERCISE_DB.forEach(function(item) { if (item && item.nombre && item.nombre !== ctx.exercise.nombre && !suggestions.some(function(x){return replacementKey(x)===replacementKey(item.nombre);})) suggestions.push(item.nombre); });
-      suggestions.forEach(function(value){var option=document.createElement('option');option.value=value;dataList.appendChild(option);});
+      var placeholderOption = document.createElement('option'); placeholderOption.value = ''; placeholderOption.textContent = suggestions.length ? 'Selecciona una alternativa similar' : 'Sin alternativas validadas para este ejercicio'; variantSelect.appendChild(placeholderOption);
+      suggestions.forEach(function(value){var option=document.createElement('option');option.value=value;option.textContent=value;variantSelect.appendChild(option);});
+      variantSelect.disabled = !suggestions.length;
       var reasonLabel = document.createElement('label'); reasonLabel.textContent = '¿Por qué la cambias?';
       var reason = document.createElement('select');
       [['','Selecciona un motivo'],['sin-maquina','No estaba la máquina o el equipo'],['ocupada','La máquina estaba ocupada'],['otro-lugar','Estaba en otro gimnasio o lugar'],['molestia','Me molesta hacerlo'],['otro','Otro motivo']].forEach(function(pair){var option=document.createElement('option');option.value=pair[0];option.textContent=pair[1];reason.appendChild(option);});
@@ -5876,8 +5876,8 @@ body.light-mode #journeyPercent {color:#765823;}
       var back = document.createElement('button'); back.type='button'; back.textContent='Volver'; back.onclick=function(){panel.hidden=true;modal.querySelector('.exercise-action-start').hidden=false;};
       var apply = document.createElement('button'); apply.type='button'; apply.className='exercise-variant-confirm'; apply.textContent='Usar variante';
       apply.onclick = function() {
-        var nextName = variantInput.value.trim();
-        if (!nextName || !reason.value) { feedback.textContent='Elige una variante y el motivo del cambio.'; return; }
+        var nextName = variantSelect.value;
+        if (!nextName || !reason.value) { feedback.textContent='Elige una variante cercana y el motivo del cambio.'; return; }
         if (replacementKey(nextName) === replacementKey(ctx.exercise.nombre)) { feedback.textContent='Elige un ejercicio distinto al actual.'; return; }
         ctx.exercise.cambioVariante = { anterior:ctx.exercise.nombre, nueva:nextName, motivo:reason.options[reason.selectedIndex].text, detalle:detail.value.trim(), fecha:new Date().toISOString() };
         ctx.exercise.seriesAnterioresVariante = (ctx.exercise.series || []).map(function(serie){return Object.assign({},serie);});
@@ -5886,8 +5886,9 @@ body.light-mode #journeyPercent {color:#765823;}
         showToast('Variante guardada. Registra la carga desde cero.', 'ok', 3000);
       };
       actions.append(back,apply);
-      panel.append(heading,intro,variantLabel,variantInput,dataList,reasonLabel,reason,detail,feedback,actions);
-      variantInput.focus();
+      panel.append(heading,intro,variantLabel,variantSelect,reasonLabel,reason,detail,feedback,actions);
+      if (!suggestions.length) feedback.textContent = 'Aún no tenemos una variante realmente similar. Puedes mantener el ejercicio o consultar con Renzo.';
+      else variantSelect.focus();
     };
     return modal;
   }
@@ -8873,137 +8874,78 @@ body.light-mode #journeyPercent {color:#765823;}
   window.renderTecnica = function renderTecnica(filter) {
     var list = document.getElementById('tecnicaList');
     if (!list) return;
-    list.innerHTML = '';
-
-    var q = (filter || '').toLowerCase().trim();
-    var _db = typeof EXERCISE_DB !== 'undefined' ? EXERCISE_DB : [];
-
-    var ejercicios = q
-      ? _db.filter(function(e) {
-          return e.nombre.toLowerCase().includes(q) || e.musculo.toLowerCase().includes(q);
-        })
-      : _db;
-
-    if (ejercicios.length === 0) {
-      var empty = document.createElement('div');
-      empty.className = 'tecnica-empty';
-      empty.textContent = 'Sin resultados';
-      list.appendChild(empty);
-      return;
-    }
-
-    // Contador
+    list.replaceChildren();
+    var rawQuery = (filter || '').trim();
+    var query = replacementKey(rawQuery);
+    var db = typeof EXERCISE_DB !== 'undefined' ? EXERCISE_DB : [];
+    var exercises = query ? db.filter(function(ex) {
+      return replacementKey(ex.nombre).includes(query) || replacementKey(ex.musculo).includes(query);
+    }) : db;
     var countEl = document.getElementById('tecnicaCount');
-    if (countEl) {
-      var withV = ejercicios.filter(function(e) { return e.videoUrl; }).length;
-      countEl.textContent = q
-        ? ejercicios.length + ' ejercicio' + (ejercicios.length !== 1 ? 's' : '')
-        : withV + ' videos · ' + ejercicios.length + ' ejercicios';
+    if (countEl) countEl.textContent = exercises.length + ' ejercicio' + (exercises.length !== 1 ? 's' : '') + (query ? ' encontrados' : ' en la biblioteca');
+    if (!exercises.length) {
+      var empty = document.createElement('div'); empty.className = 'tecnica-empty'; empty.textContent = 'Sin resultados'; list.appendChild(empty); return;
     }
 
-    // Agrupar por músculo
-    var orden = ['Pierna','Glúteos','Espalda','Pecho','Hombros','Bíceps','Tríceps','Core','Cuerpo completo'];
-    var grupos = {};
-    ejercicios.forEach(function(e) {
-      var g = e.musculo || 'Otros';
-      if (!grupos[g]) grupos[g] = [];
-      grupos[g].push(e);
+    var categories = [
+      {key:'Espalda', match:function(m){return m.indexOf('espalda')>=0;}, description:'Dorsales, trapecios y musculatura de la espalda participan en remos y tirones. Mantén el tronco estable y controla el recorrido.'},
+      {key:'Pectoral', match:function(m){return m.indexOf('pecho')>=0 || m.indexOf('pectoral')>=0;}, description:'El pectoral participa principalmente en empujes horizontales y aperturas. Controla la bajada y evita perder estabilidad en los hombros.'},
+      {key:'Pierna', match:function(m){return m.indexOf('pierna')>=0 || m.indexOf('cuadriceps')>=0 || m.indexOf('isquiotibial')>=0 || m.indexOf('pantorrilla')>=0;}, description:'Incluye cuádriceps, isquiotibiales y pantorrillas. El apoyo y el rango dependen del ejercicio; prioriza una ejecución estable y sin dolor.'},
+      {key:'Glúteos', match:function(m){return m.indexOf('glute')>=0;}, description:'Los glúteos contribuyen a la extensión y estabilización de la cadera. Evita compensar el movimiento arqueando la zona lumbar.'},
+      {key:'Tríceps', match:function(m){return m.indexOf('triceps')>=0;}, description:'El tríceps extiende el codo y asiste en empujes. Mantén el brazo controlado y completa el recorrido sin forzar la articulación.'},
+      {key:'Bíceps', match:function(m){return m.indexOf('biceps')>=0;}, description:'El bíceps ayuda a flexionar el codo. Evita impulsarte con el tronco y controla tanto la subida como la bajada.'}
+    ];
+    var groups = {};
+    exercises.forEach(function(ex) {
+      var muscle = replacementKey(ex.musculo || '');
+      var category = categories.find(function(item){return item.match(muscle);});
+      var key = category ? category.key : 'Otros grupos';
+      (groups[key] = groups[key] || []).push(ex);
     });
+    var ordered = categories.map(function(category){return {key:category.key,description:category.description,items:groups[category.key]||[]};}).filter(function(group){return group.items.length;});
+    if (groups['Otros grupos'] && groups['Otros grupos'].length) ordered.push({key:'Otros grupos',description:'Ejercicios de hombros, zona media y movimientos que no pertenecen a los grupos principales de esta guía.',items:groups['Otros grupos']});
 
-    var gruposOrdenados = q
-      ? [{ key: 'Resultados', items: ejercicios }]
-      : orden.filter(function(g) { return grupos[g] && grupos[g].length; })
-             .map(function(g) { return { key: g, items: grupos[g] }; });
+    ordered.forEach(function(group) {
+      var section = document.createElement('section'); section.className = 'tecnica-group';
+      var toggle = document.createElement('button'); toggle.type = 'button'; toggle.className = 'tecnica-group-toggle'; toggle.setAttribute('aria-expanded','false');
+      var title = document.createElement('span'); title.className = 'tecnica-group-title'; title.textContent = group.key;
+      var count = document.createElement('span'); count.className = 'tecnica-group-count'; count.textContent = group.items.length + ' ejercicios';
+      var affordance = document.createElement('span'); affordance.className = 'tecnica-group-chevron'; affordance.setAttribute('aria-hidden','true'); affordance.textContent = '+';
+      toggle.append(title,count,affordance); section.appendChild(toggle);
+      var content = document.createElement('div'); content.className = 'tecnica-group-content'; content.hidden = true;
+      toggle.onclick = function(){var open=content.hidden;content.hidden=!open;toggle.setAttribute('aria-expanded',open?'true':'false');toggle.classList.toggle('is-open',open);};
+      var reference = document.createElement('div'); reference.className = 'tecnica-muscle-reference';
+      var referenceCopy = document.createElement('div'); referenceCopy.className = 'tecnica-muscle-copy';
+      var kicker = document.createElement('span'); kicker.className = 'tecnica-reference-kicker'; kicker.textContent = 'REFERENCIA DEL GRUPO';
+      var refTitle = document.createElement('h3'); refTitle.textContent = group.key;
+      var description = document.createElement('p'); description.textContent = group.description;
+      referenceCopy.append(kicker,refTitle,description);
+      var representative = group.items.find(function(ex){return !!getExerciseImgUrl(ex.nombre);}) || group.items[0];
+      var photo = document.createElement('div'); photo.className = 'tecnica-muscle-photo';
+      var imageUrl = getExerciseImgUrl(representative.nombre);
+      if (imageUrl) {
+        var image = document.createElement('img'); image.src=imageUrl; image.alt='Ejercicio de referencia para '+group.key+': '+representative.nombre; image.loading='lazy'; image.decoding='async';
+        image.onerror=function(){this.remove();var fallback=document.createElement('div');fallback.className='tecnica-row-img-fallback';fallback.innerHTML=representative.svg||'';photo.appendChild(fallback);};
+        photo.appendChild(image);
+      } else {var fallback=document.createElement('div');fallback.className='tecnica-row-img-fallback';fallback.innerHTML=representative.svg||'';photo.appendChild(fallback);}
+      var caption=document.createElement('small');caption.textContent='Movimiento de referencia · '+representative.nombre;
+      reference.append(referenceCopy,photo); content.appendChild(reference); content.appendChild(caption);
 
-    gruposOrdenados.forEach(function(grupo) {
-      var section = document.createElement('div');
-      section.className = 'tecnica-group';
-
-      // Header del grupo
-      var header = document.createElement('div');
-      header.className = 'tecnica-group-header';
-      var title = document.createElement('div');
-      title.className = 'tecnica-group-title';
-      title.textContent = grupo.key;
-      var line = document.createElement('div');
-      line.className = 'tecnica-group-line';
-      var cnt = document.createElement('div');
-      cnt.className = 'tecnica-group-count';
-      var vids = grupo.items.filter(function(e) { return e.videoUrl; }).length;
-      cnt.textContent = vids + '/' + grupo.items.length;
-      header.appendChild(title);
-      header.appendChild(line);
-      header.appendChild(cnt);
-      section.appendChild(header);
-
-      // Lista de filas
-      var listEl = document.createElement('div');
-      listEl.className = 'tecnica-list';
-
-      grupo.items.forEach(function(ex, i) {
-        var hasVideo = ex.videoUrl && ex.videoUrl.trim() !== '';
-
-        var row = document.createElement('div');
-        row.className = 'tecnica-row';
-        row.setAttribute('role', 'button');
-        row.setAttribute('tabindex', '0');
-        row.onclick = function() { openTecnicaDetail(ex); };
-        row.onkeydown = function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openTecnicaDetail(ex); } };
-
-        // Número
-        var num = document.createElement('div');
-        num.className = 'tecnica-row-num';
-        num.textContent = i + 1;
-
-        // Foto
-        var imgWrap = document.createElement('div');
-        imgWrap.className = 'tecnica-row-img';
-        var imgUrl = getExerciseImgUrl(ex.nombre);
-        if (imgUrl) {
-          var imgEl = document.createElement('img');
-          imgEl.src = imgUrl;
-          imgEl.alt = ex.nombre;
-          imgEl.loading = 'lazy'; imgEl.decoding = 'async';
-          imgEl.onerror = function() {
-            this.remove();
-            var fb = document.createElement('div');
-            fb.className = 'tecnica-row-img-fallback';
-            fb.innerHTML = ex.svg || '';
-            imgWrap.appendChild(fb);
-          };
-          imgWrap.appendChild(imgEl);
-        } else {
-          var fbEmpty = document.createElement('div');
-          fbEmpty.className = 'tecnica-row-img-fallback';
-          fbEmpty.innerHTML = ex.svg || '';
-          imgWrap.appendChild(fbEmpty);
-        }
-
-        // Nombre
-        var name = document.createElement('div');
-        name.className = 'tecnica-row-name';
-        name.textContent = ex.nombre;
-
-        // Acción
-        var action = document.createElement('div');
-        if (hasVideo) {
-          action.className = 'tecnica-row-action has-video';
-          action.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>';
-        } else {
-          action.className = 'tecnica-row-action no-video-icon';
-          action.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>';
-          action.title = 'Sin video, con guía técnica';
-        }
-
-        row.appendChild(num);
-        row.appendChild(imgWrap);
-        row.appendChild(name);
-        row.appendChild(action);
-        listEl.appendChild(row);
+      var exerciseList = document.createElement('div'); exerciseList.className = 'tecnica-list';
+      group.items.forEach(function(ex,index) {
+        var row=document.createElement('button');row.type='button';row.className='tecnica-row';row.setAttribute('aria-label','Ver técnica de '+ex.nombre);
+        row.onclick=function(){openTecnicaDetail(ex);};
+        var number=document.createElement('span');number.className='tecnica-row-num';number.textContent=String(index+1);
+        var imageWrap=document.createElement('span');imageWrap.className='tecnica-row-img';
+        var exerciseImage=getExerciseImgUrl(ex.nombre);
+        if(exerciseImage){var img=document.createElement('img');img.src=exerciseImage;img.alt='';img.loading='lazy';img.decoding='async';img.onerror=function(){this.remove();var fb=document.createElement('span');fb.className='tecnica-row-img-fallback';fb.innerHTML=ex.svg||'';imageWrap.appendChild(fb);};imageWrap.appendChild(img);}
+        else {var fb=document.createElement('span');fb.className='tecnica-row-img-fallback';fb.innerHTML=ex.svg||'';imageWrap.appendChild(fb);}
+        var name=document.createElement('span');name.className='tecnica-row-name';name.textContent=ex.nombre;
+        var action=document.createElement('span');action.className='tecnica-row-action'+(ex.videoUrl?' has-video':' no-video-icon');action.textContent=ex.videoUrl?'▶':'›';
+        row.append(number,imageWrap,name,action);exerciseList.appendChild(row);
       });
-
-      section.appendChild(listEl);
-      list.appendChild(section);
+      content.appendChild(exerciseList);section.appendChild(content);list.appendChild(section);
+      if(query){toggle.click();}
     });
   };
 
