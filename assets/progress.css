@@ -71,3 +71,70 @@ body.light-mode .weight-form input {color-scheme:light;}
 .achievement-status {color:var(--text-mid)!important}
 .achievement-card.is-unlocked .achievement-status {color:var(--gold)!important}
 @media(max-width:520px) {.workout-achievements{padding:16px}.achievement-grid{grid-template-columns:1fr}.achievement-card{padding:12px}}
+
+/* Progreso: jerarquía clara entre resumen, tendencias, detalle y herramientas */
+#view-progreso {width:100%;max-width:1240px;margin:0 auto;padding-bottom:32px}
+#view-progreso .progress-intro {padding:26px clamp(18px,3vw,32px) 12px}
+#view-progreso .progress-intro p {max-width:560px;font-size:13px}
+#view-progreso .quarter-bar {margin:0 clamp(18px,3vw,32px) 18px}
+#view-progreso .progress-overview,#view-progreso .progress-analytics,#view-progreso .progress-history {margin:0 clamp(14px,2.4vw,28px) 24px}
+#view-progreso .progress-overview {padding:20px;border:1px solid var(--border);border-radius:20px;background:linear-gradient(145deg,rgba(201,169,110,.055),transparent 58%),var(--card)}
+.progress-block-heading {display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:0 0 16px}
+.progress-block-heading h3 {margin:7px 0 0;font:600 24px/1.15 var(--font-display);letter-spacing:-.4px;color:var(--text)}
+.progress-block-heading p {margin:7px 0 0;color:var(--text-mid);font-size:12px;line-height:1.5}
+.progress-block-tag {padding:7px 10px;border:1px solid var(--border);border-radius:999px;color:var(--text-mid);font:500 9px var(--font-mono);white-space:nowrap}
+#view-progreso .month-pills {margin:0 0 18px;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#view-progreso .month-pills button {border-radius:10px;font:500 11px var(--font-body)}
+.week-summary-heading {display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px}
+.week-summary-heading h4 {margin:0;font:600 13px var(--font-body);color:var(--text)}
+.week-summary-heading span {font-size:10px;color:var(--text-dim);text-align:right}
+#view-progreso .week-summary {grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;padding:0;margin:0}
+#view-progreso .week-summary .stat {position:relative;min-width:0;padding:12px 7px;border-radius:12px;background:var(--dark-2)}
+#view-progreso .week-summary .stat .n {font-size:21px}
+#view-progreso .week-summary .stat .l {font-size:9px}
+#view-progreso .week-pdf-btn {margin-top:8px;min-height:30px}
+#view-progreso .workout-achievements {margin:18px 0 0;padding:17px;border-radius:15px;box-shadow:none}
+#view-progreso .achievement-heading h3 {font-size:19px}
+#view-progreso .progress-analytics>.progress-block-heading {margin:0 0 14px}
+#view-progreso .progress-chart-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}
+#view-progreso .progress-chart-grid>.insight-card {min-width:0;margin:0;padding:20px;border-radius:17px}
+#view-progreso .progress-chart-grid>.insight-card[aria-labelledby="chartCargaTitle"],
+#view-progreso .progress-chart-grid>.insight-card[aria-labelledby="weightTitle"] {grid-column:1/-1}
+#view-progreso .progress-chart-grid .insight-heading {margin-bottom:16px}
+#view-progreso .progress-chart-grid .insight-heading h3 {font-size:21px}
+#view-progreso .progress-chart-grid .insight-stats {gap:8px;margin-bottom:18px}
+#view-progreso .progress-chart-grid .insight-stat small {font-size:9px;line-height:1.4}
+#view-progreso .progress-history {padding:20px;border:1px solid var(--border);border-radius:20px;background:var(--card)}
+#view-progreso .progress-history .progress-block-heading {margin-bottom:14px}
+#view-progreso .progress-section {padding:0}
+#view-progreso .prog-week-block {margin-bottom:9px;border-radius:13px}
+#view-progreso .prog-week-header {min-height:54px;padding:12px 15px}
+#view-progreso .prog-week-title {font-size:11px}
+#view-progreso .prog-week-body {background:var(--dark-2)}
+#view-progreso .empty-state {padding:26px 14px;border:1px dashed var(--border);border-radius:13px;background:var(--dark-2)}
+#view-progreso .progress-tools {margin:0 clamp(14px,2.4vw,28px) 20px;border:1px solid var(--border);border-radius:16px;background:var(--card);overflow:hidden}
+#view-progreso .progress-tools>summary {position:relative;display:flex;flex-direction:column;gap:5px;padding:15px 18px;cursor:pointer;list-style:none;color:var(--text);font:600 13px var(--font-body)}
+#view-progreso .progress-tools>summary::-webkit-details-marker {display:none}
+#view-progreso .progress-tools>summary:after {content:'＋';position:absolute;right:20px;color:var(--gold);font-size:17px}
+#view-progreso .progress-tools[open]>summary:after {content:'−'}
+#view-progreso .progress-tools>summary small {font:400 10px var(--font-body);color:var(--text-dim)}
+#view-progreso .progress-tools-content {padding:4px 16px 16px;border-top:1px solid var(--border)}
+#view-progreso .backup-section {padding:14px 0 6px}
+#view-progreso .start-date-section {margin:10px 0;background:var(--dark-2);border-radius:12px}
+#view-progreso .weight-form {max-width:680px}
+@media(max-width:680px) {
+  #view-progreso .progress-chart-grid {grid-template-columns:1fr}
+  #view-progreso .progress-chart-grid>.insight-card[aria-labelledby="chartCargaTitle"],
+  #view-progreso .progress-chart-grid>.insight-card[aria-labelledby="weightTitle"] {grid-column:auto}
+  #view-progreso .progress-overview,#view-progreso .progress-history {padding:15px}
+  #view-progreso .progress-chart-grid>.insight-card {padding:17px 15px}
+  #view-progreso .progress-block-heading h3 {font-size:21px}
+}
+@media(max-width:430px) {
+  #view-progreso .week-summary {gap:6px}
+  #view-progreso .week-summary .stat {padding:11px 3px}
+  #view-progreso .week-summary .stat .n {font-size:18px}
+  #view-progreso .week-pdf-btn {font-size:9px}
+  .progress-block-tag {font-size:8px;padding:6px 8px}
+  .week-summary-heading {align-items:flex-start;flex-direction:column;gap:3px}
+}
