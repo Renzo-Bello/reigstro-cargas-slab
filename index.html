@@ -3457,7 +3457,7 @@ body.light-mode .exercise-replacements summary { color:#765823; }
 body.light-mode #journeyPercent {color:#765823;}
 @media(prefers-reduced-motion:reduce) {#journeyFill,#journeyNext {transition:none;}}
 </style>
-<link rel="stylesheet" href="assets/app-enhancements.css?v=20261125-muscle-guides-v2">
+<link rel="stylesheet" href="assets/app-enhancements.css?v=20261125-muscle-guides-v3">
 <style>
 .home .home-nutrition {margin-top:18px;}
 .home .home-nutrition .home-card-heading {margin-bottom:10px;}
@@ -5874,7 +5874,7 @@ body.light-mode #journeyPercent {color:#765823;}
       var feedback = document.createElement('p'); feedback.className = 'exercise-variant-feedback'; feedback.setAttribute('aria-live','polite');
       var actions = document.createElement('div'); actions.className = 'exercise-variant-actions';
       var back = document.createElement('button'); back.type='button'; back.textContent='Volver'; back.onclick=function(){panel.hidden=true;modal.querySelector('.exercise-action-start').hidden=false;};
-      var apply = document.createElement('button'); apply.type='button'; apply.className='exercise-variant-confirm'; apply.textContent='Usar variante';
+      var apply = document.createElement('button'); apply.type='button'; apply.className='exercise-variant-confirm'; apply.textContent='Usar variante'; apply.disabled = !suggestions.length;
       apply.onclick = function() {
         var nextName = variantSelect.value;
         if (!nextName || !reason.value) { feedback.textContent='Elige una variante cercana y el motivo del cambio.'; return; }
@@ -8879,7 +8879,7 @@ body.light-mode #journeyPercent {color:#765823;}
     var query = replacementKey(rawQuery);
     var db = typeof EXERCISE_DB !== 'undefined' ? EXERCISE_DB : [];
     var exercises = query ? db.filter(function(ex) {
-      return replacementKey(ex.nombre).includes(query) || replacementKey(ex.musculo).includes(query);
+      return replacementKey(ex.nombre).includes(query) || replacementKey(ex.musculo).includes(query) || (query === 'pectoral' && replacementKey(ex.musculo).indexOf('pecho') >= 0);
     }) : db;
     var countEl = document.getElementById('tecnicaCount');
     if (countEl) countEl.textContent = exercises.length + ' ejercicio' + (exercises.length !== 1 ? 's' : '') + (query ? ' encontrados' : ' en la biblioteca');
