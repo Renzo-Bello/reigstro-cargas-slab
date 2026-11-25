@@ -138,3 +138,26 @@ body.light-mode .weight-form input {color-scheme:light;}
   .progress-block-tag {font-size:8px;padding:6px 8px}
   .week-summary-heading {align-items:flex-start;flex-direction:column;gap:3px}
 }
+
+/* Navegación por secciones de progreso */
+#view-progreso .progress-section-nav {display:flex;gap:7px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;margin:0 clamp(14px,2.4vw,28px) 20px;padding:3px 1px 8px;border-bottom:1px solid var(--border);-webkit-overflow-scrolling:touch}
+#view-progreso .progress-section-nav::-webkit-scrollbar {display:none}
+#view-progreso .progress-section-nav a {display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:40px;padding:0 13px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--text-mid);font:500 11px var(--font-body);text-decoration:none;white-space:nowrap;transition:background .16s ease,border-color .16s ease,color .16s ease}
+#view-progreso .progress-section-nav a:hover,#view-progreso .progress-section-nav a:focus-visible {border-color:var(--gold);background:rgba(201,169,110,.1);color:var(--text);outline:none}
+#view-progreso .progress-section-group {scroll-margin-top:20px;margin:0 clamp(14px,2.4vw,28px) 24px}
+#view-progreso #progress-section-resumen {margin-bottom:24px}
+#view-progreso #progress-section-resumen .progress-overview {margin:0;padding:20px}
+#view-progreso #progress-section-resumen .progress-history {margin:18px 0 0;padding:20px;border:1px solid var(--border);border-radius:20px;background:var(--card)}
+#view-progreso #progress-section-cuerpo .progress-block-heading,
+#view-progreso #progress-section-logros .progress-block-heading {margin-bottom:14px}
+#view-progreso #progress-section-cuerpo>.insight-card {margin:0}
+#view-progreso #progress-section-logros .workout-achievements {margin:0}
+#view-progreso #progress-section-fuerza {margin-bottom:24px}
+#view-progreso #progress-section-datos {scroll-margin-top:20px}
+html {scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce) {html {scroll-behavior:auto}}
+@media(max-width:680px) {
+  #view-progreso .progress-section-nav {margin-bottom:16px}
+  #view-progreso #progress-section-resumen .progress-overview,
+  #view-progreso #progress-section-resumen .progress-history {padding:15px}
+}
