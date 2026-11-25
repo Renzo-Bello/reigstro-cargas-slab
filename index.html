@@ -3844,13 +3844,7 @@ body.light-mode #journeyPercent {color:#765823;}
   </main>
   <div id="view-registro" class="panel" style="display:none;">
     <div class="quarter-bar"><label>Trimestre <select data-quarter-select aria-label="Trimestre de entrenamiento" disabled><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label></div>
-    <nav class="progress-section-nav" role="tablist" aria-label="Secciones de progreso">
-      <button type="button" id="progress-tab-registro" role="tab" aria-selected="true" aria-controls="progress-section-resumen" class="is-active" data-progress-tab="progress-section-resumen">Registro</button>
-      <button type="button" id="progress-tab-cuerpo" role="tab" aria-selected="false" aria-controls="progress-section-cuerpo" data-progress-tab="progress-section-cuerpo" tabindex="-1">Cuerpo</button>
-      <button type="button" id="progress-tab-fuerza" role="tab" aria-selected="false" aria-controls="progress-section-fuerza" data-progress-tab="progress-section-fuerza" tabindex="-1">Fuerza</button>
-      <button type="button" id="progress-tab-logros" role="tab" aria-selected="false" aria-controls="progress-section-logros" data-progress-tab="progress-section-logros" tabindex="-1">Logros</button>
-      <button type="button" id="progress-tab-datos" role="tab" aria-selected="false" aria-controls="progress-section-datos" data-progress-tab="progress-section-datos" tabindex="-1">Datos</button>
-    </nav>
+    
     <p class="register-mantra">El físico lo construyes serie a serie.</p>
     <p style="margin:0 18px 12px;color:var(--text-mid);font-size:12px;line-height:1.5;">Tus 12 semanas están siempre disponibles. Elige una semana y un día para registrar o editar, incluso si entrenas en otra fecha.</p>
     <!-- Selector compacto Mes / Semana -->
@@ -3891,6 +3885,13 @@ body.light-mode #journeyPercent {color:#765823;}
   <div id="view-progreso" class="panel" style="display:none;">
     <header class="progress-intro"><div class="progress-eyebrow">STRENGTHLAB / TU EVOLUCIÓN</div><h2>Tu progreso, en orden.</h2><p>Revisa tus sesiones, marcas y tendencias del período seleccionado.</p></header>
     <div class="quarter-bar"><label>Trimestre <select data-quarter-select aria-label="Trimestre de entrenamiento" disabled><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label></div>
+    <nav class="progress-section-nav" role="tablist" aria-label="Secciones de progreso">
+      <button type="button" id="progress-tab-registro" role="tab" aria-selected="true" aria-controls="progress-section-resumen" class="is-active" data-progress-tab="progress-section-resumen">Registro</button>
+      <button type="button" id="progress-tab-cuerpo" role="tab" aria-selected="false" aria-controls="progress-section-cuerpo" data-progress-tab="progress-section-cuerpo" tabindex="-1">Cuerpo</button>
+      <button type="button" id="progress-tab-fuerza" role="tab" aria-selected="false" aria-controls="progress-section-fuerza" data-progress-tab="progress-section-fuerza" tabindex="-1">Fuerza</button>
+      <button type="button" id="progress-tab-logros" role="tab" aria-selected="false" aria-controls="progress-section-logros" data-progress-tab="progress-section-logros" tabindex="-1">Logros</button>
+      <button type="button" id="progress-tab-datos" role="tab" aria-selected="false" aria-controls="progress-section-datos" data-progress-tab="progress-section-datos" tabindex="-1">Datos</button>
+    </nav>
 
     <section id="progress-section-resumen" class="progress-section-group" data-progress-panel role="tabpanel" aria-labelledby="progress-tab-registro" tabindex="0" aria-label="Resumen entrenamientos">
     <section class="progress-overview" aria-labelledby="progressOverviewTitle">
