@@ -348,7 +348,7 @@ nav.tabs button.active {background:linear-gradient(145deg,rgba(210,180,119,.17),
   inset: auto 12px calc(88px + env(safe-area-inset-bottom)) !important;
   z-index: 8800 !important;
   display: none;
-  align-items: stretch !important;
+  align-items: center !important;
   justify-content: center !important;
   flex-direction: column !important;
   padding: 0 !important;
