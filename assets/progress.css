@@ -161,3 +161,16 @@ html {scroll-behavior:smooth}
   #view-progreso #progress-section-resumen .progress-overview,
   #view-progreso #progress-section-resumen .progress-history {padding:15px}
 }
+
+/* Pestañas de Progreso: una vista visible a la vez */
+#view-progreso .progress-section-nav {display:flex;gap:6px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;position:sticky;top:0;z-index:30;padding:8px clamp(14px,2.4vw,28px);margin:0 0 20px;border-bottom:1px solid var(--border);background:var(--bg);-webkit-overflow-scrolling:touch}
+#view-progreso .progress-section-nav::-webkit-scrollbar {display:none}
+#view-progreso .progress-section-nav [role="tab"] {flex:1 0 auto;min-height:42px;padding:0 14px;border:1px solid var(--border);border-radius:11px;background:var(--card);color:var(--text-mid);font:600 11px var(--font-body);white-space:nowrap;cursor:pointer;transition:background .16s ease,border-color .16s ease,color .16s ease}
+#view-progreso .progress-section-nav [role="tab"]:hover,#view-progreso .progress-section-nav [role="tab"]:focus-visible {border-color:var(--gold);color:var(--text);outline:none}
+#view-progreso .progress-section-nav [role="tab"].is-active {border-color:var(--gold);background:var(--gold);color:var(--dark);box-shadow:0 3px 10px rgba(201,169,110,.18)}
+#view-progreso [data-progress-panel][hidden] {display:none!important}
+#view-progreso [data-progress-panel]:focus-visible {outline:2px solid var(--gold);outline-offset:3px}
+@media(max-width:680px) {
+  #view-progreso .progress-section-nav {gap:5px;padding-inline:12px}
+  #view-progreso .progress-section-nav [role="tab"] {padding-inline:12px;font-size:10px}
+}
