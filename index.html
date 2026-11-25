@@ -3480,6 +3480,18 @@ body.light-mode #journeyPercent {color:#765823;}
   #restTimerBox .rest-timer-presets { grid-area:presets; margin-top:8px; gap:6px; }
   #restTimerBox .rest-preset-btn { min-height:34px; flex:1; padding:6px 8px; }
   @media(max-width:380px) { #restTimerOverlay { padding-inline:8px; } #restTimerBox { padding:10px 12px; } #restTimerCount { font-size:34px; } #restTimerBox .rest-timer-btn { font-size:10px; padding-inline:6px; } }
+
+#restTimerOverlay.open {z-index:9000 !important}
+#sessionIndex {margin-top:12px;color:var(--text)}
+#sessionIndex summary {padding:12px 0;cursor:pointer;font-weight:600}
+#sessionIndex ol {padding:0;margin:0;list-style:none}
+#sessionIndex button {width:100%;min-height:48px;background:var(--card);color:var(--text);border:0;border-top:1px solid var(--border);padding:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;cursor:pointer}
+#sessionIndex button span {white-space:nowrap;color:var(--text-mid)}
+#sessionIndex button:focus-visible, nav.tabs button:focus-visible {outline:2px solid var(--gold);outline-offset:-3px}
+@media(max-width:600px){
+  #view-progreso .progress-section-nav {position:static;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  #view-progreso .progress-section-nav [role=tab] {min-height:44px;padding:4px}
+}
 </style>
 </head>
 <body>
@@ -3639,9 +3651,9 @@ body.light-mode #journeyPercent {color:#765823;}
     <div id="restTimerExercise"></div>
     <div id="restTimerProgress"><div id="restTimerBar"></div></div>
     <div class="rest-timer-btns">
-      <button class="rest-timer-btn" id="restTimerSkipBtn">Saltar</button>
+      <button class="rest-timer-btn" id="restTimerExtendBtn" aria-label="Añadir 15 segundos al descanso">+15 s</button>
       <button class="rest-timer-btn" id="restTimerPauseBtn">Pausar</button>
-      <button class="rest-timer-btn primary" id="restTimerDoneBtn">Listo ✓</button>
+      <button class="rest-timer-btn primary" id="restTimerDoneBtn">Terminar</button>
     </div>
     <div class="rest-timer-presets">
       <button class="rest-preset-btn active" data-secs="120">2 min</button>
@@ -3732,7 +3744,7 @@ body.light-mode #journeyPercent {color:#765823;}
   <div id="drawer-overlay"></div>
 
   <!-- DRAWER PANEL -->
-  <div id="drawer" role="dialog" aria-modal="true" aria-label="Menú principal">
+  <div id="drawer" inert role="dialog" aria-modal="true" aria-label="Menú principal">
     <div class="drawer-head">
       <div>
         <div class="drawer-logo">StrengthLab</div>
@@ -3892,6 +3904,7 @@ body.light-mode #journeyPercent {color:#765823;}
       <div class="journey-heading"><span id="journeyLabel" role="status" aria-live="polite"></span><span id="journeyPercent" aria-hidden="true">0%</span></div>
       <div id="journeyTrack" class="journey-track" role="progressbar" aria-label="Ejercicios completados" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="journeyFill"></div></div>
       <button id="journeyNext" type="button">Continuar sesión</button>
+      <details id="sessionIndex"><summary>Ejercicios de esta sesión</summary><ol></ol></details>
     </section>
     <div id="exerciseList"></div>
   </div>
@@ -5857,6 +5870,28 @@ body.light-mode #journeyPercent {color:#765823;}
     var bar = document.getElementById('journeyTrack');
     bar.setAttribute('aria-valuenow', String(progress.percent));
     document.getElementById('journeyFill').style.width = progress.percent + '%';
+    var index = document.getElementById('sessionIndex');
+    function refreshIndex() {
+      var list = index.querySelector('ol');
+      list.replaceChildren();
+      ensureDay(STATE.month, STATE.week, STATE.day).forEach(function(ex, position) {
+        if (!(ex.nombre || '').trim()) return;
+        var item = document.createElement('li');
+        var button = document.createElement('button');
+        button.type = 'button';
+        var label = document.createElement('strong');
+        label.textContent = ex.nombre;
+        var status = document.createElement('span');
+        var sets = (ex.series || []).filter(function(set) { return !set.warmup; });
+        status.textContent = ex.hecho ? 'Completado' : sets.filter(function(set) { return set.done; }).length + '/' + sets.length + ' series';
+        button.append(label, status);
+        button.onclick = function() { openFocusMode(position); };
+        item.appendChild(button);
+        list.appendChild(item);
+      });
+    }
+    index.ontoggle = function() { if (index.open) refreshIndex(); };
+    if (index.open) refreshIndex();
     var next = document.getElementById('journeyNext');
     next.textContent = progress.next < 0 ? 'Ver balance de la sesión' : 'Entrenar: ' + arr[progress.next].nombre;
     host.classList.toggle('journey-complete', !!progress.total && progress.done === progress.total);
@@ -6046,7 +6081,7 @@ body.light-mode #journeyPercent {color:#765823;}
       }
 
       nameInput.oninput = function() {
-        ex.nombre = this.value; renderExerciseMuscles(card, ex.nombre); scheduleSave();
+        ex.nombre = this.value; renderExerciseMuscles(card, ex.nombre); updateSessionJourney(); scheduleSave();
       };
       nameInput.onfocus = function() {
         var self = this;
@@ -6388,6 +6423,7 @@ body.light-mode #journeyPercent {color:#765823;}
       }
 
       function rebuildSeriesRows() {
+        if (document.getElementById('sessionIndex').open) updateSessionJourney();
         seriesContainer.innerHTML = '';
         var intLbl = ex.rirMode ? 'RIR' : 'RPE';
 
@@ -8705,7 +8741,7 @@ body.light-mode #journeyPercent {color:#765823;}
     var countEl = document.getElementById('restTimerCount');
     var barEl = document.getElementById('restTimerBar');
     var pct = (_restTimer.total > 0) ? (secs / _restTimer.total * 100) : 0;
-    countEl.textContent = secs;
+    countEl.textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0');
     barEl.style.width = pct + '%';
     var urgent = secs <= 10;
     countEl.classList.toggle('urgent', urgent);
@@ -8729,45 +8765,50 @@ body.light-mode #journeyPercent {color:#765823;}
     exEl.textContent = exNombre || '';
     _restUpdateUI();
     document.getElementById('restTimerOverlay').classList.add('open');
-    _restTimer.interval = setInterval(function() {
-      if (_restTimer.paused) return;
-      _restTimer.remaining--;
-      _restUpdateUI();
-      if (_restTimer.remaining <= 0) {
-        stopRestTimer();
-        _restBeep(_restTimer.serieNum);
-        showToast('¡Descanso terminado! A por la siguiente serie 💪', 'ok', 3000);
-      }
-    }, 1000);
+    runRestClock();
   }
 
-  document.getElementById('restTimerSkipBtn').onclick = stopRestTimer;
+  function tickRestClock() {
+    if (!_restTimer.interval || _restTimer.paused) return;
+    _restTimer.remaining = Math.max(0, Math.ceil((_restTimer.endsAt - Date.now()) / 1000));
+    _restUpdateUI();
+    if (_restTimer.remaining === 0) {
+      stopRestTimer();
+      _restBeep(_restTimer.serieNum);
+      showToast('Descanso terminado. Puedes comenzar la siguiente serie.', 'ok', 3000);
+    }
+  }
+  function runRestClock() {
+    clearInterval(_restTimer.interval);
+    _restTimer.endsAt = Date.now() + _restTimer.remaining * 1000;
+    _restTimer.interval = setInterval(tickRestClock, 250);
+  }
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) tickRestClock();
+  });
+  document.getElementById('restTimerExtendBtn').onclick = function() {
+    tickRestClock();
+    if (!_restTimer.interval) return;
+    _restTimer.remaining += 15;
+    _restTimer.total += 15;
+    _restTimer.endsAt += 15000;
+    _restUpdateUI();
+  };
   document.getElementById('restTimerDoneBtn').onclick = stopRestTimer;
   document.getElementById('restTimerPauseBtn').onclick = function() {
+    tickRestClock();
+    if (!_restTimer.interval) return;
     _restTimer.paused = !_restTimer.paused;
+    if (!_restTimer.paused) runRestClock();
     _restUpdateUI();
   };
   document.querySelectorAll('.rest-preset-btn').forEach(function(btn) {
     btn.onclick = function() {
-      document.querySelectorAll('.rest-preset-btn').forEach(function(b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      var secs = parseInt(btn.getAttribute('data-secs'), 10);
-      _restTimer.preset = secs;
-      _restTimer.remaining = secs;
-      _restTimer.total = secs;
-      _restTimer.paused = false;
-      clearInterval(_restTimer.interval);
-      _restTimer.interval = setInterval(function() {
-        if (_restTimer.paused) return;
-        _restTimer.remaining--;
-        _restUpdateUI();
-        if (_restTimer.remaining <= 0) {
-          stopRestTimer();
-          _restBeep(_restTimer.serieNum);
-          showToast('¡Descanso terminado! A por la siguiente serie 💪', 'ok', 3000);
-        }
-      }, 1000);
-      _restUpdateUI();
+      document.querySelectorAll('.rest-preset-btn').forEach(function(item) {
+        item.classList.toggle('active', item === btn);
+      });
+      _restTimer.preset = Number(btn.dataset.secs);
+      startRestTimer(document.getElementById('restTimerExercise').textContent, _restTimer.serieNum);
     };
   });
   document.getElementById('restTimerOverlay').onclick = function(e) {
@@ -8978,7 +9019,17 @@ body.light-mode #journeyPercent {color:#765823;}
     }):db;
     var countEl=document.getElementById('tecnicaCount');
     if(countEl)countEl.textContent=exercises.length+' ejercicio'+(exercises.length!==1?'s':'')+(query?' encontrados':' en la biblioteca');
-    if(!exercises.length){var empty=document.createElement('div');empty.className='tecnica-empty';empty.textContent='Sin resultados';list.appendChild(empty);return;}
+    if(!exercises.length){var empty=document.createElement('div');empty.className='tecnica-empty';empty.textContent='No encontramos ejercicios para “'+rawQuery+'”.';
+      var clear=document.createElement('button');
+      clear.type='button';
+      clear.textContent='Ver todos los ejercicios';
+      clear.onclick=function(){
+        var input=document.getElementById('tecnicaSearch');
+        input.value='';
+        window.renderTecnica('');
+        input.focus();
+      };
+      list.append(empty,clear);return;}
 
     var categories=[
       {key:'Espalda',match:function(m){return m.indexOf('espalda')>=0;},description:'Dorsales, trapecios y musculatura posterior del tronco.'},
@@ -9178,6 +9229,7 @@ body.light-mode #journeyPercent {color:#765823;}
   var _scrollY = 0;
   function openDrawer() {
     _scrollY = window.scrollY;
+    drawer.inert = false;
     drawer.classList.add('open');
     overlay.classList.add('open');
     hamburger.classList.add('is-open');
@@ -9186,8 +9238,11 @@ body.light-mode #journeyPercent {color:#765823;}
     document.body.style.top = '-' + _scrollY + 'px';
     document.body.style.width = '100%';
     syncDrawerActive();
+    (drawer.querySelector('.active-nav') || drawer.querySelector('button')).focus();
   }
   function closeDrawer() {
+    if (!drawer.classList.contains('open')) return;
+    drawer.inert = true;
     drawer.classList.remove('open');
     overlay.classList.remove('open');
     hamburger.classList.remove('is-open');
@@ -9195,7 +9250,8 @@ body.light-mode #journeyPercent {color:#765823;}
     document.body.style.position = '';
     document.body.style.top = '';
     document.body.style.width = '';
-    window.scrollTo(0, _scrollY);
+    window.scrollTo({top: _scrollY, behavior: 'instant'});
+    hamburger.focus({preventScroll: true});
   }
   function toggleDrawer() {
     drawer.classList.contains('open') ? closeDrawer() : openDrawer();
@@ -9208,12 +9264,15 @@ body.light-mode #journeyPercent {color:#765823;}
   });
 
   // ── Swipe-to-close (deslizar izquierda) ──
-  var touchStartX = 0;
+  var touchStartX = 0, touchStartY = 0;
   drawer.addEventListener('touchstart', function(e) {
     touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
   }, { passive: true });
   drawer.addEventListener('touchend', function(e) {
-    if (touchStartX - e.changedTouches[0].clientX > 60) closeDrawer();
+    var dx = touchStartX - e.changedTouches[0].clientX;
+    var dy = Math.abs(touchStartY - e.changedTouches[0].clientY);
+    if (dx > 60 && dx > 1.5 * dy) closeDrawer();
   }, { passive: true });
 
   // ── Navegar al tab desde drawer ──
@@ -9222,20 +9281,13 @@ body.light-mode #journeyPercent {color:#765823;}
       var tabId = btn.getAttribute('data-drawer-tab');
       var tabName = tabId.replace('tab-', '');
       var tabBtn = document.getElementById(tabId);
+      closeDrawer();
       if (tabBtn) {
         tabBtn.click();
       } else if (typeof switchTab === 'function') {
         switchTab(tabName);
       }
-      closeDrawer();
-      if (tabId === 'tab-tecnica') {
-        setTimeout(function() {
-          if (typeof window.bindTecnicaSearch === 'function') window.bindTecnicaSearch();
-          var inp = document.getElementById('tecnicaSearch');
-          if (inp) inp.value = '';
-          if (typeof window.renderTecnica === 'function') window.renderTecnica('');
-        }, 50);
-      }
+
     });
   });
 
