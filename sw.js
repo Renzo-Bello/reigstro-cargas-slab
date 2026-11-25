@@ -1,8 +1,8 @@
-const CACHE_NAME = 'strengthlab-shell-v7';
+const CACHE_NAME = 'strengthlab-shell-v8';
 const APP_SHELL = [
   './',
   './index.html',
-  './assets/app-enhancements.css?v=20261125-rest-dock',
+  './assets/app-enhancements.css?v=20261125-rest-dock-center',
   './assets/app-enhancements.js?v=20261120-rir-panel',
   './assets/progress.css?v=20261113',
   './assets/progress.js?v=20261113',
