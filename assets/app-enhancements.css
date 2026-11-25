@@ -134,19 +134,6 @@ html,body {width:100%;min-width:0;overflow-x:hidden}
 #view-progreso .week-summary {grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));}
 @media(prefers-reduced-motion:reduce) {.install-nudge,.serie-hevy-row.serie-done {animation:none}}
 
-/* Exercise card: compact image at upper-right opens form tips */
-#view-registro .ex-head-top {grid-template-columns:30px minmax(0,1fr) 76px!important;align-items:center;gap:10px!important;padding:14px 14px 10px!important}
-#view-registro .ex-head-top>div {min-width:0}
-#view-registro .ex-head-img {grid-column:3!important;grid-row:1!important;align-self:center;width:72px!important;height:72px!important;min-width:72px;padding:0!important;margin:0!important;border-radius:15px!important;border:1px solid rgba(201,169,110,.32)!important;background:#fff!important;overflow:hidden;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.18)!important}
-#view-registro .ex-head-img img {width:100%;height:100%;object-fit:contain!important;padding:4px;box-sizing:border-box}
-#view-registro .ex-head-img::after {content:'VER TIPS ↗';position:absolute;left:0;right:0;bottom:0;background:rgba(13,13,13,.82);color:#f5f0e8;font:600 7px var(--font-mono);letter-spacing:.55px;text-align:center;padding:4px 1px}
-#view-registro .ex-head-img.no-img {display:none}
-#view-registro .ex-head-top:has(.ex-head-img.no-img) {grid-template-columns:30px minmax(0,1fr)!important}
-@media(max-width:520px) {
-  #view-registro .ex-head-top {grid-template-columns:28px minmax(0,1fr) 64px!important;gap:8px!important;padding:12px 12px 8px!important}
-  #view-registro .ex-head-img {grid-column:3!important;width:62px!important;height:62px!important;min-width:62px}
-}
-
 /* StrengthLab visual system polish */
 :root {
   --dark:#0b0c0b;
@@ -188,7 +175,6 @@ html,body {background-color:var(--dark);background-image:radial-gradient(ellipse
 .home .home-progress-link:hover {background:rgba(210,180,119,.07);color:var(--gold)}
 #view-registro .quarter-bar {display:flex;justify-content:flex-end;margin:0 2px 14px}
 #view-registro .quarter-bar label {display:inline-flex;align-items:center;gap:10px;padding:7px 12px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.025);font:500 10px var(--font-mono);letter-spacing:.7px;color:var(--text-mid)}
-#view-registro .register-mantra {font:600 15px/1.5 var(--font-display);color:var(--text);letter-spacing:.1px}
 #view-registro .nav-selector {padding:5px!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:15px!important;background:linear-gradient(135deg,rgba(255,255,255,.035),rgba(255,255,255,.012))!important;box-shadow:0 8px 24px rgba(0,0,0,.12)}
 #view-registro .nav-segment {border-radius:10px;transition:background .18s,color .18s,transform .18s}
 #view-registro .nav-segment:hover {background:rgba(210,180,119,.09);color:var(--gold)}
@@ -223,7 +209,6 @@ nav.tabs button.active {background:linear-gradient(145deg,rgba(210,180,119,.17),
 @media(max-width:700px) {
   .home-greeting {padding-top:20px!important}
   .home-profile {padding:17px!important}
-  #view-registro .register-mantra {font-size:14px}
   #view-progreso .progress-intro h2 {font-size:34px!important}
 }
 @media(prefers-reduced-motion:reduce) {
@@ -477,9 +462,6 @@ body.light-mode .exercise-action-sheet {background:var(--card);color:var(--text)
 #tecnicaList .tecnica-group-content {padding:12px 15px 14px;border:0;border-top:1px solid var(--border);border-radius:0;background:var(--card)}
 #tecnicaList .tecnica-group-description {margin:0 0 10px;color:var(--text-mid);font-size:11px;line-height:1.5}
 #tecnicaList .tecnica-list {border-top:1px solid var(--border)}
-#tecnicaList .tecnica-row {gap:9px;padding:9px 0}
-#tecnicaList .tecnica-row-img {width:34px;height:34px}
-#tecnicaList .tecnica-row-num {font-size:10px}
 @media(max-width:420px) {
   #tecnicaList {grid-template-columns:1fr;gap:9px}
   #tecnicaList .tecnica-group-toggle {grid-template-columns:90px minmax(0,1fr) 24px;min-height:114px;gap:11px;padding:10px}
@@ -509,8 +491,6 @@ body.light-mode .exercise-action-sheet {background:var(--card);color:var(--text)
 @media(min-width:700px) {
   .tecnica-detail-modal.open {align-items:center;padding:20px}
   .tecnica-detail-sheet {border-bottom:1px solid var(--border);border-radius:24px}
-  .tecnica-detail-head {display:grid;grid-template-columns:minmax(260px,1.2fr) minmax(180px,.8fr);gap:24px;text-align:left}
-  .tecnica-detail-head-info {text-align:left}
 }
 @media(max-width:420px) {
   #tecnicaList .tecnica-group-toggle {grid-template-columns:90px minmax(0,1fr) 24px;min-height:110px}
@@ -518,3 +498,282 @@ body.light-mode .exercise-action-sheet {background:var(--card);color:var(--text)
   .tecnica-detail-sheet {width:100%;max-height:93dvh;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px))}
   .tecnica-detail-img-wrap {height:clamp(220px,35vh,310px)}
 }
+
+/* Registro de entrenamiento */
+.register-intro { margin: 4px 0 22px; }
+.register-intro h1 { margin: 0 0 8px; font: 600 clamp(25px, 4vw, 42px)/1.15 var(--font-display); }
+.register-intro p, .register-exercises-heading p, .session-review-head p {
+  margin: 0;
+  color: var(--text-mid);
+  font: 400 13px/1.5 var(--font-body);
+}
+.register-schedule {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  margin: 0 0 16px;
+  padding: 12px;
+  border: 1px solid var(--border-hover);
+  border-radius: 16px;
+  background: var(--card);
+}
+#view-registro .register-schedule .quarter-bar { grid-column: 2; grid-row: 1; margin: 0; }
+#view-registro .register-schedule .quarter-bar label { text-transform: none; padding: 0 0 0 8px; font: 500 12px var(--font-body); border: 0; }
+#view-registro .register-schedule .nav-selector {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+  background: var(--dark-2) !important;
+  border-color: var(--border) !important;
+  box-shadow: none;
+}
+#view-registro .nav-segment { flex: 1; justify-content: center; }
+#view-registro .nav-seg-label { font-size: 12px; }
+#view-registro .nav-seg-value, #trainingModeSelect { font: 600 14px var(--font-body); }
+#view-registro .ctx-sep { color: var(--text-dim); }
+#view-registro .day-strip {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none !important;
+  gap: 6px;
+}
+#view-registro .day-btn { min-height: 48px; gap: 2px; border: 1px solid var(--border); background: var(--dark-2); }
+#view-registro .day-n { font: 600 13px/1.2 var(--font-body); white-space: nowrap; }
+#view-registro .day-sub { font: 400 10px/1 var(--font-body); }
+#view-registro .day-active .day-sub { color: #302619; }
+#view-registro .seg-dropdown { overflow-y: auto; overscroll-behavior: contain; }
+#view-registro .journey-heading h2, .register-exercises-heading h2 { margin: 0; font: 600 19px/1.25 var(--font-display); color: var(--text); }
+#journeyLabel { display: block; margin-top: 4px; }
+#view-registro #journeyNext, #registerAddExercise {
+  min-height: 44px;
+  background: var(--gold);
+  color: #21190e;
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  font: 650 13px/1.35 var(--font-body);
+  padding: 9px 13px;
+  cursor: pointer;
+}
+#view-registro #journeyNext:hover, #registerAddExercise:hover { filter: brightness(1.08); }
+#view-registro .journey-complete #journeyNext { background: var(--card); border-color: var(--border-hover); color: var(--text); }
+.register-exercises-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin: 24px 0 12px; }
+.register-exercises-heading p { margin-top: 3px; font-size: 11px; }
+#view-registro .registro-empty { border: 1px dashed var(--border-hover); border-radius: 16px; margin: 0 0 14px; }
+
+#view-registro .exercise-card { border: 1px solid var(--border-hover) !important; margin-bottom: 16px; overflow: hidden; scroll-margin-top: 18px; }
+#view-registro .ex-head-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(86px, 16vw, 118px);
+  gap: 12px;
+  align-items: center;
+  padding: 15px 16px 12px;
+}
+#view-registro .ex-head-top:has(.no-img) { grid-template-columns: minmax(0, 1fr); }
+#view-registro .ex-head-wrap { display: block; width: 100%; min-width: 0; }
+#view-registro .ex-num {
+  display: inline;
+  width: auto;
+  height: auto;
+  border: 0;
+  color: var(--text-mid);
+  background: none;
+  font: 500 11px/1.3 var(--font-body);
+}
+#view-registro .ex-name-input { width: 100%; min-height: 44px; padding: 4px 0; font: 600 clamp(16px, 3vw, 20px)/1.2 var(--font-body); }
+#view-registro .ex-head-img {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  border: 1px solid var(--border-hover);
+  border-radius: 11px !important;
+  background: #fff;
+  box-shadow: none;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+#view-registro .ex-head-img.no-img { display: none; }
+#view-registro .ex-head-img img { width: 100%; height: 100%; object-fit: contain; }
+#view-registro .ex-head-img::after {
+  content: 'Ver técnica';
+  padding: 5px 3px;
+  background: #eeece6;
+  color: #2e2a21;
+  font: 600 10px/1.2 var(--font-body);
+}
+#view-registro .ex-head-actions { flex-wrap: wrap; align-items: center; gap: 6px; padding: 0 16px 12px; }
+#view-registro .ex-head-actions :is(.ex-video-btn, .ex-rpe-btn, .ex-options-btn, .record-delete-btn) {
+  position: static;
+  display: inline-flex;
+  width: auto;
+  height: auto;
+  min-height: 40px;
+  padding: 0 10px;
+  justify-content: center;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--card);
+  font: 500 11px/1.2 var(--font-body);
+  text-decoration: none;
+  white-space: nowrap;
+}
+#view-registro .ex-head-actions .ex-video-btn[hidden] { display: none; }
+#view-registro .ex-head-actions .record-delete-btn { margin-left: auto; color: var(--text-mid); background: none; border-color: transparent; }
+#view-registro .ex-head-actions .record-delete-btn:hover { color: var(--red, #e77368); }
+#view-registro .exercise-replacements { margin-top: 6px; background: transparent; border: 0; }
+#view-registro .exercise-replacements summary { padding: 6px 0; font-size: 11px; }
+
+#view-registro .register-series-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 16px 0; }
+.register-series-heading h3 { margin: 0; font: 650 15px var(--font-body); }
+.register-intensity-control { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--border); border-radius: 10px; }
+.register-intensity-control button {
+  min-width: 43px;
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-mid);
+  cursor: pointer;
+  font: 600 11px var(--font-body);
+}
+.register-intensity-control button[aria-pressed="true"] { background: var(--gold); color: #21190e; }
+#view-registro .series-hevy-wrap { padding: 4px 12px 12px; }
+#view-registro .serie-hevy-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+  margin: 8px 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--dark-2);
+}
+#view-registro .serie-hevy-row:focus-within, #view-registro .serie-hevy-row.serie-done { border-color: var(--gold-dim); }
+#view-registro .serie-hevy-row.serie-done { background: var(--gold-glow); }
+#view-registro .serie-hevy-num { grid-column: 1 / 3; grid-row: 1; justify-content: flex-start; font: 650 13px var(--font-body); color: var(--text); }
+#view-registro .serie-hevy-prev { grid-column: 3 / 5; grid-row: 1; display: flex; align-items: center; justify-content: flex-end; gap: 4px; flex-wrap: wrap; }
+#view-registro .serie-hevy-prev[hidden] { display: none; }
+#view-registro .serie-hevy-prev::before { content: 'Anterior'; color: var(--text-mid); font: 400 10px var(--font-body); }
+#view-registro .serie-hevy-prev :is(.prev-val, .prev-reps, .prev-sub) { font-size: 10px; margin: 0; }
+#view-registro .register-field { display: grid; gap: 5px; min-width: 0; }
+#view-registro .register-field > span { color: var(--text-mid); font: 500 11px/1.3 var(--font-body); }
+#view-registro .register-weight > span { display: flex; gap: 4px; align-items: center; }
+#view-registro .weight-icon { color: var(--gold); flex-shrink: 0; }
+#view-registro :is(.serie-hevy-input, .serie-hevy-select-rpe) {
+  width: 100%;
+  height: 44px;
+  border: 1px solid var(--border-hover);
+  padding: 0 4px;
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--card);
+  font: 600 16px var(--font-body);
+}
+#view-registro .serie-hevy-check {
+  grid-column: 1 / 3;
+  width: 100%;
+  min-height: 42px;
+  height: auto;
+  padding: 5px 6px;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border-hover);
+  border-radius: 8px;
+  font: 650 12px/1.3 var(--font-body);
+}
+#view-registro .serie-hevy-check[aria-pressed="true"] { color: #21190e; background: var(--gold); border-color: var(--gold); }
+#view-registro .register-set-type, #view-registro .serie-hevy-del-btn {
+  width: auto;
+  min-width: 0;
+  height: auto;
+  min-height: 42px;
+  color: var(--text-mid);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 4px 2px;
+  background: transparent;
+  font: 500 10px/1.3 var(--font-body);
+  cursor: pointer;
+}
+#view-registro .register-set-type:hover, #view-registro .serie-hevy-del-btn:hover, #view-registro .serie-hevy-check:hover { border-color: var(--gold-dim); }
+#view-registro .register-set-type[aria-pressed="true"] { border-color: var(--gold-dim); color: var(--text); background: var(--card); }
+#view-registro .serie-hevy-add { min-height: 44px; }
+#view-registro .register-note { margin: 0 16px 8px; border-top: 1px solid var(--border); }
+#view-registro .register-note summary { padding: 12px 0; color: var(--text-mid); font: 500 12px var(--font-body); cursor: pointer; }
+#view-registro .register-note .note-field { padding: 0 0 8px; }
+#view-registro .done-toggle { min-height: 46px; font-size: 13px; }
+#view-registro .session-review-head p { margin-top: 4px; font-size: 12px; }
+#view-registro :is(button, input, select, a, summary):focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.exercise-muscles { margin: 4px 0 0; }
+.exercise-muscles[hidden] { display: none; }
+.exercise-muscles strong { display: flex; gap: 6px; align-items: center; color: var(--text-mid); font: 600 11px/1.4 var(--font-body); }
+.exercise-muscles strong::before { content: ''; display: block; width: 7px; height: 7px; border-radius: 50%; background: #df593b; flex: 0 0 auto; }
+.exercise-muscles .muscle-support::before { background: var(--text-dim); }
+.exercise-muscles ul { display: flex; flex-wrap: wrap; gap: 4px; list-style: none; margin: 5px 0 8px; padding: 0; }
+.exercise-muscles li { border: 1px solid var(--border); padding: 3px 7px; border-radius: 6px; color: var(--text); font: 500 11px/1.3 var(--font-body); background: var(--dark-2); }
+#focusMuscles { margin: 6px 0 12px; }
+#focusPrevData:empty { display: none; }
+
+#tecnicaList .tecnica-row { display: grid; grid-template-columns: 76px minmax(0, 1fr) 18px; gap: 12px; padding: 8px 0; align-items: center; }
+#tecnicaList .tecnica-row-img { width: 76px; height: 64px; flex-shrink: 0; background: #fff; border-radius: 8px !important; }
+#tecnicaList .tecnica-exercise-copy { display: grid; gap: 4px; min-width: 0; }
+#tecnicaList .tecnica-row-name { white-space: normal; overflow-wrap: anywhere; font-size: 13px; }
+.tecnica-exercise-primary { color: var(--text-mid); font: 400 11px/1.35 var(--font-body); }
+.tecnica-detail-head { display: block; margin-bottom: 10px; }
+.tecnica-detail-img-wrap { background: #fff; }
+.tecnica-detail-name { margin: 12px 0 0; font-size: clamp(22px, 4vw, 30px); }
+.tecnica-detail-sheet .tecnica-detail-video-btn { min-height: 44px; margin-bottom: 14px; background: var(--gold); color: #21190e; border: 1px solid var(--gold); }
+.tecnica-detail-sheet .tecnica-detail-video-btn.hidden { display: none; }
+.tecnica-detail-sheet .tecnica-detail-muscle { margin-bottom: 16px; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); letter-spacing: normal; text-transform: none; }
+.tecnica-detail-sheet .tecnica-detail-muscle ul:last-child { margin-bottom: 0; }
+.tecnica-detail-close { border: 1px solid var(--border-hover); background: var(--dark-2); color: var(--text); min-width: 44px; min-height: 44px; z-index: 1; }
+
+@media (max-width: 600px) {
+  .register-schedule { grid-template-columns: 1fr; gap: 8px; padding: 9px; }
+  #view-registro .register-schedule .quarter-bar { grid-column: 1; grid-row: auto; }
+  #view-registro .register-schedule .nav-selector { grid-row: auto; }
+  #view-registro :is(.ex-head-top, .register-series-heading) { padding-inline: 12px; }
+  #view-registro .ex-head-actions { padding-inline: 12px; }
+  #view-registro .series-hevy-wrap { padding-inline: 8px; }
+  #view-registro .serie-hevy-row { gap: 8px 6px; padding: 9px; }
+  #view-registro :is(.register-weight, .register-target) { grid-column: 1 / 3; }
+  #view-registro :is(.register-reps, .register-actual) { grid-column: 3 / 5; }
+  #view-registro .register-set-type { font-size: 10px; }
+}
+
+.tecnica-detail-modal { z-index: 9050; }
+body:has(.tecnica-detail-modal.open) { overflow: hidden; }
+#tecnicaList .tecnica-row-action { width: 18px; color: var(--text-mid); }
+#view-registro .day-btn .day-n { order: 0; }
+#view-registro .day-btn .day-sub { order: 1; }
+#view-registro .day-active .day-n { color: #21190e; }
+#view-registro .ex-head-actions .record-delete-btn, #view-registro .serie-hevy-del-btn { opacity: 1; }
+#focusTechnique {
+  margin: 0 0 12px;
+  min-height: 44px;
+  padding-inline: 12px;
+  border: 1px solid var(--border-hover);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--card);
+  font: 600 12px var(--font-body);
+  cursor: pointer;
+}
+
+#app > #view-registro { animation-name: registerPanelIn; }
+@keyframes registerPanelIn {
+  from { opacity: .45; transform: translateY(7px); }
+  to { opacity: 1; transform: none; }
+}
+#view-registro .seg-dropdown { background: var(--card); border-color: var(--border-hover); }

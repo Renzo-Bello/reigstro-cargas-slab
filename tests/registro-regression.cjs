@@ -140,3 +140,35 @@ test('IndexedDB writes preserve call order, snapshots, and wait for transaction 
   const retry = c.idbSet('plan',{peso:'95'});
   await new Promise(r=>setImmediate(r)); txs[3].oncomplete(); await retry;
 });
+
+test('each catalog exercise has a unique local photo and at least one primary muscle', () => {
+  const path = require('node:path');
+  const c = vm.createContext({window: {}});
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/exercise-muscles.js'), 'utf8'), c);
+  vm.runInContext(section('  var EXERCISE_DB = [', '  // Casa: ejercicios'), c);
+  const photos = new Set();
+  for (const exercise of c.EXERCISE_DB) {
+    const photo = exercise.imageLocal;
+    const profile = c.window.SLAB_EXERCISE_MUSCLES[exercise.muscleProfile];
+    assert.ok(profile?.[0].length, exercise.nombre);
+    assert.match(photo, /^assets\/exercise-photos\/[a-z0-9-]+\.webp$/);
+    assert.ok(!photos.has(photo), exercise.nombre);
+    assert.ok(fs.existsSync(path.join(__dirname, '..', photo)), photo);
+    photos.add(photo);
+  }
+  assert.equal(photos.size, 78);
+});
+
+test('previous loads come from the nearest earlier day with recorded values', () => {
+  const exercise = (peso) => ({nombre:'Elevación de talones', series:[{peso, reps: ''}]});
+  const c = vm.createContext({STATE:{
+    month: 2, week: 1, day: 2,
+    data: {m1w4d5:[exercise('40')], m2w1d1:[exercise('')], m2w1d2:[exercise('50')], m2w1d3:[exercise('60')]}
+  }});
+  vm.runInContext(section('  function dayKey(', '  function ensureRecords(') +
+    section('  function replacementKey(', '  function getExerciseReplacements(') +
+    section('  function getPrevSeriesData(', '  var KCAL_MET_MAP'), c);
+  assert.equal(c.getPrevSeriesData('Elevacion de talones')[0].peso, '40');
+  c.STATE.data.m2w1d1 = [exercise('45')];
+  assert.equal(c.getPrevSeriesData('Elevación de talones')[0].peso, '45');
+});

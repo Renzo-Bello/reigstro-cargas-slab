@@ -1,12 +1,13 @@
-const CACHE_NAME = 'strengthlab-shell-v15';
+const CACHE_NAME = 'strengthlab-shell-v16';
 const APP_SHELL = [
   './',
   './index.html',
-  './assets/app-enhancements.css?v=20261125-generated-muscles-v1',
+  './assets/app-enhancements.css?v=20261125-registro-fotos',
   './assets/app-enhancements.js?v=20261120-rir-panel',
   './assets/progress.css?v=20261125-progress-tabs',
   './assets/progress.js?v=20261125-achievements',
   './assets/muscle-atlas-data.js?v=20261125-atlas',
+  './assets/exercise-muscles.js',
   './assets/home-content.js',
   './favicon-32.png',
   './app-icon.svg',
