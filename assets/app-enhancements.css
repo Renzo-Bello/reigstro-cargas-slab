@@ -460,3 +460,5 @@ body.light-mode .exercise-action-sheet {background:var(--card);color:var(--text)
   .tecnica-muscle-photo {height:180px}
   .tecnica-group-content {padding:13px}
 }
+
+.exercise-variant-confirm:disabled {opacity:.45;cursor:not-allowed;}
