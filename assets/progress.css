@@ -54,3 +54,20 @@ body.light-mode .weight-form input {color-scheme:light;}
 #view-progreso .week-summary .stat {border-radius:12px;}
 @media(max-width:360px) {.insight-card {padding:18px 14px;}.insight-stat:first-child strong {font-size:29px;}.insight-stat strong {font-size:16px;}.insight-segments button {padding:8px;}.progress-intro h2 {font-size:30px;}}
 @media(prefers-reduced-motion:reduce) {.weight-svg * {transition:none;}}
+
+.workout-achievements {margin:18px 0 24px;padding:20px;border:1px solid var(--border);border-radius:20px;background:linear-gradient(145deg,rgba(201,169,110,.07),transparent 58%),var(--card);box-shadow:0 12px 34px rgba(0,0,0,.07)}
+.achievement-heading {display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px}
+.achievement-heading h3 {margin:7px 0 0;font:600 23px/1.2 var(--font-display);letter-spacing:-.4px}
+.achievement-total {flex:none;padding:7px 10px;border:1px solid var(--border);border-radius:999px;color:var(--text-mid);font:500 10px var(--font-mono)}
+.achievement-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.achievement-card {display:flex;align-items:flex-start;gap:12px;min-width:0;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--dark-2);opacity:.76}
+.achievement-card.is-unlocked {border-color:rgba(201,169,110,.4);opacity:1}
+.achievement-icon {flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:rgba(201,169,110,.1);color:var(--gold);font-size:17px}
+.achievement-copy {flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.achievement-copy strong {font-size:12px;color:var(--text)}
+.achievement-copy small {color:var(--text-dim);font-size:10px;line-height:1.4}
+.achievement-track {height:4px;margin-top:5px;overflow:hidden;border-radius:4px;background:var(--border)}
+.achievement-track span {display:block;height:100%;border-radius:inherit;background:var(--gold);transition:width .35s ease}
+.achievement-status {color:var(--text-mid)!important}
+.achievement-card.is-unlocked .achievement-status {color:var(--gold)!important}
+@media(max-width:520px) {.workout-achievements{padding:16px}.achievement-grid{grid-template-columns:1fr}.achievement-card{padding:12px}}
