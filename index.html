@@ -33,7 +33,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
 <title>Registro de Entrenamientos | SLAB</title>
-<link rel="stylesheet" href="assets/progress.css?v=20261125-progress-categories">
+<link rel="stylesheet" href="assets/progress.css?v=20261125-progress-tabs">
 
 <script src="assets/progress.js?v=20261125-achievements"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -3844,8 +3844,12 @@ body.light-mode #journeyPercent {color:#765823;}
   </main>
   <div id="view-registro" class="panel" style="display:none;">
     <div class="quarter-bar"><label>Trimestre <select data-quarter-select aria-label="Trimestre de entrenamiento" disabled><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label></div>
-    <nav class="progress-section-nav" aria-label="Secciones de progreso">
-      <a href="#progress-section-resumen">Resumen entrenamientos</a><a href="#progress-section-cuerpo">Cuerpo</a><a href="#progress-section-fuerza">Fuerza</a><a href="#progress-section-logros">Logros</a><a href="#progress-section-datos">Datos</a>
+    <nav class="progress-section-nav" role="tablist" aria-label="Secciones de progreso">
+      <button type="button" id="progress-tab-registro" role="tab" aria-selected="true" aria-controls="progress-section-resumen" class="is-active" data-progress-tab="progress-section-resumen">Registro</button>
+      <button type="button" id="progress-tab-cuerpo" role="tab" aria-selected="false" aria-controls="progress-section-cuerpo" data-progress-tab="progress-section-cuerpo" tabindex="-1">Cuerpo</button>
+      <button type="button" id="progress-tab-fuerza" role="tab" aria-selected="false" aria-controls="progress-section-fuerza" data-progress-tab="progress-section-fuerza" tabindex="-1">Fuerza</button>
+      <button type="button" id="progress-tab-logros" role="tab" aria-selected="false" aria-controls="progress-section-logros" data-progress-tab="progress-section-logros" tabindex="-1">Logros</button>
+      <button type="button" id="progress-tab-datos" role="tab" aria-selected="false" aria-controls="progress-section-datos" data-progress-tab="progress-section-datos" tabindex="-1">Datos</button>
     </nav>
     <p class="register-mantra">El físico lo construyes serie a serie.</p>
     <p style="margin:0 18px 12px;color:var(--text-mid);font-size:12px;line-height:1.5;">Tus 12 semanas están siempre disponibles. Elige una semana y un día para registrar o editar, incluso si entrenas en otra fecha.</p>
@@ -3888,7 +3892,7 @@ body.light-mode #journeyPercent {color:#765823;}
     <header class="progress-intro"><div class="progress-eyebrow">STRENGTHLAB / TU EVOLUCIÓN</div><h2>Tu progreso, en orden.</h2><p>Revisa tus sesiones, marcas y tendencias del período seleccionado.</p></header>
     <div class="quarter-bar"><label>Trimestre <select data-quarter-select aria-label="Trimestre de entrenamiento" disabled><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label></div>
 
-    <section id="progress-section-resumen" class="progress-section-group" aria-label="Resumen entrenamientos">
+    <section id="progress-section-resumen" class="progress-section-group" data-progress-panel role="tabpanel" aria-labelledby="progress-tab-registro" tabindex="0" aria-label="Resumen entrenamientos">
     <section class="progress-overview" aria-labelledby="progressOverviewTitle">
       <div class="progress-block-heading"><div><div class="insight-kicker">RESUMEN DEL PERÍODO</div><h3 id="progressOverviewTitle">Resumen entrenamientos</h3></div><span class="progress-block-tag">Mes seleccionado</span></div>
       <div class="month-pills" id="monthPillsProgress"></div>
@@ -3899,7 +3903,7 @@ body.light-mode #journeyPercent {color:#765823;}
     <section class="progress-history" aria-labelledby="progressHistoryTitle"><div class="progress-block-heading"><div><div class="insight-kicker">REGISTRO</div><h3 id="progressHistoryTitle">Detalle semanal</h3><p>Abre una semana para revisar ejercicios, series y esfuerzo.</p></div></div><div class="progress-section" id="progressContent"></div></section>
     </section>
 
-    <section id="progress-section-cuerpo" class="progress-section-group progress-body-section" aria-labelledby="progressBodyTitle"><div class="progress-block-heading"><div><div class="insight-kicker">COMPOSICIÓN CORPORAL</div><h3 id="progressBodyTitle">Cuerpo</h3><p>Registra tu peso y revisa su evolución en el tiempo.</p></div></div>
+    <section id="progress-section-cuerpo" class="progress-section-group progress-body-section" data-progress-panel role="tabpanel" aria-labelledby="progress-tab-cuerpo" tabindex="0" hidden><div class="progress-block-heading"><div><div class="insight-kicker">COMPOSICIÓN CORPORAL</div><h3 id="progressBodyTitle">Cuerpo</h3><p>Registra tu peso y revisa su evolución en el tiempo.</p></div></div>
       <section class="insight-card insight-featured" aria-labelledby="weightTitle">
       <div class="insight-heading"><div><div class="insight-kicker">TENDENCIA DEL PESO</div><h3 id="weightTitle">Evolución de peso corporal</h3></div><span class="insight-index" aria-hidden="true">01</span></div>
       <div class="insight-toolbar"><span style="font-size:11px;color:var(--text-mid)">Historial personal · Todos los trimestres</span><div class="insight-segments" id="weightRange" aria-label="Período del peso"><button type="button" data-range="30" aria-pressed="false">30 días</button><button type="button" class="active" data-range="all" aria-pressed="true">Todo</button></div></div>
@@ -3912,7 +3916,7 @@ body.light-mode #journeyPercent {color:#765823;}
       </section>
     </section>
 
-    <section id="progress-section-fuerza" class="progress-section-group progress-analytics" aria-labelledby="progressAnalyticsTitle"><div class="progress-block-heading"><div><div class="insight-kicker">ANÁLISIS</div><h3 id="progressAnalyticsTitle">Fuerza</h3></div></div>
+    <section id="progress-section-fuerza" class="progress-section-group progress-analytics" data-progress-panel role="tabpanel" aria-labelledby="progress-tab-fuerza" tabindex="0" hidden><div class="progress-block-heading"><div><div class="insight-kicker">ANÁLISIS</div><h3 id="progressAnalyticsTitle">Fuerza</h3></div></div>
     <div id="chartsSection" class="progress-chart-grid">
       <section class="insight-card insight-featured" aria-labelledby="chartCargaTitle">
         <div class="insight-heading"><div><div class="insight-kicker">RENDIMIENTO</div><h3 id="chartCargaTitle">Evolución de carga</h3></div><span class="insight-index" aria-hidden="true">01</span></div>
@@ -3936,8 +3940,8 @@ body.light-mode #journeyPercent {color:#765823;}
     </div>
     </section>
     
-    <section id="progress-section-logros" class="progress-section-group progress-achievements-section" aria-labelledby="progressAchievementsTitle"><div class="progress-block-heading"><div><div class="insight-kicker">CONSTANCIA</div><h3 id="progressAchievementsTitle">Logros</h3><p>Hitos por sesiones completadas y semanas de constancia.</p></div></div><section id="workoutAchievements" class="workout-achievements" aria-live="polite"></section></section>
-    <details id="progress-section-datos" class="progress-tools"><summary><span>Datos</span><small>Reportes, respaldos, datos personales y configuración</small></summary><div class="progress-tools-content">
+    <section id="progress-section-logros" class="progress-section-group progress-achievements-section" data-progress-panel role="tabpanel" aria-labelledby="progress-tab-logros" tabindex="0" hidden><div class="progress-block-heading"><div><div class="insight-kicker">CONSTANCIA</div><h3 id="progressAchievementsTitle">Logros</h3><p>Hitos por sesiones completadas y semanas de constancia.</p></div></div><section id="workoutAchievements" class="workout-achievements" aria-live="polite"></section></section>
+    <details id="progress-section-datos" class="progress-tools" data-progress-panel role="tabpanel" aria-labelledby="progress-tab-datos" tabindex="0" open hidden><summary><span>Datos</span><small>Reportes, respaldos, datos personales y configuración</small></summary><div class="progress-tools-content">
     <div class="backup-section">
       <button id="pdfReportBtn" class="backup-btn" style="background:var(--gold);color:var(--dark);border-color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Descargar reporte completo (PDF)</button>
       <button id="exportBtn" class="backup-btn">Descargar respaldo (.json)</button>
@@ -7108,6 +7112,52 @@ body.light-mode #journeyPercent {color:#765823;}
   /* ══════════════════════════════════════
      RENDER - PROGRESO
   ══════════════════════════════════════ */
+  var _progressSectionTabsBound = false;
+  function bindProgressSectionTabs() {
+    if (_progressSectionTabsBound) return;
+    var nav = document.querySelector('.progress-section-nav');
+    if (!nav) return;
+    var tabs = Array.prototype.slice.call(nav.querySelectorAll('[data-progress-tab]'));
+    function activate(tab, moveFocus) {
+      var targetId = tab.getAttribute('data-progress-tab');
+      tabs.forEach(function(item) {
+        var selected = item === tab;
+        item.classList.toggle('is-active', selected);
+        item.setAttribute('aria-selected', selected ? 'true' : 'false');
+        item.tabIndex = selected ? 0 : -1;
+      });
+      document.querySelectorAll('[data-progress-panel]').forEach(function(panel) {
+        panel.hidden = panel.id !== targetId;
+      });
+      if (moveFocus) tab.focus();
+      if (targetId === 'progress-section-fuerza') {
+        var drawCharts = function() { renderCharts(STATE.progressMonth); };
+        if (window.requestAnimationFrame) window.requestAnimationFrame(drawCharts); else setTimeout(drawCharts, 50);
+      } else if (targetId === 'progress-section-cuerpo' || targetId === 'progress-section-logros') {
+        SLABProgress.render();
+      }
+    }
+    nav.addEventListener('click', function(event) {
+      var tab = event.target.closest('[data-progress-tab]');
+      if (!tab) return;
+      event.preventDefault();
+      activate(tab, false);
+    });
+    nav.addEventListener('keydown', function(event) {
+      var tab = event.target.closest('[data-progress-tab]');
+      if (!tab) return;
+      var index = tabs.indexOf(tab), next = index;
+      if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+      else if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = tabs.length - 1;
+      else return;
+      event.preventDefault();
+      activate(tabs[next], true);
+    });
+    _progressSectionTabsBound = true;
+  }
+
   function renderMonthPillsProgress() {
     var el = document.getElementById('monthPillsProgress'); el.innerHTML = '';
     for (var m = 1; m <= 3; m++) {
@@ -7118,12 +7168,14 @@ body.light-mode #journeyPercent {color:#765823;}
     }
   }
   function renderProgress() {
+    bindProgressSectionTabs();
     SLABProgress.render();
     renderMonthPillsProgress();
     renderStartDateConfig();
     renderClientName();
     var month = STATE.progressMonth;
-    renderCharts(month);
+    var activeProgressTab = document.querySelector('[data-progress-tab][aria-selected="true"]');
+    if (activeProgressTab && activeProgressTab.getAttribute('data-progress-tab') === 'progress-section-fuerza') renderCharts(month);
 
     // ── Resumen por semana (4 tarjetas) ──
     var summaryEl = document.getElementById('weekSummary'); summaryEl.innerHTML = '';
